@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ's Revolution - Christian DJ Community</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="logo">DJ's <span>Revolution</span></h1>
+            <div class="search-bar">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" placeholder="Buscar mixes, DJs, géneros...">
+            </div>
+            <div class="nav-actions">
+                <button class="btn btn-primary"><i class="fa-solid fa-upload"></i> Subir Mix</button>
+                <div class="user-profile">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Perfil DJ">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-menu">
+                <a href="#" class="active"><i class="fa-solid fa-house"></i> Inicio</a>
+                <a href="#"><i class="fa-solid fa-fire"></i> Tendencias</a>
+                <a href="#"><i class="fa-solid fa-compact-disc"></i> Mis Mixes</a>
+                <a href="#"><i class="fa-solid fa-users"></i> DJs Cristianos</a>
+                <a href="#"><i class="fa-solid fa-bookmark"></i> Guardados</a>
+            </div>
+        </aside>
+
+        <!-- Feed Principal -->
+        <section class="feed">
+            <!-- Create Post Box -->
+            <div class="create-post glass-panel">
+                <div class="create-post-header">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Mi Perfil">
+                    <input type="text" placeholder="¿Qué nuevo mix quieres compartir con la comunidad?">
+                </div>
+                <div class="create-post-actions">
+                    <button><i class="fa-solid fa-music" style="color: #4CAF50;"></i> Audio</button>
+                    <button><i class="fa-solid fa-video" style="color: #2196F3;"></i> Video</button>
+                    <button><i class="fa-solid fa-image" style="color: #FFC107;"></i> Portada</button>
+                </div>
+            </div>
+
+            <!-- Post 1 (Video Mix) -->
+            <article class="post glass-panel">
+                <div class="post-header">
+                    <div class="post-author">
+                        <img src="https://i.pravatar.cc/150?img=12" alt="DJ Alpha">
+                        <div>
+                            <h3>DJ Alpha</h3>
+                            <span>Hace 2 horas • <i class="fa-solid fa-globe"></i> Público</span>
+                        </div>
+                    </div>
+                    <button class="post-options"><i class="fa-solid fa-ellipsis"></i></button>
+                </div>
+                <div class="post-content">
+                    <p>¡Bendiciones mi gente! Aquí les dejo mi nuevo set de reggaetón cristiano y worship electrónico. ¡Espero que lo disfruten y sea de bendición! 🔥🎧🙌</p>
+                    <div class="media-container video-container">
+                        <div class="video-placeholder">
+                            <i class="fa-solid fa-play play-icon"></i>
+                            <img src="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Video Cover">
+                        </div>
+                    </div>
+                </div>
+                <div class="post-stats">
+                    <span><i class="fa-solid fa-heart"></i> 1.2k</span>
+                    <span>45 Comentarios • 120 Descargas</span>
+                </div>
+                <div class="post-actions">
+                    <button class="action-btn"><i class="fa-regular fa-heart"></i> Me gusta</button>
+                    <button class="action-btn"><i class="fa-regular fa-comment"></i> Comentar</button>
+                    <button class="action-btn"><i class="fa-solid fa-share"></i> Compartir</button>
+                    <button class="action-btn download-btn"><i class="fa-solid fa-download"></i> Descargar MP4</button>
+                </div>
+            </article>
+
+            <!-- Post 2 (Audio Mix) -->
+            <article class="post glass-panel">
+                <div class="post-header">
+                    <div class="post-author">
+                        <img src="https://i.pravatar.cc/150?img=33" alt="DJ Grace">
+                        <div>
+                            <h3>DJ Grace</h3>
+                            <span>Hace 5 horas • <i class="fa-solid fa-globe"></i> Público</span>
+                        </div>
+                    </div>
+                    <button class="post-options"><i class="fa-solid fa-ellipsis"></i></button>
+                </div>
+                <div class="post-content">
+                    <p>Sesión de adoración profunda. Ambient & Chill Christian Music Vol. 3 🕊️✨</p>
+                    <div class="media-container audio-container">
+                        <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Audio Cover" class="audio-cover">
+                        <div class="audio-player">
+                            <button class="play-btn"><i class="fa-solid fa-play"></i></button>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 30%;"></div>
+                            </div>
+                            <span class="time">15:30 / 45:00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="post-stats">
+                    <span><i class="fa-solid fa-heart"></i> 856</span>
+                    <span>23 Comentarios • 340 Descargas</span>
+                </div>
+                <div class="post-actions">
+                    <button class="action-btn"><i class="fa-regular fa-heart"></i> Me gusta</button>
+                    <button class="action-btn"><i class="fa-regular fa-comment"></i> Comentar</button>
+                    <button class="action-btn"><i class="fa-solid fa-share"></i> Compartir</button>
+                    <button class="action-btn download-btn"><i class="fa-solid fa-download"></i> Descargar MP3</button>
+                </div>
+            </article>
+        </section>
+
+        <!-- Right Sidebar (Widgets) -->
+        <aside class="right-sidebar">
+            <div class="widget glass-panel">
+                <h3>Top Descargas (Semana)</h3>
+                <ul class="top-mixes">
+                    <li>
+                        <img src="https://i.pravatar.cc/150?img=12" alt="Cover">
+                        <div class="mix-info">
+                            <h4>Holy Spirit Fire Mix</h4>
+                            <span>DJ Alpha</span>
+                        </div>
+                    </li>
+                    <li>
+                        <img src="https://i.pravatar.cc/150?img=33" alt="Cover">
+                        <div class="mix-info">
+                            <h4>Ambient Worship Vol 3</h4>
+                            <span>DJ Grace</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
