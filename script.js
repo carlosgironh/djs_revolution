@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="user-status-badge dj-status" style="background: rgba(139, 92, 246, 0.1); color: var(--accent-primary); padding: 6px 12px; border-radius: 100px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                         <i class="fa-solid fa-compact-disc fa-spin"></i> DJ Israel
                     </span>
-                    <button class="btn btn-primary" onclick="toggleModal('upload-modal', true)"><i class="fa-solid fa-upload"></i> Compartir Mix</button>
+                    <button class="btn btn-primary" onclick="toggleModal('upload-modal', true)"><i class="fa-solid fa-upload"></i> <span class="nav-btn-text">Compartir Mix</span></button>
                     <div class="user-profile" onclick="openCurrentUserProfile()">
                         <img src="https://i.pravatar.cc/150?img=11" alt="Perfil DJ Israel">
                     </div>
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="user-status-badge guest-status" style="background: rgba(14, 165, 233, 0.1); color: var(--accent-secondary); padding: 6px 12px; border-radius: 100px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                         <i class="fa-solid fa-eye"></i> Oyente (Público)
                     </span>
-                    <button class="btn btn-secondary" onclick="simulateLogin()" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--surface-border); border-radius: 12px; font-weight:600; padding: 8px 16px; font-size: 0.85rem;"><i class="fa-solid fa-sign-in-alt"></i> Iniciar Sesión</button>
+                    <button class="btn btn-secondary" onclick="simulateLogin()" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--surface-border); border-radius: 12px; font-weight:600; padding: 8px 16px; font-size: 0.85rem;"><i class="fa-solid fa-sign-in-alt"></i> <span class="nav-btn-text">Iniciar Sesión</span></button>
                 `;
             }
 
