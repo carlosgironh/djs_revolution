@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DJ's Revolution | La Comunidad Global de DJs Cristianos</title>
-    <meta name="description" content="Únete a DJ's Revolution, la plataforma líder para DJs cristianos. Descubre, escucha y descarga los mejores mixes de audio y video, y comparte tu talento con el mundo.">
-    <meta name="keywords" content="DJ cristiano, mixes cristianos, música electrónica cristiana, worship remix, descargar mixes, comunidad DJ">
+    <title>DJ's Revolution | La Comunidad Global de DJs Cristianos 🕊️</title>
+    <meta name="description" content="Únete a DJ's Revolution, la plataforma líder para DJs y VJs cristianos. Descubre, escucha y descarga los mejores mixes de audio y video, y comparte tu talento con el mundo para edificación de la Iglesia.">
+    <meta name="keywords" content="DJ cristiano, mixes cristianos, música electrónica cristiana, worship remix, descargar mixes, comunidad DJ, VJ loops, bucles cristianos">
     <meta name="author" content="DJ's Revolution">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://djs-revolution.vercel.app/">
-    <meta property="og:title" content="DJ's Revolution | Comunidad de DJs Cristianos">
-    <meta property="og:description" content="Descubre y descarga los mejores mixes de audio y video de DJs cristianos alrededor del mundo.">
+    <meta property="og:title" content="DJ's Revolution | Comunidad de DJs & VJs Cristianos">
+    <meta property="og:description" content="Descubre y descarga los mejores mixes de audio y video de DJs y VJs cristianos alrededor del mundo.">
     <meta property="og:image" content="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://djs-revolution.vercel.app/">
-    <meta property="twitter:title" content="DJ's Revolution | Comunidad de DJs Cristianos">
-    <meta property="twitter:description" content="Descubre y descarga los mejores mixes de audio y video de DJs cristianos alrededor del mundo.">
+    <meta property="twitter:title" content="DJ's Revolution | Comunidad de DJs & VJs Cristianos">
+    <meta property="twitter:description" content="Descubre y descarga los mejores mixes de audio y video de DJs y VJs cristianos alrededor del mundo.">
     <meta property="twitter:image" content="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80">
 
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -28,143 +28,326 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
-            <h1 class="logo">DJ's <span>Revolution</span></h1>
+            <h1 class="logo" onclick="setTab('inicio')">DJ's <span>Revolution</span> <i class="fa-solid fa-dove" style="color: var(--accent-secondary); margin-left: 5px;"></i></h1>
+            
+            <div class="nav-shortcuts">
+                <a href="#" class="nav-shortcut active" data-tab="inicio" title="Inicio"><i class="fa-solid fa-house"></i></a>
+                <a href="#" class="nav-shortcut" data-tab="audios" title="Mixes de Audio"><i class="fa-solid fa-music"></i></a>
+                <a href="#" class="nav-shortcut" data-tab="videos" title="Sets de Video"><i class="fa-solid fa-video"></i></a>
+                <a href="#" class="nav-shortcut" data-tab="djs" title="Directorio de DJs/VJs"><i class="fa-solid fa-users"></i></a>
+                <a href="#" class="nav-shortcut" data-tab="recursos" title="Bucles y Visuales"><i class="fa-solid fa-folder-open"></i></a>
+            </div>
+
             <div class="search-bar">
                 <i class="fa-solid fa-search"></i>
-                <input type="text" placeholder="Buscar mixes, DJs, géneros...">
+                <input type="text" id="global-search" placeholder="Buscar mixes, djs, etiquetas cristianas...">
             </div>
-            <div class="nav-actions">
-                <button class="btn btn-primary"><i class="fa-solid fa-upload"></i> Subir Mix</button>
-                <div class="user-profile">
-                    <img src="https://i.pravatar.cc/150?img=11" alt="Perfil DJ">
-                </div>
-            </div>
+
+            <div id="navbar-actions-container" class="nav-actions"></div>
         </div>
     </nav>
 
+    <!-- Main Container -->
     <main class="container">
-        <!-- Sidebar -->
+        <!-- Sidebar Izquierda -->
         <aside class="sidebar">
+            <!-- Dynamic User/Guest Card -->
+            <div id="sidebar-user-card" class="user-card glass-panel"></div>
+
             <div class="sidebar-menu">
-                <a href="#" class="active"><i class="fa-solid fa-house"></i> Inicio</a>
-                <a href="#"><i class="fa-solid fa-fire"></i> Tendencias</a>
-                <a href="#"><i class="fa-solid fa-compact-disc"></i> Mis Mixes</a>
-                <a href="#"><i class="fa-solid fa-users"></i> DJs Cristianos</a>
-                <a href="#"><i class="fa-solid fa-bookmark"></i> Guardados</a>
+                <a href="#" class="active" data-tab="inicio"><i class="fa-solid fa-house"></i> Inicio / Muro</a>
+                <a href="#" data-tab="audios"><i class="fa-solid fa-music"></i> Mixes de Audio</a>
+                <a href="#" data-tab="videos"><i class="fa-solid fa-video"></i> Sets de Video (VJ)</a>
+                <a href="#" data-tab="djs"><i class="fa-solid fa-users"></i> DJs & VJs Cristianos</a>
+                <a href="#" data-tab="recursos"><i class="fa-solid fa-folder-open"></i> Recursos & Loops</a>
+                <a href="#" data-tab="guardados"><i class="fa-solid fa-bookmark"></i> Mis Favoritos</a>
+            </div>
+            
+            <div class="ministry-box glass-panel">
+                <h4>Versículo del Día</h4>
+                <p class="verse-text">"Alabadle con pandero y danza; alabadle con cuerdas y flautas. Alabadle con címbalos resonantes..."</p>
+                <span class="verse-ref">Salmo 150:4-5</span>
             </div>
         </aside>
 
         <!-- Feed Principal -->
         <section class="feed">
-            <!-- Create Post Box -->
-            <div class="create-post glass-panel">
-                <div class="create-post-header">
-                    <img src="https://i.pravatar.cc/150?img=11" alt="Mi Perfil">
-                    <input type="text" placeholder="¿Qué nuevo mix quieres compartir con la comunidad?">
-                </div>
-                <div class="create-post-actions">
-                    <button><i class="fa-solid fa-music" style="color: #4CAF50;"></i> Audio</button>
-                    <button><i class="fa-solid fa-video" style="color: #2196F3;"></i> Video</button>
-                    <button><i class="fa-solid fa-image" style="color: #FFC107;"></i> Portada</button>
+            <!-- Dynamic Create Post Box or Guest Invitation Banner -->
+            <div id="create-post-container"></div>
+
+            <!-- Dynamic Feed Section Header -->
+            <div class="feed-header-section" id="feed-filter-title" style="display: none;">
+                <h2 style="font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                    <span id="filter-title-text">Mixes de Audio</span>
+                    <button class="btn-clear-filter" onclick="setTab('inicio')" title="Quitar filtro">&times; Limpiar filtro</button>
+                </h2>
+            </div>
+            
+            <!-- Target for JavaScript injection -->
+            <div id="feed-posts" class="posts-container">
+                <!-- Javascript will inject posts here -->
+                <div class="loading-placeholder">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Cargando muro espiritual...
                 </div>
             </div>
-
-            <!-- Post 1 (Video Mix) -->
-            <article class="post glass-panel">
-                <div class="post-header">
-                    <div class="post-author">
-                        <img src="https://i.pravatar.cc/150?img=12" alt="DJ Alpha">
-                        <div>
-                            <h3>DJ Alpha</h3>
-                            <span>Hace 2 horas • <i class="fa-solid fa-globe"></i> Público</span>
-                        </div>
-                    </div>
-                    <button class="post-options"><i class="fa-solid fa-ellipsis"></i></button>
-                </div>
-                <div class="post-content">
-                    <p>¡Bendiciones mi gente! Aquí les dejo mi nuevo set de reggaetón cristiano y worship electrónico. ¡Espero que lo disfruten y sea de bendición! 🔥🎧🙌</p>
-                    <div class="media-container video-container">
-                        <div class="video-placeholder">
-                            <i class="fa-solid fa-play play-icon"></i>
-                            <img src="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Video Cover">
-                        </div>
-                    </div>
-                </div>
-                <div class="post-stats">
-                    <span><i class="fa-solid fa-heart"></i> 1.2k</span>
-                    <span>45 Comentarios • 120 Descargas</span>
-                </div>
-                <div class="post-actions">
-                    <button class="action-btn"><i class="fa-regular fa-heart"></i> Me gusta</button>
-                    <button class="action-btn"><i class="fa-regular fa-comment"></i> Comentar</button>
-                    <button class="action-btn"><i class="fa-solid fa-share"></i> Compartir</button>
-                    <button class="action-btn download-btn"><i class="fa-solid fa-download"></i> Descargar MP4</button>
-                </div>
-            </article>
-
-            <!-- Post 2 (Audio Mix) -->
-            <article class="post glass-panel">
-                <div class="post-header">
-                    <div class="post-author">
-                        <img src="https://i.pravatar.cc/150?img=33" alt="DJ Grace">
-                        <div>
-                            <h3>DJ Grace</h3>
-                            <span>Hace 5 horas • <i class="fa-solid fa-globe"></i> Público</span>
-                        </div>
-                    </div>
-                    <button class="post-options"><i class="fa-solid fa-ellipsis"></i></button>
-                </div>
-                <div class="post-content">
-                    <p>Sesión de adoración profunda. Ambient & Chill Christian Music Vol. 3 🕊️✨</p>
-                    <div class="media-container audio-container">
-                        <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Audio Cover" class="audio-cover">
-                        <div class="audio-player">
-                            <button class="play-btn"><i class="fa-solid fa-play"></i></button>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 30%;"></div>
-                            </div>
-                            <span class="time">15:30 / 45:00</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="post-stats">
-                    <span><i class="fa-solid fa-heart"></i> 856</span>
-                    <span>23 Comentarios • 340 Descargas</span>
-                </div>
-                <div class="post-actions">
-                    <button class="action-btn"><i class="fa-regular fa-heart"></i> Me gusta</button>
-                    <button class="action-btn"><i class="fa-regular fa-comment"></i> Comentar</button>
-                    <button class="action-btn"><i class="fa-solid fa-share"></i> Compartir</button>
-                    <button class="action-btn download-btn"><i class="fa-solid fa-download"></i> Descargar MP3</button>
-                </div>
-            </article>
         </section>
 
-        <!-- Right Sidebar (Widgets) -->
+        <!-- Sidebar Derecha (Widgets) -->
         <aside class="right-sidebar">
+            <!-- Widget Transmisiones en Vivo -->
             <div class="widget glass-panel">
-                <h3>Top Descargas (Semana)</h3>
-                <ul class="top-mixes">
-                    <li>
-                        <img src="https://i.pravatar.cc/150?img=12" alt="Cover">
+                <h3>Transmitiendo en Vivo 🔴</h3>
+                <ul class="live-list">
+                    <li class="live-item" onclick="startMockLive('DJ Grace', 'Ambient Worship Electrónico', 'https://i.pravatar.cc/150?img=33')">
+                        <span class="live-pulse"></span>
+                        <img src="https://i.pravatar.cc/150?img=33" alt="DJ Grace">
                         <div class="mix-info">
-                            <h4>Holy Spirit Fire Mix</h4>
-                            <span>DJ Alpha</span>
+                            <h4>DJ Grace en Vivo</h4>
+                            <span>Adoración profunda • 1.2k oyentes</span>
                         </div>
                     </li>
-                    <li>
-                        <img src="https://i.pravatar.cc/150?img=33" alt="Cover">
+                    <li class="live-item" onclick="startMockLive('VJ Zion', 'Bucles de Alabanza Visuales', 'https://i.pravatar.cc/150?img=60')">
+                        <span class="live-pulse"></span>
+                        <img src="https://i.pravatar.cc/150?img=60" alt="VJ Zion">
                         <div class="mix-info">
-                            <h4>Ambient Worship Vol 3</h4>
-                            <span>DJ Grace</span>
+                            <h4>VJ Zion en Pantalla</h4>
+                            <span>Fondos para iglesias • 540 viendo</span>
                         </div>
                     </li>
                 </ul>
             </div>
+
+            <!-- Widget Top Descargas -->
+            <div class="widget glass-panel">
+                <h3>Más Descargados 📥</h3>
+                <ul class="top-mixes" id="top-downloaded-list">
+                    <!-- Hydrated by JS -->
+                </ul>
+            </div>
+
+            <!-- Widget Loops y Recursos -->
+            <div class="widget glass-panel">
+                <h3>Recursos para Proyectores 🖥️</h3>
+                <div class="resource-ad">
+                    <div class="resource-preview" style="background-image: url('https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80');">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
+                    <div class="resource-ad-info">
+                        <h4>VJ Loops Pack Vol. 1</h4>
+                        <p>5 bucles abstractos oscuros ideales para adoración congregacional.</p>
+                        <button class="btn btn-primary btn-small-download" onclick="triggerDirectDownload('VJ Loops Pack Vol. 1', 'https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-41880-large.mp4')">
+                            <i class="fa-solid fa-download"></i> Descargar Pack
+                        </button>
+                    </div>
+                </div>
+            </div>
         </aside>
     </main>
+
+    <!-- Global Persistent Audio Player -->
+    <div id="persistent-player" class="persistent-player-hidden glass-panel">
+        <div class="player-container">
+            <div class="player-track-info">
+                <img id="player-cover" src="" alt="Portada mix">
+                <div class="track-details">
+                    <h4 id="player-title">Ningún tema en reproducción</h4>
+                    <span id="player-artist">Selecciona un set del muro</span>
+                </div>
+            </div>
+            
+            <div class="player-controls-container">
+                <div class="player-buttons">
+                    <button id="player-prev-btn" title="Anterior"><i class="fa-solid fa-backward-step"></i></button>
+                    <button id="player-play-btn" title="Reproducir"><i class="fa-solid fa-play"></i></button>
+                    <button id="player-next-btn" title="Siguiente"><i class="fa-solid fa-forward-step"></i></button>
+                </div>
+                <div class="player-progress-area">
+                    <span id="player-current-time">00:00</span>
+                    <div id="player-progress-bar" class="player-progress-bar-slider">
+                        <div id="player-progress" class="player-progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <span id="player-duration">00:00</span>
+                </div>
+            </div>
+            
+            <div class="player-extra-controls">
+                <button id="player-mute-btn" title="Silenciar"><i class="fa-solid fa-volume-high"></i></button>
+                <input id="player-volume-slider" class="volume-slider" type="range" min="0" max="1" step="0.05" value="0.8">
+                <button id="player-download-btn" class="btn-download-small" title="Descargar MP3"><i class="fa-solid fa-download"></i></button>
+                <button id="player-close-btn" title="Cerrar reproductor"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+        <!-- Hidden HTML5 Audio Element -->
+        <audio id="global-audio-element" src=""></audio>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2>Compartir en la Comunidad 🕊️</h2>
+                <button class="close-modal-btn" onclick="toggleModal('upload-modal', false)">&times;</button>
+            </div>
+            <form id="upload-mix-form" class="modal-form">
+                <div class="form-group">
+                    <label for="mix-title">Título del Mix / Recurso</label>
+                    <input type="text" id="mix-title" required placeholder="Ej. Holy Spirit Worship Electronic Mix 2026">
+                </div>
+                <div class="form-group">
+                    <label for="mix-description">Descripción / Listado de Temas / Versículos</label>
+                    <textarea id="mix-description" rows="3" required placeholder="Comparte una bendición, cita un versículo o detalla el listado de temas..."></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="mix-type">Tipo de Contenido</label>
+                        <select id="mix-type" required onchange="handleFormTypeChange()">
+                            <option value="audio">Mix de Audio (MP3)</option>
+                            <option value="video">Set de Video / VJ Mix (MP4)</option>
+                            <option value="recurso">Bucle de Video / VJ Loop (Recurso)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="mix-genre">Género Principal</label>
+                        <select id="mix-genre" required>
+                            <option value="Worship Electrónico">Worship Electrónico</option>
+                            <option value="Electro-Gospel">Electro-Gospel</option>
+                            <option value="Reggaetón Celestial">Reggaetón Celestial</option>
+                            <option value="Deep Ambient Worship">Deep Ambient Worship</option>
+                            <option value="Loops de Alabanza">Bucles / Visuales de Alabanza</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Archivo Multimedia de Demostración</label>
+                    <select id="mix-media-file" class="form-control" required>
+                        <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" data-type="audio">Pista de Audio 1 - Adoración Electrónica</option>
+                        <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" data-type="audio">Pista de Audio 2 - Electro Gospel Beat</option>
+                        <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" data-type="audio">Pista de Audio 3 - Celestial Synth Deep Mix</option>
+                        <option value="https://assets.mixkit.co/videos/preview/mixkit-worship-hands-raised-in-church-41764-large.mp4" data-type="video" style="display:none;">Video de Muestra - Adoración en la Iglesia (MP4)</option>
+                        <option value="https://assets.mixkit.co/videos/preview/mixkit-dj-playing-music-at-a-club-34289-large.mp4" data-type="video" style="display:none;">Video de Muestra - DJ Cristiano Pro (MP4)</option>
+                        <option value="https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-41880-large.mp4" data-type="recurso" style="display:none;">VJ Loop Muestra - Luces Láser Abstractas (MP4)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Seleccionar Imagen de Portada</label>
+                    <div class="cover-selector-grid">
+                        <label class="cover-option-label">
+                            <input type="radio" name="mix-cover" value="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" checked>
+                            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Cover 1">
+                        </label>
+                        <label class="cover-option-label">
+                            <input type="radio" name="mix-cover" value="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80">
+                            <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Cover 2">
+                        </label>
+                        <label class="cover-option-label">
+                            <input type="radio" name="mix-cover" value="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80">
+                            <img src="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Cover 3">
+                        </label>
+                        <label class="cover-option-label">
+                            <input type="radio" name="mix-cover" value="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80">
+                            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Cover 4">
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Publicar en el Muro 🕊️</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Video Watch Lightbox Modal -->
+    <div id="video-lightbox" class="modal-overlay video-lightbox-overlay">
+        <div class="video-lightbox-container glass-panel">
+            <button class="close-lightbox-btn" onclick="closeVideoLightbox()">&times;</button>
+            <div class="video-lightbox-player-section">
+                <video id="lightbox-video-element" controls src=""></video>
+            </div>
+            <div class="video-lightbox-info-section">
+                <div class="lightbox-info-header">
+                    <div class="post-author">
+                        <img id="lightbox-author-img" src="" alt="Avatar VJ">
+                        <div>
+                            <h3 id="lightbox-author-name">DJ Alpha</h3>
+                            <span id="lightbox-post-time">Hace 2 horas</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="lightbox-content-area">
+                    <h2 id="lightbox-video-title">Worship Reggaeton Mix</h2>
+                    <p id="lightbox-video-desc">Detalles del video...</p>
+                    <div id="lightbox-video-tags" class="post-tags"></div>
+                    
+                    <div class="lightbox-stats">
+                        <span id="lightbox-likes-stat"><i class="fa-solid fa-heart"></i> 0</span>
+                        <span id="lightbox-comments-stat">0 Comentarios</span>
+                    </div>
+                </div>
+                <div class="lightbox-comments-area">
+                    <h4>Mensajes y Comentarios</h4>
+                    <div id="lightbox-comments-list" class="comments-list">
+                        <!-- Hydrated by JS -->
+                    </div>
+                </div>
+                <div class="lightbox-comment-input-area">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Mi Perfil">
+                    <input type="text" id="lightbox-comment-field" placeholder="Comparte tu bendición o comentario...">
+                    <button id="lightbox-comment-submit-btn" class="btn-send-comment"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DJ Profile View Modal -->
+    <div id="profile-modal" class="modal-overlay">
+        <div class="profile-modal-content glass-panel">
+            <button class="close-profile-modal-btn" onclick="toggleModal('profile-modal', false)">&times;</button>
+            
+            <div class="profile-header-section" id="profile-banner-element">
+                <div class="profile-banner-overlay"></div>
+                <div class="profile-main-info">
+                    <img id="profile-picture" src="" alt="Avatar DJ">
+                    <div class="profile-text">
+                        <h2 id="profile-name">DJ Alpha</h2>
+                        <span id="profile-role">DJ de Worship / Productor</span>
+                        <p id="profile-bio">Dedicado a glorificar el nombre de Dios por medio de sets electrónicos y remixes de adoración.</p>
+                        <div class="profile-socials">
+                            <a href="#" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                            <a href="#" title="SoundCloud"><i class="fa-brands fa-soundcloud"></i></a>
+                            <a href="#" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-statistics">
+                <div class="stat-box">
+                    <span class="stat-num" id="profile-stat-mixes">0</span>
+                    <span class="stat-label">Mixes Subidos</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-num" id="profile-stat-followers">12.5k</span>
+                    <span class="stat-label">Seguidores</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-num" id="profile-stat-likes">8.4k</span>
+                    <span class="stat-label">Reacciones Amén</span>
+                </div>
+            </div>
+            
+            <div class="profile-feed-container">
+                <h3>Publicaciones de <span id="profile-feed-name">este DJ/VJ</span></h3>
+                <div id="profile-posts-feed" class="feed">
+                    <!-- Specific DJ posts dynamic target -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

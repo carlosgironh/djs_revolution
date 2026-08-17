@@ -1,0 +1,5 @@
+{
+  "name": "ruflo-integration",
+  "version": "1.0.0",
+  "description": "Integración de la orquestación de Ruflo para los agentes de Antigravity"
+}
