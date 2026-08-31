@@ -2184,7 +2184,7 @@ h1, h2, h3, h4 {
     gap: 8px;
     width: 100%;
     max-width: 480px;
-    margin-bottom: 25px;
+    margin-bottom: 16px;
 }
 
 .early-access-input {
@@ -2208,6 +2208,50 @@ h1, h2, h3, h4 {
 
 .early-access-input::placeholder {
     color: rgba(161, 161, 170, 0.6);
+}
+
+/* Botón Mostrar Adelanto de la Web */
+.launchpad-preview-cta {
+    margin-bottom: 25px;
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-show-preview {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(139, 92, 246, 0.25));
+    border: 1.5px solid rgba(14, 165, 233, 0.6);
+    color: #ffffff;
+    padding: 14px 24px;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.25);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-show-preview:hover {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(139, 92, 246, 0.45));
+    border-color: #38bdf8;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 0 30px rgba(14, 165, 233, 0.5);
+}
+
+.preview-subtext {
+    font-size: 0.8rem;
+    color: rgba(161, 161, 170, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 /* Redes Sociales del Lanzamiento */

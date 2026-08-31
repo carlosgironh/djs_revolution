@@ -38,7 +38,7 @@
                 DJ's <span>Revolution</span> <i class="fa-solid fa-dove" style="color: var(--accent-secondary); margin-left: 5px;"></i>
             </div>
             <button class="btn-preview-mode" onclick="dismissComingSoon()" title="Explorar la plataforma">
-                <i class="fa-solid fa-eye"></i> Explorar Demo / Previsualizar
+                <i class="fa-solid fa-play"></i> Mostrar Adelanto
             </button>
         </header>
 
@@ -102,6 +102,16 @@
                 </button>
             </form>
 
+            <!-- Botón Destacado: Mostrar Adelanto -->
+            <div class="launchpad-preview-cta">
+                <button type="button" class="btn-show-preview" onclick="dismissComingSoon()">
+                    <i class="fa-solid fa-play"></i> Mostrar Adelanto de la Web
+                </button>
+                <span class="preview-subtext">
+                    <i class="fa-solid fa-circle-info"></i> Explora la plataforma interactiva y escucha los mixes
+                </span>
+            </div>
+
             <!-- Medidor de Calibración / Master Output -->
             <div class="soundcheck-meter-box">
                 <div class="soundcheck-meter-header">
@@ -133,7 +143,7 @@
     <!-- Floating Pill to re-open Coming Soon Screen anytime while exploring -->
     <div id="floating-coming-soon-pill" class="floating-coming-soon-pill" onclick="showComingSoon()" style="display: none;">
         <span class="pulse-indicator"></span>
-        <span>Modo Desarrollo Activo</span>
+        <span>👀 Estás en el Adelanto • <strong>Volver al Lanzamiento</strong></span>
     </div>
 
     <!-- Navbar -->
