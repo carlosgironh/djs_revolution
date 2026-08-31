@@ -244,12 +244,12 @@ document.addEventListener('DOMContentLoaded', () => {
         feedContainer.innerHTML = '';
 
         if (feedPosts.length === 0) {
-            feedContainer.innerHTML = `
-                <div class="glass-panel" style="text-align: center; padding: 40px; color: var(--text-secondary);">
-                    <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 12px;"></i>
-                    <p>No se encontraron publicaciones en esta sección.</p>
-                </div>
-            `;
+            feedContainer.innerHTML = getComingSoonHTML({
+                title: "En Cabina Ajustando Frecuencias",
+                tagline: `Sección ${currentTab.toUpperCase()} en Preparación`,
+                desc: "Nuestros DJs y productores están subiendo nuevos tracks y calibrando los últimos detalles para esta sección. ¡Muy pronto disponible!",
+                progress: 88
+            });
             return;
         }
 
@@ -1155,6 +1155,76 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+    };
+
+    // --- COMPONENTE EN DESARROLLO / SOUNDCHECK COMING SOON ---
+    window.getComingSoonHTML = function({
+        title = "En Cabina Ajustando Frecuencias",
+        tagline = "Soundcheck en Curso • Muy Pronto al Aire",
+        desc = "Estamos calibrando los faders, afinando las frecuencias y preparando una experiencia de alto calibre para la comunidad. ¡El lanzamiento oficial está a punto de sonar!",
+        progress = 85,
+        verse = '"Todo tiene su tiempo, y todo lo que se quiere debajo del cielo tiene su hora..." — Eclesiastés 3:1'
+    } = {}) {
+        return `
+            <div class="soundcheck-card glass-panel">
+                <div class="soundcheck-content">
+                    <div class="soundcheck-badge">
+                        <span class="live-dot"></span> Soundcheck en Curso • Beta V1.0
+                    </div>
+                    
+                    <div class="soundcheck-visual">
+                        <div class="soundcheck-vinyl"></div>
+                        <i class="fa-solid fa-headphones-simple soundcheck-center-icon"></i>
+                    </div>
+
+                    <div class="soundcheck-equalizer">
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                    </div>
+
+                    <h2 class="soundcheck-title">${title}</h2>
+                    <div class="soundcheck-tagline">
+                        <i class="fa-solid fa-sliders"></i> ${tagline}
+                    </div>
+                    <p class="soundcheck-desc">${desc}</p>
+
+                    <div class="soundcheck-meter-box">
+                        <div class="soundcheck-meter-header">
+                            <span><i class="fa-solid fa-gauge-high"></i> Calibración Master</span>
+                            <span>${progress}% LISTO</span>
+                        </div>
+                        <div class="soundcheck-progress-track">
+                            <div class="soundcheck-progress-fill" style="width: ${progress}%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="soundcheck-actions">
+                        <button class="btn-notify" onclick="handleComingSoonNotify(this)">
+                            <i class="fa-solid fa-bell"></i> Notificarme al Lanzamiento
+                        </button>
+                        <button class="btn-back-home" onclick="setTab('inicio')">
+                            <i class="fa-solid fa-house"></i> Volver al Inicio
+                        </button>
+                    </div>
+
+                    <p class="soundcheck-verse">${verse}</p>
+                </div>
+            </div>
+        `;
+    };
+
+    window.handleComingSoonNotify = function(btn) {
+        if (!btn) return;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Suscrito al Soundcheck! 🕊️';
+        btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        btn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.4)';
+        btn.disabled = true;
+        alert("¡Excelente! Te notificaremos de inmediato en cuanto este módulo y sus nuevos mixes estén al aire.");
     };
 
     // --- INICIALIZACIÓN ---
