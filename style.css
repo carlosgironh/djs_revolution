@@ -2046,3 +2046,256 @@ h1, h2, h3, h4 {
     font-style: italic;
 }
 
+/* ==========================================================================
+   FULLSCREEN COMING SOON LAUNCHPAD (PANTALLA DE BIENVENIDA / EN CONSTRUCCIÓN)
+   ========================================================================== */
+.coming-soon-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at 50% 10%, rgba(139, 92, 246, 0.18), transparent 50%),
+                radial-gradient(circle at 80% 90%, rgba(14, 165, 233, 0.15), transparent 45%),
+                radial-gradient(circle at 10% 80%, rgba(236, 72, 153, 0.12), transparent 40%),
+                #060608;
+    z-index: 999999;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 20px;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.coming-soon-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.launchpad-header {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.launchpad-logo {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.launchpad-logo span {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.btn-preview-mode {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e4e4e7;
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.btn-preview-mode:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--accent-secondary);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+}
+
+.launchpad-card {
+    max-width: 760px;
+    width: 100%;
+    margin: auto 0;
+    padding: 45px 35px;
+    border-radius: 28px;
+    background: rgba(18, 18, 24, 0.7);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+/* Cuenta Regresiva */
+.countdown-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    width: 100%;
+    max-width: 440px;
+    margin: 20px 0 25px 0;
+}
+
+.countdown-box {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 12px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.countdown-number {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(180deg, #ffffff, #c4b5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    margin-bottom: 4px;
+    font-variant-numeric: tabular-nums;
+}
+
+.countdown-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Formulario de Acceso Anticipado */
+.early-access-form {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 25px;
+}
+
+.early-access-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 14px 18px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.early-access-input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+    background: rgba(10, 10, 15, 0.8);
+}
+
+.early-access-input::placeholder {
+    color: rgba(161, 161, 170, 0.6);
+}
+
+/* Redes Sociales del Lanzamiento */
+.launchpad-socials {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.launchpad-social-link {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.launchpad-social-link:hover {
+    background: var(--accent-gradient);
+    border-color: transparent;
+    color: #ffffff;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(139, 92, 246, 0.4);
+}
+
+/* Barra flotante de retorno al modo Coming Soon cuando se está explorando la web */
+.floating-coming-soon-pill {
+    position: fixed;
+    bottom: 95px;
+    right: 25px;
+    z-index: 9999;
+    background: rgba(15, 15, 20, 0.9);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(139, 92, 246, 0.25);
+    backdrop-filter: blur(15px);
+    border-radius: 100px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.floating-coming-soon-pill:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-secondary);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(14, 165, 233, 0.4);
+}
+
+.floating-coming-soon-pill .pulse-indicator {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
+    animation: pulse-dot 1.5s infinite;
+}
+
+@media (max-width: 650px) {
+    .launchpad-card {
+        padding: 30px 20px;
+    }
+    .soundcheck-title {
+        font-size: 1.5rem;
+    }
+    .early-access-form {
+        flex-direction: column;
+    }
+    .early-access-input, .early-access-form .btn-notify {
+        width: 100%;
+        justify-content: center;
+    }
+    .countdown-grid {
+        gap: 8px;
+    }
+    .countdown-number {
+        font-size: 1.4rem;
+    }
+}
+
+

@@ -1227,8 +1227,82 @@ document.addEventListener('DOMContentLoaded', () => {
         alert("¡Excelente! Te notificaremos de inmediato en cuanto este módulo y sus nuevos mixes estén al aire.");
     };
 
+    // --- PANTALLA COMPLETA DE BIENVENIDA / COMING SOON LAUNCHPAD ---
+    window.dismissComingSoon = function() {
+        const overlay = document.getElementById('coming-soon-launchpad');
+        const pill = document.getElementById('floating-coming-soon-pill');
+        if (overlay) {
+            overlay.classList.add('hidden');
+        }
+        if (pill) {
+            pill.style.display = 'flex';
+        }
+    };
+
+    window.showComingSoon = function() {
+        const overlay = document.getElementById('coming-soon-launchpad');
+        const pill = document.getElementById('floating-coming-soon-pill');
+        if (overlay) {
+            overlay.classList.remove('hidden');
+        }
+        if (pill) {
+            pill.style.display = 'none';
+        }
+    };
+
+    window.handleEarlyAccessSubmit = function(e) {
+        e.preventDefault();
+        const input = document.getElementById('early-access-email');
+        const btn = document.getElementById('early-access-btn');
+        if (!input || !btn) return;
+
+        const val = input.value.trim();
+        if (val) {
+            btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> ¡Invitación VIP Confirmada! 🕊️';
+            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            btn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.5)';
+            input.disabled = true;
+            btn.disabled = true;
+            alert(`¡Gloria a Dios! Hemos registrado "${val}". Te enviaremos tu pase de acceso preferencial antes del lanzamiento oficial.`);
+        }
+    };
+
+    // Contador regresivo en tiempo real
+    function initCountdown() {
+        // Fijar fecha meta a 14 días en el futuro
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + 14);
+        targetDate.setHours(targetDate.getHours() + 8);
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const diff = targetDate.getTime() - now;
+
+            if (diff <= 0) return;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const dEl = document.getElementById('cd-days');
+            const hEl = document.getElementById('cd-hours');
+            const mEl = document.getElementById('cd-minutes');
+            const sEl = document.getElementById('cd-seconds');
+
+            if (dEl) dEl.textContent = days.toString().padStart(2, '0');
+            if (hEl) hEl.textContent = hours.toString().padStart(2, '0');
+            if (mEl) mEl.textContent = minutes.toString().padStart(2, '0');
+            if (sEl) sEl.textContent = seconds.toString().padStart(2, '0');
+        }
+
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    }
+
     // --- INICIALIZACIÓN ---
     renderFeed();
     renderTopDownloaded();
     updateAuthUI();
+    initCountdown();
 });

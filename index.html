@@ -28,6 +28,114 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- ========================================== -->
+    <!-- FULLSCREEN COMING SOON / SOUNDCHECK LAUNCHPAD -->
+    <!-- ========================================== -->
+    <div id="coming-soon-launchpad" class="coming-soon-overlay">
+        <!-- Top bar with logo and bypass button -->
+        <header class="launchpad-header">
+            <div class="launchpad-logo">
+                DJ's <span>Revolution</span> <i class="fa-solid fa-dove" style="color: var(--accent-secondary); margin-left: 5px;"></i>
+            </div>
+            <button class="btn-preview-mode" onclick="dismissComingSoon()" title="Explorar la plataforma">
+                <i class="fa-solid fa-eye"></i> Explorar Demo / Previsualizar
+            </button>
+        </header>
+
+        <!-- Main Coming Soon Card -->
+        <div class="launchpad-card">
+            <!-- Badge con pulso -->
+            <div class="soundcheck-badge">
+                <span class="live-dot"></span> Soundcheck en Curso • Beta V1.0
+            </div>
+            
+            <!-- Vinilo 3D + Audífonos -->
+            <div class="soundcheck-visual">
+                <div class="soundcheck-vinyl"></div>
+                <i class="fa-solid fa-headphones-simple soundcheck-center-icon"></i>
+            </div>
+
+            <!-- Ecualizador neón animado -->
+            <div class="soundcheck-equalizer">
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+            </div>
+
+            <h1 class="soundcheck-title">En Cabina Ajustando Frecuencias</h1>
+            <div class="soundcheck-tagline">
+                <i class="fa-solid fa-sliders"></i> Preparando el próximo Gran Set • Muy pronto al aire
+            </div>
+            <p class="soundcheck-desc">
+                Estamos ecualizando los últimos detalles, subiendo los faders y preparando una experiencia de audio y video de alto calibre para la comunidad de DJs y VJs. ¡El lanzamiento oficial está a punto de sonar!
+            </p>
+
+            <!-- Cuenta Regresiva -->
+            <div class="countdown-grid">
+                <div class="countdown-box">
+                    <span class="countdown-number" id="cd-days">14</span>
+                    <span class="countdown-label">Días</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="cd-hours">08</span>
+                    <span class="countdown-label">Horas</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="cd-minutes">45</span>
+                    <span class="countdown-label">Minutos</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="cd-seconds">20</span>
+                    <span class="countdown-label">Segundos</span>
+                </div>
+            </div>
+
+            <!-- Formulario de Acceso Anticipado -->
+            <form class="early-access-form" onsubmit="handleEarlyAccessSubmit(event)">
+                <input type="text" class="early-access-input" id="early-access-email" placeholder="Tu correo electrónico o WhatsApp..." required>
+                <button type="submit" class="btn-notify" id="early-access-btn">
+                    <i class="fa-solid fa-bell"></i> Avísame al Lanzamiento
+                </button>
+            </form>
+
+            <!-- Medidor de Calibración / Master Output -->
+            <div class="soundcheck-meter-box">
+                <div class="soundcheck-meter-header">
+                    <span><i class="fa-solid fa-gauge-high"></i> Calibración Master</span>
+                    <span>88% LISTO</span>
+                </div>
+                <div class="soundcheck-progress-track">
+                    <div class="soundcheck-progress-fill" style="width: 88%;"></div>
+                </div>
+            </div>
+
+            <!-- Redes Sociales -->
+            <div class="launchpad-socials">
+                <a href="#" class="launchpad-social-link" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="launchpad-social-link" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                <a href="#" class="launchpad-social-link" title="SoundCloud"><i class="fa-brands fa-soundcloud"></i></a>
+                <a href="#" class="launchpad-social-link" title="WhatsApp Comunidad"><i class="fa-brands fa-whatsapp"></i></a>
+            </div>
+
+            <p class="soundcheck-verse">"Alabadle con címbalos de júbilo; alabadle con címbalos resonantes..." — Salmo 150:5</p>
+        </div>
+
+        <!-- Footer -->
+        <footer style="margin-top: 20px; font-size: 0.8rem; color: var(--text-secondary);">
+            &copy; 2026 DJ's Revolution • Plataforma Global de DJs y VJs Cristianos 🕊️
+        </footer>
+    </div>
+
+    <!-- Floating Pill to re-open Coming Soon Screen anytime while exploring -->
+    <div id="floating-coming-soon-pill" class="floating-coming-soon-pill" onclick="showComingSoon()" style="display: none;">
+        <span class="pulse-indicator"></span>
+        <span>Modo Desarrollo Activo</span>
+    </div>
+
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
