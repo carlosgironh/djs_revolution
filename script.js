@@ -102,6 +102,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const navContainer = document.getElementById('navbar-actions-container');
         const sidebarContainer = document.getElementById('sidebar-user-card');
         const createPostContainer = document.getElementById('create-post-container');
+        const bnavAvatarSlot = document.getElementById('bnav-avatar-slot');
+        const drawerUserCard = document.getElementById('drawer-user-card');
+        const drawerAccountSection = document.getElementById('drawer-account-section');
 
         if (currentUser && currentProfile) {
             const djName = currentProfile.dj_name || 'Mi Perfil';
@@ -119,6 +122,39 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <img src="${avatar}" alt="${escapeHTML(djName)}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid ${isSuperAdmin ? '#f59e0b' : 'var(--accent-primary)'};">
                     </div>
                     <button class="btn btn-danger-link" onclick="handleRealLogout()" title="Cerrar Sesión" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem; padding: 5px; transition: color 0.3s;"><i class="fa-solid fa-right-from-bracket"></i></button>
+                `;
+            }
+
+            // Bottom Nav Avatar para DJ
+            if (bnavAvatarSlot) {
+                bnavAvatarSlot.innerHTML = `<img src="${avatar}" alt="${escapeHTML(djName)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 1.5px solid ${isSuperAdmin ? '#fbbf24' : 'var(--accent-primary)'};">`;
+            }
+
+            // Mobile Drawer Card para DJ
+            if (drawerUserCard) {
+                drawerUserCard.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                        <img src="${avatar}" alt="${escapeHTML(djName)}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid ${isSuperAdmin ? '#fbbf24' : 'var(--accent-primary)'}; flex-shrink: 0;">
+                        <div style="flex: 1; min-width: 0;">
+                            <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff;">
+                                ${escapeHTML(djName)} ${isSuperAdmin ? '<i class="fa-solid fa-crown" style="color: #fbbf24; font-size: 0.8rem;" title="Super Administrador"></i>' : ''}
+                            </h4>
+                            <span style="font-size: 0.78rem; color: ${isSuperAdmin ? '#fbbf24' : 'var(--accent-secondary)'}; font-weight: 500; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${escapeHTML(currentProfile.role || 'DJ de Worship 🕊️')}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Mobile Drawer Account Actions para DJ
+            if (drawerAccountSection) {
+                drawerAccountSection.innerHTML = `
+                    <span class="drawer-section-title">Mi Cuenta & Cabina</span>
+                    <button type="button" class="drawer-item" onclick="toggleMobileDrawer(false); openCurrentUserProfile()"><i class="fa-solid fa-user"></i> Mi Perfil y Mis Mixes</button>
+                    <button type="button" class="drawer-item" onclick="toggleMobileDrawer(false); openEditProfileModal()"><i class="fa-solid fa-gear"></i> Editar Perfil & Donaciones</button>
+                    <button type="button" class="drawer-item" onclick="toggleMobileDrawer(false); toggleModal('upload-modal', true)" style="color: var(--accent-secondary);"><i class="fa-solid fa-cloud-arrow-up"></i> Subir Mix o Video</button>
+                    <button type="button" class="drawer-item" onclick="toggleMobileDrawer(false); handleRealLogout()" style="color: #ef4444;"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
                 `;
             }
 
@@ -170,6 +206,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                 navContainer.innerHTML = `
                     <button class="btn btn-primary" onclick="openAuthModal('login')"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</button>
                     <button class="btn" onclick="openAuthModal('signup')" style="background: rgba(255,255,255,0.08);"><i class="fa-solid fa-user-plus"></i> Registrarme</button>
+                `;
+            }
+
+            // Bottom Nav Avatar para Oyente
+            if (bnavAvatarSlot) {
+                bnavAvatarSlot.innerHTML = `<i class="fa-solid fa-bars"></i>`;
+            }
+
+            // Mobile Drawer Card para Oyente
+            if (drawerUserCard) {
+                drawerUserCard.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(139, 92, 246, 0.2); display: flex; align-items: center; justify-content: center; color: var(--accent-secondary); font-size: 1.2rem; flex-shrink: 0;">
+                            <i class="fa-solid fa-dove"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; color: #fff;">Oyente Público 🕊️</h4>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">Muro libre de adoración</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Mobile Drawer Account Actions para Oyente
+            if (drawerAccountSection) {
+                drawerAccountSection.innerHTML = `
+                    <span class="drawer-section-title">Acceso a Cabina DJ</span>
+                    <button type="button" class="drawer-item" onclick="toggleMobileDrawer(false); openAuthModal('login')"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión como DJ</button>
+                    <button type="button" class="drawer-item" onclick="toggleMobileDrawer(false); openAuthModal('signup')" style="color: var(--accent-primary);"><i class="fa-solid fa-user-plus"></i> Registrarme Gratis</button>
                 `;
             }
 
@@ -1206,25 +1271,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.nav-shortcuts .nav-shortcut').forEach(sc => {
             sc.classList.toggle('active', sc.getAttribute('data-tab') === tabName);
         });
+        document.querySelectorAll('.feed-chips-bar .chip-item').forEach(ch => {
+            ch.classList.toggle('active', ch.getAttribute('data-tab') === tabName);
+        });
+        document.querySelectorAll('.mobile-bottom-nav .bnav-item').forEach(bn => {
+            bn.classList.toggle('active', bn.getAttribute('data-tab') === tabName);
+        });
+        document.querySelectorAll('.mobile-drawer .drawer-item[data-tab]').forEach(dr => {
+            dr.classList.toggle('active', dr.getAttribute('data-tab') === tabName);
+        });
 
         const filterHeader = document.getElementById('feed-filter-title');
         const filterTitleText = document.getElementById('filter-title-text');
         
         if (tabName === 'inicio') {
-            filterHeader.style.display = 'none';
+            if (filterHeader) filterHeader.style.display = 'none';
         } else {
-            filterHeader.style.display = 'block';
-            if (tabName === 'audios') filterTitleText.innerHTML = '<i class="fa-solid fa-music"></i> Mixes de Audio Cristianos';
-            else if (tabName === 'videos') filterTitleText.innerHTML = '<i class="fa-solid fa-video"></i> Sets de Video (VJ)';
-            else if (tabName === 'djs') filterTitleText.innerHTML = '<i class="fa-solid fa-users"></i> Directorio de DJs & Creadores Cristianos';
-            else if (tabName === 'recursos') filterTitleText.innerHTML = '<i class="fa-solid fa-folder-open"></i> Loops y Visuales para Proyectores';
-            else if (tabName === 'guardados') filterTitleText.innerHTML = '<i class="fa-solid fa-bookmark"></i> Mis Publicaciones Guardadas';
+            if (filterHeader) {
+                filterHeader.style.display = 'block';
+                if (tabName === 'audios') filterTitleText.innerHTML = '<i class="fa-solid fa-music"></i> Mixes de Audio Cristianos';
+                else if (tabName === 'videos') filterTitleText.innerHTML = '<i class="fa-solid fa-video"></i> Sets de Video (VJ)';
+                else if (tabName === 'djs') filterTitleText.innerHTML = '<i class="fa-solid fa-users"></i> Directorio de DJs & Creadores Cristianos';
+                else if (tabName === 'recursos') filterTitleText.innerHTML = '<i class="fa-solid fa-folder-open"></i> Loops y Visuales para Proyectores';
+                else if (tabName === 'guardados') filterTitleText.innerHTML = '<i class="fa-solid fa-bookmark"></i> Mis Publicaciones Guardadas';
+            }
         }
 
         if (tabName === 'djs') {
             renderDJDirectory();
         } else {
             renderFeed(getFilteredPosts());
+        }
+
+        if (window.innerWidth <= 768) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
@@ -1380,11 +1460,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // Búsqueda en tiempo real
+    // Controladores Móviles (Drawer, Búsqueda y Crear)
+    window.toggleMobileDrawer = function(open) {
+        const drawer = document.getElementById('mobile-drawer');
+        const overlay = document.getElementById('mobile-drawer-overlay');
+        const shouldOpen = open !== undefined ? open : !drawer?.classList.contains('active');
+        if (drawer) drawer.classList.toggle('active', shouldOpen);
+        if (overlay) overlay.classList.toggle('active', shouldOpen);
+        document.body.style.overflow = shouldOpen ? 'hidden' : '';
+    };
+
+    window.toggleMobileSearchBar = function(show) {
+        const searchDropdown = document.getElementById('mobile-search-dropdown');
+        const input = document.getElementById('mobile-search-input');
+        if (!searchDropdown) return;
+        const willShow = show !== undefined ? show : (searchDropdown.style.display === 'none' || !searchDropdown.style.display);
+        searchDropdown.style.display = willShow ? 'flex' : 'none';
+        if (willShow && input) {
+            input.focus();
+        }
+    };
+
+    window.handleMobileCreateClick = function() {
+        if (!currentUser) {
+            alert("Inicia sesión o regístrate para subir tus mixes o videos cristianos.");
+            openAuthModal('signup');
+            return;
+        }
+        toggleModal('upload-modal', true);
+    };
+
+    // Búsqueda en tiempo real (Sincronizada Escritorio y Móvil)
     const searchInput = document.getElementById('global-search');
+    const mobileSearchInput = document.getElementById('mobile-search-input');
+
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             searchQuery = e.target.value;
+            if (mobileSearchInput) mobileSearchInput.value = e.target.value;
+            renderFeed(getFilteredPosts());
+        });
+    }
+
+    if (mobileSearchInput) {
+        mobileSearchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            if (searchInput) searchInput.value = e.target.value;
             renderFeed(getFilteredPosts());
         });
     }
@@ -1451,11 +1572,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return formatPanamaTimestamp(dateStr).displayBadge;
     }
 
-    // Reloj Oficial de Panamá en vivo para la cabina y el navbar
+    // Reloj Oficial de Panamá en vivo para la cabina, el navbar y el drawer móvil
     function initPanamaClock() {
         const timeEl = document.getElementById('panama-clock-time');
+        const drawerTimeEl = document.getElementById('drawer-panama-clock-time');
         const clockContainer = document.getElementById('panama-clock');
-        if (!timeEl) return;
+        if (!timeEl && !drawerTimeEl) return;
 
         function update() {
             const now = new Date();
@@ -1466,7 +1588,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 second: '2-digit',
                 hour12: true
             });
-            timeEl.textContent = panamaTimeStr;
+            if (timeEl) timeEl.textContent = panamaTimeStr;
+            if (drawerTimeEl) drawerTimeEl.textContent = panamaTimeStr;
 
             // Comparar con reloj de Windows / local del usuario
             const localTimeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });

@@ -61,6 +61,26 @@
             </div>
 
             <div id="navbar-actions-container" class="nav-actions"></div>
+
+            <!-- Botones de Acción Móviles (Cabecera estilo app) -->
+            <div class="mobile-header-actions">
+                <button type="button" class="mobile-hbtn" id="btn-toggle-mobile-search" onclick="toggleMobileSearchBar()" title="Buscar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <button type="button" class="mobile-hbtn donate-pulse" onclick="toggleModal('donation-modal', true)" title="Sembrar / Donar">
+                    <i class="fa-solid fa-heart" style="color: #fbbf24;"></i>
+                </button>
+                <button type="button" class="mobile-hbtn" onclick="toggleMobileDrawer(true)" title="Menú">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Barra de Búsqueda Desplegable en Móvil -->
+        <div class="mobile-search-dropdown" id="mobile-search-dropdown" style="display: none;">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" id="mobile-search-input" placeholder="Buscar mixes, DJs o adoración...">
+            <button type="button" class="btn-close-msearch" onclick="toggleMobileSearchBar(false)">&times;</button>
         </div>
     </nav>
 
@@ -103,6 +123,16 @@
 
         <!-- Feed Principal -->
         <section class="feed">
+            <!-- Barra de Pestañas y Filtros Rápidos (Estilo Instagram / Facebook) -->
+            <div class="feed-chips-bar" id="feed-chips-bar">
+                <button type="button" class="chip-item active" data-tab="inicio"><i class="fa-solid fa-house"></i> Muro Público</button>
+                <button type="button" class="chip-item" data-tab="audios"><i class="fa-solid fa-music"></i> Mixes Audio</button>
+                <button type="button" class="chip-item" data-tab="videos"><i class="fa-solid fa-video"></i> Sets Video</button>
+                <button type="button" class="chip-item" data-tab="djs"><i class="fa-solid fa-users"></i> DJs & VJs</button>
+                <button type="button" class="chip-item" data-tab="recursos"><i class="fa-solid fa-folder-open"></i> Loops</button>
+                <button type="button" class="chip-item" data-tab="guardados"><i class="fa-solid fa-bookmark"></i> Guardados</button>
+            </div>
+
             <!-- Dynamic Create Post Box or Guest Invitation Banner -->
             <div id="create-post-container"></div>
 
@@ -495,6 +525,78 @@
             </div>
         </div>
     </div>
+
+    <!-- ========================================== -->
+    <!-- BARRA INFERIOR DE NAVEGACIÓN MÓVIL (ESTILO INSTAGRAM/FACEBOOK) -->
+    <!-- ========================================== -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+        <a href="#" class="bnav-item active" data-tab="inicio" title="Muro Público">
+            <i class="fa-solid fa-house"></i>
+            <span>Muro</span>
+        </a>
+        <a href="#" class="bnav-item" data-tab="audios" title="Mixes de Audio">
+            <i class="fa-solid fa-music"></i>
+            <span>Mixes</span>
+        </a>
+        <button type="button" class="bnav-fab" id="bnav-upload-btn" onclick="handleMobileCreateClick()" title="Subir Mix o Video">
+            <div class="bnav-fab-icon">
+                <i class="fa-solid fa-plus"></i>
+            </div>
+            <span>Subir</span>
+        </button>
+        <a href="#" class="bnav-item" data-tab="videos" title="Sets de Video">
+            <i class="fa-solid fa-video"></i>
+            <span>Videos</span>
+        </a>
+        <button type="button" class="bnav-item" onclick="toggleMobileDrawer(true)" title="Menú y Perfil">
+            <div id="bnav-avatar-slot" class="bnav-avatar-circle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <span>Menú</span>
+        </button>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- DRAWER MÓVIL (MENÚ LATERAL DE PERFIL & CONFIGURACIÓN) -->
+    <!-- ========================================== -->
+    <div id="mobile-drawer-overlay" class="mobile-drawer-overlay" onclick="toggleMobileDrawer(false)"></div>
+    <aside id="mobile-drawer" class="mobile-drawer">
+        <div class="drawer-header">
+            <div class="drawer-user-card" id="drawer-user-card"></div>
+            <button type="button" class="drawer-close-btn" onclick="toggleMobileDrawer(false)" aria-label="Cerrar">&times;</button>
+        </div>
+        <div class="drawer-content">
+            <div class="drawer-section">
+                <span class="drawer-section-title">Navegación del Muro</span>
+                <a href="#" class="drawer-item active" data-tab="inicio" onclick="toggleMobileDrawer(false)"><i class="fa-solid fa-house"></i> Muro Público Global</a>
+                <a href="#" class="drawer-item" data-tab="audios" onclick="toggleMobileDrawer(false)"><i class="fa-solid fa-music"></i> Mixes de Audio</a>
+                <a href="#" class="drawer-item" data-tab="videos" onclick="toggleMobileDrawer(false)"><i class="fa-solid fa-video"></i> Sets de Video (VJ)</a>
+                <a href="#" class="drawer-item" data-tab="djs" onclick="toggleMobileDrawer(false)"><i class="fa-solid fa-users"></i> Directorio de DJs Cristianos</a>
+                <a href="#" class="drawer-item" data-tab="recursos" onclick="toggleMobileDrawer(false)"><i class="fa-solid fa-folder-open"></i> Loops y Visuales Proyector</a>
+                <a href="#" class="drawer-item" data-tab="guardados" onclick="toggleMobileDrawer(false)"><i class="fa-solid fa-bookmark"></i> Mis Favoritos Guardados</a>
+            </div>
+
+            <div class="drawer-section" id="drawer-account-section">
+                <!-- Se inyecta dinámicamente con opciones de perfil, editar y cerrar sesión -->
+            </div>
+
+            <div class="drawer-section">
+                <span class="drawer-section-title">Ministerio & Siembra</span>
+                <a href="#" class="drawer-item drawer-donate-item" onclick="toggleMobileDrawer(false); toggleModal('donation-modal', true)">
+                    <i class="fa-solid fa-heart-circle-bolt"></i> Sembrar Ofrenda (PayPal)
+                </a>
+            </div>
+
+            <div class="drawer-footer-card glass-panel">
+                <div class="drawer-clock-row">
+                    <span><i class="fa-regular fa-clock"></i> Hora de Cabina:</span>
+                    <strong id="drawer-panama-clock-time">--:--:--</strong>
+                    <span class="panama-badge">🇵🇦 PTY</span>
+                </div>
+                <p class="drawer-verse-text">"Alabadle con címbalos de júbilo; alabadle con címbalos resonantes..." — Salmo 150:5</p>
+            </div>
+        </div>
+    </aside>
 
     <!-- PayPal Donation SDK -->
     <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js" charset="UTF-8"></script>

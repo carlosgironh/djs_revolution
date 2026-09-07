@@ -1673,12 +1673,18 @@ h1, h2, h3, h4 {
 }
 
 @media (max-width: 768px) {
+    body {
+        padding-bottom: 72px; /* Evita que el bottom nav cubra el contenido */
+    }
     .container {
         grid-template-columns: 1fr;
-        padding: 0 15px;
-        margin: 20px auto;
+        padding: 0 12px;
+        margin: 10px auto 20px auto;
     }
     .sidebar {
+        display: none;
+    }
+    .right-sidebar {
         display: none;
     }
     .search-bar {
@@ -1687,8 +1693,11 @@ h1, h2, h3, h4 {
     .nav-shortcuts {
         display: none !important;
     }
+    .panama-clock {
+        display: none !important;
+    }
     .logo {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
     }
     .user-status-badge {
         display: none !important;
@@ -1697,11 +1706,13 @@ h1, h2, h3, h4 {
         display: none;
     }
     .nav-actions {
-        gap: 10px;
+        display: none !important; /* Reemplazado por mobile-header-actions */
     }
-    .nav-actions .btn {
-        padding: 8px 12px;
-        font-size: 0.85rem;
+    .mobile-header-actions {
+        display: flex !important;
+    }
+    .mobile-bottom-nav {
+        display: flex !important;
     }
     .audio-container {
         flex-direction: column;
@@ -1712,9 +1723,12 @@ h1, h2, h3, h4 {
         height: 200px;
     }
     #persistent-player {
-        width: calc(100% - 20px);
-        bottom: 10px;
+        width: calc(100% - 16px);
+        left: 8px;
+        right: 8px;
+        bottom: 68px !important;
         padding: 10px;
+        z-index: 9998;
     }
     .player-container {
         flex-direction: column;
@@ -2612,3 +2626,413 @@ mux-player {
         display: none;
     }
 }
+
+/* ==========================================================================
+   EXPERIENCIA MÓVIL ESTILO INSTAGRAM / FACEBOOK
+   (FEED PRIMERO, CABECERA LIMPIA, BOTTOM NAV & DRAWER)
+   ========================================================================== */
+
+/* 1. Cabecera Móvil */
+.mobile-header-actions {
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+
+.mobile-hbtn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mobile-hbtn:active {
+    transform: scale(0.92);
+    background: rgba(139, 92, 246, 0.25);
+    border-color: var(--accent-secondary);
+}
+
+.mobile-hbtn.donate-pulse {
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(245, 158, 11, 0.35);
+}
+
+.mobile-search-dropdown {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(14, 14, 20, 0.98);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideDownSearch 0.25s ease;
+}
+
+@keyframes slideDownSearch {
+    from { transform: translateY(-8px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.mobile-search-dropdown i {
+    color: var(--accent-secondary);
+    font-size: 0.95rem;
+}
+
+.mobile-search-dropdown input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 100px;
+    padding: 8px 14px;
+    color: #ffffff;
+    font-size: 0.9rem;
+    outline: none;
+    font-family: inherit;
+}
+
+.mobile-search-dropdown input:focus {
+    border-color: var(--accent-primary);
+}
+
+.btn-close-msearch {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+/* 2. Barra de Filtros Horizontales (Estilo Stories / Instagram) */
+.feed-chips-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 4px 2px 14px 2px;
+    margin-bottom: 12px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.feed-chips-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.chip-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-secondary);
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+}
+
+.chip-item:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.chip-item.active {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(14, 165, 233, 0.25));
+    border-color: var(--accent-secondary);
+    color: #ffffff;
+    box-shadow: 0 0 14px rgba(14, 165, 233, 0.3);
+}
+
+.chip-item.active i {
+    color: var(--accent-secondary);
+}
+
+/* 3. Bottom Navigation Bar Fija */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 62px;
+    background: rgba(10, 10, 16, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(139, 92, 246, 0.25);
+    z-index: 9999;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 6px;
+    box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.7);
+}
+
+.bnav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.72rem;
+    font-weight: 600;
+    flex: 1;
+    height: 100%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.bnav-item i {
+    font-size: 1.15rem;
+    transition: transform 0.2s ease;
+}
+
+.bnav-item.active {
+    color: var(--accent-secondary);
+}
+
+.bnav-item.active i {
+    transform: scale(1.12);
+    color: var(--accent-secondary);
+}
+
+.bnav-fab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex: 1;
+    height: 100%;
+    font-family: inherit;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.bnav-fab-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    transform: translateY(-8px);
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.6), 0 0 12px rgba(14, 165, 233, 0.4);
+    border: 2px solid #060608;
+    transition: all 0.2s ease;
+}
+
+.bnav-fab:active .bnav-fab-icon {
+    transform: translateY(-6px) scale(0.92);
+}
+
+.bnav-avatar-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.bnav-avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 4. Mobile Drawer (Menú Lateral de Perfil y Configuración) */
+.mobile-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-drawer-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-drawer {
+    position: fixed;
+    top: 0;
+    right: -340px;
+    width: 320px;
+    max-width: 86vw;
+    height: 100%;
+    height: 100dvh;
+    background: rgba(14, 14, 20, 0.98);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-left: 1px solid rgba(139, 92, 246, 0.3);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.85);
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+}
+
+.mobile-drawer.active {
+    transform: translateX(-340px);
+}
+
+.drawer-header {
+    padding: 20px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.drawer-user-card {
+    flex: 1;
+}
+
+.drawer-close-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.drawer-content {
+    padding: 16px 14px 40px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.drawer-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.drawer-section-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 0.8px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    padding-left: 8px;
+}
+
+.drawer-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    color: #e4e4e7;
+    text-decoration: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background: transparent;
+    border: none;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.drawer-item:hover, .drawer-item:active {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+.drawer-item.active {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(14, 165, 233, 0.15));
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #38bdf8;
+    font-weight: 600;
+}
+
+.drawer-item i {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+    color: var(--accent-secondary);
+}
+
+.drawer-item.drawer-donate-item {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+}
+
+.drawer-footer-card {
+    padding: 14px;
+    border-radius: 14px;
+    margin-top: 10px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drawer-clock-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.drawer-clock-row strong {
+    color: #ffffff;
+}
+
+.drawer-verse-text {
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+
