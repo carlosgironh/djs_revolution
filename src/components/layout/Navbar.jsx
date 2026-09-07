@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
-import { Search, Heart, Menu, Upload, LogIn, UserPlus, LogOut, Clock, X, Crown, Disc } from 'lucide-react';
+import { Search, Heart, Menu, Upload, LogIn, UserPlus, LogOut, Clock, X, Crown, Shield, Disc, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { usePanamaClock } from '../../hooks/usePanamaClock';
 import { Avatar } from '../common/Avatar';
 
-export function Navbar({ activeTab, onTabChange, onOpenAuth, onOpenUpload, onOpenDonate, onToggleDrawer, searchQuery, onSearchChange }) {
-  const { currentUser, currentProfile, isSuperAdmin, signOut } = useAuth();
+export function Navbar({ 
+  activeTab, 
+  onTabChange, 
+  onOpenAuth, 
+  onOpenUpload, 
+  onOpenDonate, 
+  onToggleDrawer, 
+  onOpenAdmin,
+  searchQuery, 
+  onSearchChange 
+}) {
+  const { currentUser, currentProfile, isSuperAdmin, isModerator, isDJ, canUpload, signOut } = useAuth();
   const { time: panamaTime, localDiff } = usePanamaClock();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
-  const djName = currentProfile?.dj_name || currentUser?.email?.split('@')[0] || 'DJ';
+  const userName = currentProfile?.dj_name || currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'Usuario';
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-dark-950/85 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
         
-        {/* LOGO: Garantizado en UNA SOLA LÍNEA en móvil sin partirse */}
+        {/* LOGO: Garantizado en UNA SOLA LÍNEA sin partirse */}
         <div 
           onClick={() => onTabChange('inicio')} 
           className="flex items-center gap-2 cursor-pointer select-none flex-shrink-0 min-w-max"
@@ -68,28 +78,57 @@ export function Navbar({ activeTab, onTabChange, onOpenAuth, onOpenUpload, onOpe
         </div>
 
         {/* Acciones de Escritorio */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2.5">
           {currentUser ? (
             <>
-              {/* Badge de Superadmin o DJ */}
-              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
-                isSuperAdmin 
-                  ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' 
-                  : 'bg-violet-500/15 text-violet-300 border border-violet-500/20'
-              }`}>
-                {isSuperAdmin ? <Crown className="w-3.5 h-3.5 text-amber-400" /> : <Disc className="w-3.5 h-3.5 animate-spin-slow" />}
-                <span className="max-w-[120px] truncate">{djName}</span>
-                {isSuperAdmin && <span className="bg-amber-500 text-black text-[9px] px-1 rounded font-black">ADMIN</span>}
-              </div>
+              {/* Badge de Rol */}
+              {isSuperAdmin ? (
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                  <Crown className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="max-w-[100px] truncate">{userName}</span>
+                  <span className="bg-amber-500 text-black text-[9px] px-1 rounded font-black">ADMIN</span>
+                </div>
+              ) : isModerator ? (
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                  <Shield className="w-3.5 h-3.5 text-purple-400" />
+                  <span className="max-w-[100px] truncate">{userName}</span>
+                  <span className="bg-purple-500 text-white text-[9px] px-1 rounded font-bold">MOD</span>
+                </div>
+              ) : isDJ ? (
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                  <Disc className="w-3.5 h-3.5 animate-spin-slow text-cyan-400" />
+                  <span className="max-w-[100px] truncate">{userName}</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
+                  <span>🕊️</span>
+                  <span className="max-w-[100px] truncate">{userName}</span>
+                  <span className="text-[9px] text-zinc-400">(Oyente)</span>
+                </div>
+              )}
 
-              {/* Botón Subir */}
-              <button
-                onClick={onOpenUpload}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 shadow-md shadow-violet-900/40 hover:scale-105 active:scale-95 transition-all"
-              >
-                <Upload className="w-3.5 h-3.5" />
-                <span>Subir Mix</span>
-              </button>
+              {/* Botón Panel de Admin (Solo Administradores) */}
+              {isSuperAdmin && (
+                <button
+                  onClick={onOpenAdmin}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-amber-300 bg-amber-500/15 border border-amber-500/30 hover:bg-amber-500/25 transition-all"
+                  title="Gestionar roles y usuarios"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Usuarios</span>
+                </button>
+              )}
+
+              {/* Botón Subir (Solo DJs, Moderadores y Admins) */}
+              {canUpload && (
+                <button
+                  onClick={onOpenUpload}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 shadow-md shadow-violet-900/40 hover:scale-105 active:scale-95 transition-all"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Subir Mix</span>
+                </button>
+              )}
 
               {/* Avatar clicable */}
               <button 
@@ -99,7 +138,7 @@ export function Navbar({ activeTab, onTabChange, onOpenAuth, onOpenUpload, onOpe
               >
                 <Avatar 
                   src={currentProfile?.avatar_url} 
-                  name={djName} 
+                  name={userName} 
                   size="sm" 
                   isSuperAdmin={isSuperAdmin} 
                 />
@@ -128,7 +167,7 @@ export function Navbar({ activeTab, onTabChange, onOpenAuth, onOpenUpload, onOpe
                 className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-cyan-600 hover:opacity-95 shadow-glow-violet transition-all"
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                <span>Registrar DJ</span>
+                <span>Crear Cuenta</span>
               </button>
             </>
           )}
@@ -160,7 +199,7 @@ export function Navbar({ activeTab, onTabChange, onOpenAuth, onOpenUpload, onOpe
             {currentUser ? (
               <Avatar 
                 src={currentProfile?.avatar_url} 
-                name={djName} 
+                name={userName} 
                 size="xs" 
                 isSuperAdmin={isSuperAdmin} 
               />

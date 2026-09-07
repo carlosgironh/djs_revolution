@@ -1,19 +1,29 @@
 import React from 'react';
 import { 
   X, Home, Music, Video, Users, FolderOpen, Bookmark, 
-  Heart, Clock, User, Settings, Upload, LogOut, LogIn, UserPlus, Crown 
+  Heart, Clock, User, Settings, Upload, LogOut, LogIn, UserPlus, Crown, Shield, ShieldCheck, Disc 
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { usePanamaClock } from '../../hooks/usePanamaClock';
 import { Avatar } from '../common/Avatar';
 
-export function MobileDrawer({ isOpen, onClose, activeTab, onTabChange, onOpenAuth, onOpenEditProfile, onOpenUpload, onOpenDonate }) {
-  const { currentUser, currentProfile, isSuperAdmin, signOut } = useAuth();
+export function MobileDrawer({ 
+  isOpen, 
+  onClose, 
+  activeTab, 
+  onTabChange, 
+  onOpenAuth, 
+  onOpenEditProfile, 
+  onOpenUpload, 
+  onOpenDonate,
+  onOpenAdmin 
+}) {
+  const { currentUser, currentProfile, isSuperAdmin, isModerator, isDJ, canUpload, signOut } = useAuth();
   const { time: panamaTime } = usePanamaClock();
 
   if (!isOpen) return null;
 
-  const djName = currentProfile?.dj_name || currentUser?.email?.split('@')[0] || 'DJ';
+  const userName = currentProfile?.dj_name || currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'Usuario';
 
   function handleNav(tab) {
     onTabChange(tab);
@@ -37,17 +47,21 @@ export function MobileDrawer({ isOpen, onClose, activeTab, onTabChange, onOpenAu
             <div className="flex items-center gap-3 min-w-0">
               <Avatar 
                 src={currentProfile?.avatar_url} 
-                name={djName} 
+                name={userName} 
                 size="md" 
                 isSuperAdmin={isSuperAdmin} 
               />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h4 className="font-bold text-sm text-white truncate">{djName}</h4>
-                  {isSuperAdmin && <Crown className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />}
+                  <h4 className="font-bold text-sm text-white truncate">{userName}</h4>
+                  {isSuperAdmin ? (
+                    <Crown className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                  ) : isModerator ? (
+                    <Shield className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+                  ) : null}
                 </div>
                 <p className="text-xs text-zinc-400 truncate">
-                  {currentProfile?.role || 'DJ de Worship 🕊️'}
+                  {isSuperAdmin ? 'Super Administrador 👑' : isModerator ? 'Moderador de Cabina 🛡️' : isDJ ? 'DJ Creador 🎧' : 'Usuario Oyente 🕊️'}
                 </p>
               </div>
             </div>
@@ -146,11 +160,22 @@ export function MobileDrawer({ isOpen, onClose, activeTab, onTabChange, onOpenAu
           {/* Gestión de Cuenta */}
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 block mb-2 px-2">
-              Mi Cabina & Cuenta
+              Mi Cuenta & Rol
             </span>
             <div className="space-y-1">
               {currentUser ? (
                 <>
+                  {/* Panel de Admin (Solo Super Administradores) */}
+                  {isSuperAdmin && (
+                    <button
+                      onClick={() => { onClose(); onOpenAdmin(); }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-amber-300 bg-amber-500/15 border border-amber-500/30 hover:bg-amber-500/25 transition-all mb-1.5"
+                    >
+                      <ShieldCheck className="w-4 h-4 text-amber-400" />
+                      <span>Panel de Administración 👑</span>
+                    </button>
+                  )}
+
                   <button
                     onClick={() => handleNav('perfil')}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:bg-white/5 transition-all"
@@ -167,13 +192,16 @@ export function MobileDrawer({ isOpen, onClose, activeTab, onTabChange, onOpenAu
                     <span>Editar Perfil & Donaciones</span>
                   </button>
 
-                  <button
-                    onClick={() => { onClose(); onOpenUpload(); }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-violet-300 hover:bg-violet-500/10 transition-all"
-                  >
-                    <Upload className="w-4 h-4 text-violet-400" />
-                    <span>Subir Mix o Video</span>
-                  </button>
+                  {/* Subir mix solo si tiene permisos de DJ/Mod/Admin */}
+                  {canUpload && (
+                    <button
+                      onClick={() => { onClose(); onOpenUpload(); }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-violet-300 hover:bg-violet-500/10 transition-all"
+                    >
+                      <Upload className="w-4 h-4 text-violet-400" />
+                      <span>Subir Mix o Video</span>
+                    </button>
+                  )}
 
                   <button
                     onClick={() => { onClose(); signOut(); }}
@@ -190,7 +218,7 @@ export function MobileDrawer({ isOpen, onClose, activeTab, onTabChange, onOpenAu
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-200 hover:bg-white/5 transition-all"
                   >
                     <LogIn className="w-4 h-4 text-cyan-400" />
-                    <span>Iniciar Sesión como DJ</span>
+                    <span>Iniciar Sesión</span>
                   </button>
 
                   <button
@@ -198,7 +226,7 @@ export function MobileDrawer({ isOpen, onClose, activeTab, onTabChange, onOpenAu
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-violet-300 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 transition-all"
                   >
                     <UserPlus className="w-4 h-4 text-violet-400" />
-                    <span>Registrarme Gratis</span>
+                    <span>Crear Cuenta Gratis</span>
                   </button>
                 </>
               )}

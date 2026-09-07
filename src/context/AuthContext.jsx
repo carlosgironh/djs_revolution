@@ -19,16 +19,21 @@ export function AuthProvider({ children }) {
       if (data) {
         setCurrentProfile(data);
       } else {
-        // Crear perfil inicial si no existía
-        const name = email ? email.split('@')[0] : 'DJ';
+        // Crear perfil inicial como Usuario Normal (Oyente)
+        const name = email ? email.split('@')[0] : 'Usuario';
+        const isCarlos = email === 'carlosgironh@gmail.com';
+
         const { data: newProfile } = await supabase
           .from('profiles')
           .upsert({
             id: userId,
             username: name,
-            dj_name: `DJ ${name}`,
-            full_name: `DJ ${name}`,
-            role: 'DJ de Worship 🕊️',
+            dj_name: isCarlos ? 'Carlos Girón (Super Admin)' : name,
+            full_name: isCarlos ? 'Carlos Girón (Super Admin)' : name,
+            role: isCarlos ? 'Super Admin 👑' : 'Usuario',
+            is_super_admin: isCarlos,
+            is_moderator: isCarlos,
+            is_dj: isCarlos,
             avatar_url: 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'
           })
           .select()
@@ -66,11 +71,34 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
+  // Jerarquía de Roles
   const isSuperAdmin = Boolean(
     currentProfile?.is_super_admin || 
-    (currentProfile?.role && currentProfile.role.includes('Super Admin')) ||
+    (currentProfile?.role && currentProfile.role.toLowerCase().includes('admin')) ||
     currentUser?.email === 'carlosgironh@gmail.com'
   );
+
+  const isModerator = Boolean(
+    isSuperAdmin || 
+    currentProfile?.is_moderator || 
+    (currentProfile?.role && currentProfile.role.toLowerCase().includes('moderador'))
+  );
+
+  const isDJ = Boolean(
+    isSuperAdmin || 
+    isModerator || 
+    currentProfile?.is_dj || 
+    (currentProfile?.role && (
+      currentProfile.role.toLowerCase().includes('dj') || 
+      currentProfile.role.toLowerCase().includes('creador') ||
+      currentProfile.role.toLowerCase().includes('vj')
+    ))
+  );
+
+  // Permisos derivados
+  const canUpload = isDJ || isModerator || isSuperAdmin;
+  const canModerate = isModerator || isSuperAdmin;
+  const canManageUsers = isSuperAdmin;
 
   async function signIn(email, password) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -78,15 +106,37 @@ export function AuthProvider({ children }) {
     return data;
   }
 
-  async function signUp(email, password, djName) {
+  // Registro público: siempre crea cuenta de Usuario Normal
+  async function signUp(email, password, fullName) {
+    const isCarlos = email.trim().toLowerCase() === 'carlosgironh@gmail.com';
+    const initialRole = isCarlos ? 'Super Admin 👑' : 'Usuario';
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { dj_name: djName, full_name: djName }
+        data: { 
+          full_name: fullName, 
+          dj_name: fullName,
+          role: initialRole
+        }
       }
     });
     if (error) throw error;
+
+    if (data?.user) {
+      await supabase.from('profiles').upsert({
+        id: data.user.id,
+        username: email.split('@')[0],
+        full_name: fullName,
+        dj_name: fullName,
+        role: initialRole,
+        is_super_admin: isCarlos,
+        is_moderator: isCarlos,
+        is_dj: isCarlos
+      });
+    }
+
     return data;
   }
 
@@ -113,16 +163,58 @@ export function AuthProvider({ children }) {
     return data;
   }
 
+  // Administradores asignan y cambian roles de otros usuarios
+  async function updateUserRole(targetUserId, newRole) {
+    if (!isSuperAdmin) throw new Error('Solo los administradores pueden gestionar roles.');
+    
+    let is_super_admin = false;
+    let is_moderator = false;
+    let is_dj = false;
+
+    if (newRole === 'Administrador' || newRole === 'Super Admin 👑') {
+      is_super_admin = true;
+      is_moderator = true;
+      is_dj = true;
+    } else if (newRole === 'Moderador' || newRole === 'Moderador 🛡️') {
+      is_moderator = true;
+      is_dj = true;
+    } else if (newRole === 'DJ Creador' || newRole === 'DJ de Worship 🕊️') {
+      is_dj = true;
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        role: newRole,
+        is_super_admin,
+        is_moderator,
+        is_dj,
+        updated_at: new Date()
+      })
+      .eq('id', targetUserId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
   return (
     <AuthContext.Provider value={{
       currentUser,
       currentProfile,
       loading,
       isSuperAdmin,
+      isModerator,
+      isDJ,
+      canUpload,
+      canModerate,
+      canManageUsers,
       signIn,
       signUp,
       signOut,
       updateProfile,
+      updateUserRole,
       refreshProfile: () => currentUser && fetchProfile(currentUser.id, currentUser.email)
     }}>
       {children}

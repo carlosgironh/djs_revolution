@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Play, Pause, Download, MessageSquare, Bookmark, Share2, 
-  Heart, Send, Crown, Check, Sparkles 
+  Heart, Send, Crown, Check, Sparkles, Trash2, Shield 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../../context/AuthContext';
@@ -19,7 +19,7 @@ export function PostCard({
   onOpenAuth, 
   onRefresh 
 }) {
-  const { currentUser } = useAuth();
+  const { currentUser, canModerate } = useAuth();
   const { currentTrack, isPlaying, playTrack } = usePlayer();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
@@ -28,9 +28,42 @@ export function PostCard({
   const author = post.profiles || { dj_name: 'DJ Creador', role: 'DJ de Worship 🕊️' };
   const isAuthorAdmin = Boolean(
     author.is_super_admin || 
-    (author.role && author.role.includes('Super Admin')) ||
+    (author.role && author.role.toLowerCase().includes('admin')) ||
     author.username === 'carlosgironh'
   );
+  const isAuthorMod = Boolean(
+    !isAuthorAdmin && (
+      author.is_moderator || 
+      (author.role && author.role.toLowerCase().includes('moderador'))
+    )
+  );
+
+  const canDeletePost = currentUser && (
+    canModerate || 
+    post.author_id === currentUser.id
+  );
+
+  async function handleDeletePost() {
+    if (!confirm("¿Deseas eliminar esta publicación del muro? Esta acción no se puede deshacer.")) return;
+    try {
+      const { error } = await supabase.from('posts').delete().eq('id', post.id);
+      if (error) throw error;
+      onRefresh();
+    } catch (err) {
+      alert('Error al eliminar publicación: ' + err.message);
+    }
+  }
+
+  async function handleDeleteComment(commentId) {
+    if (!confirm("¿Deseas eliminar este comentario?")) return;
+    try {
+      const { error } = await supabase.from('comments').delete().eq('id', commentId);
+      if (error) throw error;
+      onRefresh();
+    } catch (err) {
+      alert('Error al eliminar comentario: ' + err.message);
+    }
+  }
 
   const timeInfo = formatPanamaTimestamp(post.created_at);
   const isThisAudioPlaying = currentTrack?.id === post.id && isPlaying;
@@ -161,11 +194,15 @@ export function PostCard({
               <h4 className="font-bold text-sm text-white group-hover:text-cyan-400 transition-colors truncate">
                 {author.dj_name}
               </h4>
-              {isAuthorAdmin && (
+              {isAuthorAdmin ? (
                 <span className="flex items-center gap-0.5 bg-amber-500/20 text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded border border-amber-500/30 flex-shrink-0">
                   <Crown className="w-2.5 h-2.5" /> ADMIN
                 </span>
-              )}
+              ) : isAuthorMod ? (
+                <span className="flex items-center gap-0.5 bg-purple-500/20 text-purple-300 text-[10px] font-bold px-1.5 py-0.5 rounded border border-purple-500/30 flex-shrink-0">
+                  <Shield className="w-2.5 h-2.5" /> MOD
+                </span>
+              ) : null}
             </div>
             <p className="text-xs text-zinc-400 truncate">
               {author.role || 'DJ de Worship 🕊️'}
@@ -173,17 +210,29 @@ export function PostCard({
           </div>
         </div>
 
-        {/* Badge de Hora Oficial de Panamá */}
-        <div 
-          className="text-right flex-shrink-0 cursor-help"
-          title={timeInfo.fullTooltip}
-        >
-          <span className="text-[11px] font-medium text-zinc-400 block">
-            {timeInfo.relative}
-          </span>
-          <span className="text-[10px] font-mono text-cyan-400/90 font-semibold bg-cyan-950/40 px-1.5 py-0.5 rounded border border-cyan-500/20 inline-block mt-0.5">
-            {timeInfo.panamaTime} (PTY)
-          </span>
+        {/* Lado Derecho: Hora Oficial Panamá & Botón Moderación / Eliminar */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div 
+            className="text-right cursor-help"
+            title={timeInfo.fullTooltip}
+          >
+            <span className="text-[11px] font-medium text-zinc-400 block">
+              {timeInfo.relative}
+            </span>
+            <span className="text-[10px] font-mono text-cyan-400/90 font-semibold bg-cyan-950/40 px-1.5 py-0.5 rounded border border-cyan-500/20 inline-block mt-0.5">
+              {timeInfo.panamaTime} (PTY)
+            </span>
+          </div>
+
+          {canDeletePost && (
+            <button
+              onClick={handleDeletePost}
+              className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 border border-white/5 hover:border-red-500/30 transition-all"
+              title={canModerate && post.author_id !== currentUser?.id ? "Eliminar publicación (Moderador)" : "Eliminar publicación"}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -403,9 +452,20 @@ export function PostCard({
                       <span className="font-bold text-[11px] text-white truncate">
                         {c.profiles?.dj_name || 'Hermano en Cristo'}
                       </span>
-                      <span className="text-[9px] text-zinc-500">
-                        {formatPanamaTimestamp(c.created_at).relative}
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <span className="text-[9px] text-zinc-500">
+                          {formatPanamaTimestamp(c.created_at).relative}
+                        </span>
+                        {currentUser && (canModerate || c.author_id === currentUser.id) && (
+                          <button
+                            onClick={() => handleDeleteComment(c.id)}
+                            className="text-zinc-500 hover:text-red-400 p-0.5 rounded transition-colors"
+                            title={canModerate && c.author_id !== currentUser.id ? "Eliminar comentario (Moderación)" : "Eliminar comentario"}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <p className="text-xs text-zinc-300 leading-snug mt-0.5">
                       {c.text}

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Home, Music, Video, Users, FolderOpen, Bookmark, Heart, Settings, User, Crown, HandCoins } from 'lucide-react';
+import { Home, Music, Video, Users, FolderOpen, Bookmark, Heart, Settings, User, Crown, HandCoins, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../common/Avatar';
 
-export function SidebarLeft({ activeTab, onTabChange, onOpenAuth, onOpenEditProfile, onOpenDonate, mixesCount = 0, amenCount = 0 }) {
+export function SidebarLeft({ activeTab, onTabChange, onOpenAuth, onOpenEditProfile, onOpenDonate, onOpenAdmin, mixesCount = 0, amenCount = 0 }) {
   const { currentUser, currentProfile, isSuperAdmin } = useAuth();
   const djName = currentProfile?.dj_name || currentUser?.email?.split('@')[0] || 'DJ';
 
@@ -61,6 +61,16 @@ export function SidebarLeft({ activeTab, onTabChange, onOpenAuth, onOpenEditProf
                 <Settings className="w-4 h-4" />
               </button>
             </div>
+
+            {isSuperAdmin && (
+              <button
+                onClick={onOpenAdmin}
+                className="w-full mt-2.5 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-bold text-amber-300 bg-amber-500/15 border border-amber-500/30 hover:bg-amber-500/25 transition-all"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                <span>Panel de Administración 👑</span>
+              </button>
+            )}
           </div>
         ) : (
           <div className="text-center py-2">

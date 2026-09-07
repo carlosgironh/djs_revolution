@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { X, LogIn, UserPlus, Loader2, Disc } from 'lucide-react';
+import { X, LogIn, UserPlus, Loader2, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
   const [tab, setTab] = useState(initialTab);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [djName, setDjName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -24,13 +24,13 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
         await signIn(email.trim(), password);
         onClose();
       } else {
-        if (!djName.trim()) {
-          setErrorMsg('Por favor ingresa tu Nombre de DJ');
+        if (!fullName.trim()) {
+          setErrorMsg('Por favor ingresa tu Nombre o Usuario');
           setLoading(false);
           return;
         }
-        await signUp(email.trim(), password, djName.trim());
-        alert(`¡Cuenta creada con éxito! Bienvenido a DJ's Revolution, ${djName}. 🕊️`);
+        await signUp(email.trim(), password, fullName.trim());
+        alert(`¡Cuenta creada con éxito! Bienvenido a DJ's Revolution, ${fullName}. Ahora puedes interactuar en el muro. 🕊️`);
         onClose();
       }
     } catch (err) {
@@ -70,7 +70,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             }`}
           >
             <LogIn className="w-3.5 h-3.5" />
-            <span>Acceso a Cabina</span>
+            <span>Iniciar Sesión</span>
           </button>
 
           <button
@@ -82,20 +82,29 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             }`}
           >
             <UserPlus className="w-3.5 h-3.5" />
-            <span>Registrar DJ</span>
+            <span>Crear Cuenta</span>
           </button>
         </div>
 
         <div className="text-center mb-5">
           <h3 className="text-lg font-bold text-white">
-            {tab === 'login' ? 'Acceso a la Cabina 🕊️' : 'Registro de Creador DJ / VJ 🎧'}
+            {tab === 'login' ? 'Acceso a la Cabina 🕊️' : 'Registro de Usuario 🎧'}
           </h3>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
             {tab === 'login'
-              ? 'Ingresa tus credenciales para administrar tus mixes y perfil'
-              : 'Únete gratis a la comunidad ministerial de DJs cristianos'}
+              ? 'Ingresa tus credenciales para interactuar en el muro'
+              : 'Crea tu cuenta de oyente para escuchar, comentar y bendecir las publicaciones.'}
           </p>
         </div>
+
+        {tab === 'signup' && (
+          <div className="p-3 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-300 text-[11px] leading-snug mb-4 flex items-start gap-2">
+            <ShieldCheck className="w-4 h-4 flex-shrink-0 text-cyan-400 mt-0.5" />
+            <span>
+              Los nuevos registros inician como <strong>Usuarios Oyentes</strong>. Los permisos de <strong>DJ Creador</strong> y <strong>Moderador</strong> son asignados por los administradores.
+            </span>
+          </div>
+        )}
 
         {errorMsg && (
           <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs text-center mb-4">
@@ -106,13 +115,13 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {tab === 'signup' && (
             <div>
-              <label className="block text-xs font-bold text-zinc-300 mb-1">Nombre Artístico de DJ / VJ</label>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">Nombre Completo o de Usuario</label>
               <input
                 type="text"
                 required
-                value={djName}
-                onChange={(e) => setDjName(e.target.value)}
-                placeholder="Ej: DJ Worship, DJ Grace, etc."
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Ej: Daniel Gómez"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500"
               />
             </div>
@@ -153,7 +162,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
                 <span>Verificando...</span>
               </>
             ) : (
-              <span>{tab === 'login' ? 'Ingresar a la Plataforma 🎧' : 'Crear Cuenta de DJ 🕊️'}</span>
+              <span>{tab === 'login' ? 'Ingresar a la Plataforma 🎧' : 'Registrarme Gratis 🕊️'}</span>
             )}
           </button>
         </form>

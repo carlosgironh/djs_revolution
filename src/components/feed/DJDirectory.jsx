@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Crown, Sparkles } from 'lucide-react';
+import { Users, Crown, Sparkles, Shield } from 'lucide-react';
 import { Avatar } from '../common/Avatar';
 
 export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
@@ -45,8 +45,14 @@ export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
         {djs.map((dj) => {
           const isSuperAdmin = Boolean(
             dj.is_super_admin || 
-            (dj.role && dj.role.includes('Super Admin')) ||
+            (dj.role && dj.role.toLowerCase().includes('admin')) ||
             dj.username === 'carlosgironh'
+          );
+          const isModerator = Boolean(
+            !isSuperAdmin && (
+              dj.is_moderator || 
+              (dj.role && dj.role.toLowerCase().includes('moderador'))
+            )
           );
 
           return (
@@ -62,13 +68,19 @@ export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
                   isSuperAdmin={isSuperAdmin}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <h4 className="font-bold text-sm text-white truncate">
                       {dj.dj_name}
                     </h4>
-                    {isSuperAdmin && (
-                      <Crown className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-                    )}
+                    {isSuperAdmin ? (
+                      <span className="flex items-center gap-0.5 bg-amber-500/20 text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded border border-amber-500/30 flex-shrink-0">
+                        <Crown className="w-2.5 h-2.5" /> ADMIN
+                      </span>
+                    ) : isModerator ? (
+                      <span className="flex items-center gap-0.5 bg-purple-500/20 text-purple-300 text-[10px] font-bold px-1.5 py-0.5 rounded border border-purple-500/30 flex-shrink-0">
+                        <Shield className="w-2.5 h-2.5" /> MOD
+                      </span>
+                    ) : null}
                   </div>
                   <span className="text-xs text-cyan-400 font-medium block truncate">
                     {dj.role || 'DJ de Worship 🕊️'}

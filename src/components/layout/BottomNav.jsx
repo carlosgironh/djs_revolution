@@ -3,9 +3,24 @@ import { Home, Music, Plus, Video, Menu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../common/Avatar';
 
-export function BottomNav({ activeTab, onTabChange, onOpenUpload, onToggleDrawer }) {
-  const { currentUser, currentProfile, isSuperAdmin } = useAuth();
-  const djName = currentProfile?.dj_name || 'DJ';
+export function BottomNav({ activeTab, onTabChange, onOpenUpload, onOpenAuth, onToggleDrawer }) {
+  const { currentUser, currentProfile, isSuperAdmin, canUpload } = useAuth();
+  const userName = currentProfile?.dj_name || currentProfile?.full_name || 'DJ';
+
+  function handleCenterButtonClick() {
+    if (!currentUser) {
+      alert("Inicia sesión para interactuar en la cabina de DJ's Revolution.");
+      onOpenAuth('login');
+      return;
+    }
+
+    if (!canUpload) {
+      alert("Tu cuenta actual es de Usuario Oyente. La publicación de mixes y videos está reservada para DJs Creadores, Moderadores y Administradores. Puedes solicitar tu rol de creador a un Administrador.");
+      return;
+    }
+
+    onOpenUpload();
+  }
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 bg-dark-950/95 backdrop-blur-2xl border-t border-white/10 flex items-center justify-around px-1 shadow-[0_-8px_30px_rgba(0,0,0,0.8)] select-none">
@@ -38,9 +53,14 @@ export function BottomNav({ activeTab, onTabChange, onOpenUpload, onToggleDrawer
       {/* 3. Subir (+) Botón Central Elevado */}
       <div className="flex-1 flex items-center justify-center">
         <button
-          onClick={onOpenUpload}
-          className="w-12 h-12 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-violet-600/50 -translate-y-3.5 ring-4 ring-dark-950 active:scale-90 transition-transform"
-          aria-label="Subir nuevo mix o video"
+          onClick={handleCenterButtonClick}
+          className={`w-12 h-12 rounded-full text-white flex items-center justify-center shadow-lg -translate-y-3.5 ring-4 ring-dark-950 active:scale-90 transition-transform ${
+            canUpload
+              ? 'bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-500 shadow-violet-600/50'
+              : 'bg-zinc-800 text-zinc-400 shadow-black/60 border border-white/10'
+          }`}
+          title={canUpload ? "Subir nuevo mix o video" : "Cuenta de Usuario Oyente"}
+          aria-label="Subir mix o información de permisos"
         >
           <Plus className="w-6 h-6 stroke-[2.8px]" />
         </button>
@@ -67,7 +87,7 @@ export function BottomNav({ activeTab, onTabChange, onOpenUpload, onToggleDrawer
         {currentUser ? (
           <Avatar 
             src={currentProfile?.avatar_url} 
-            name={djName} 
+            name={userName} 
             size="xs" 
             isSuperAdmin={isSuperAdmin} 
             className="ring-1 ring-cyan-500/40"

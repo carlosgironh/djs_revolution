@@ -17,6 +17,7 @@ import { DonationModal } from './components/modals/DonationModal';
 import { EditProfileModal } from './components/modals/EditProfileModal';
 import { DJProfileModal } from './components/modals/DJProfileModal';
 import { VideoLightboxModal } from './components/modals/VideoLightboxModal';
+import { AdminUsersModal } from './components/modals/AdminUsersModal';
 import { Disc, Sparkles } from 'lucide-react';
 
 export function App() {
@@ -49,6 +50,7 @@ export function App() {
   const [selectedVideoPost, setSelectedVideoPost] = useState(null);
   const [videoLightboxOpen, setVideoLightboxOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [adminUsersModalOpen, setAdminUsersModalOpen] = useState(false);
 
   // Cargar Posts de Supabase
   async function fetchPosts() {
@@ -180,6 +182,7 @@ export function App() {
         onOpenAuth={(t) => { setAuthModalTab(t); setAuthModalOpen(true); }}
         onOpenUpload={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
         onOpenDonate={() => setDonateModalOpen(true)}
+        onOpenAdmin={() => setAdminUsersModalOpen(true)}
         onToggleDrawer={() => setMobileDrawerOpen(true)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -195,6 +198,7 @@ export function App() {
           onOpenAuth={(t) => { setAuthModalTab(t); setAuthModalOpen(true); }}
           onOpenEditProfile={() => setEditProfileModalOpen(true)}
           onOpenDonate={() => setDonateModalOpen(true)}
+          onOpenAdmin={() => setAdminUsersModalOpen(true)}
           mixesCount={myPosts.length}
           amenCount={myAmenTotal}
         />
@@ -296,6 +300,7 @@ export function App() {
         onOpenEditProfile={() => setEditProfileModalOpen(true)}
         onOpenUpload={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
         onOpenDonate={() => setDonateModalOpen(true)}
+        onOpenAdmin={() => setAdminUsersModalOpen(true)}
       />
 
       {/* 6. Modales */}
@@ -335,6 +340,15 @@ export function App() {
         post={selectedVideoPost}
         isOpen={videoLightboxOpen}
         onClose={() => setVideoLightboxOpen(false)}
+      />
+
+      <AdminUsersModal
+        isOpen={adminUsersModalOpen}
+        onClose={() => setAdminUsersModalOpen(false)}
+        onUserRoleUpdated={() => {
+          fetchPosts();
+          fetchDJs();
+        }}
       />
 
     </div>
