@@ -1,114 +1,30 @@
-// DJ's Revolution - Lógica de Interacciones del Frontend
+// DJ's Revolution - Lógica de Frontend conectada a Supabase & Mux Video Streaming
 
-document.addEventListener('DOMContentLoaded', () => {
-    // --- BASE DE DATOS DE DJS Y VJS ---
-    const djsDatabase = {
-        "DJ Alpha": {
-            name: "DJ Alpha",
-            role: "Worship Electrónico / Remixes 🕊️",
-            avatar: "https://i.pravatar.cc/150?img=12",
-            banner: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            bio: "Productor y DJ enfocado en crear atmósferas de adoración con sonidos electrónicos de vanguardia. Salmo 150 en cada set.",
-            mixesCount: 15,
-            followers: "12.5k",
-            amenCount: "8.4k",
-            socials: { youtube: "#", soundcloud: "#", instagram: "#" }
-        },
-        "DJ Grace": {
-            name: "DJ Grace",
-            role: "Deep Worship & Chill Ministry 🕊️",
-            avatar: "https://i.pravatar.cc/150?img=33",
-            banner: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            bio: "Llevando paz a los corazones a través de mezclas de adoración ambiental y electrónica downtempo para edificación.",
-            mixesCount: 8,
-            followers: "9.2k",
-            amenCount: "5.1k",
-            socials: { youtube: "#", soundcloud: "#", instagram: "#" }
-        },
-        "VJ Zion": {
-            name: "VJ Zion",
-            role: "Visuales y Bucles de Gloria 🎥",
-            avatar: "https://i.pravatar.cc/150?img=60",
-            banner: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            bio: "Creador de loops visuales y fondos dinámicos listos para proyectores de iglesias y eventos en vivo. Iluminando el altar.",
-            mixesCount: 22,
-            followers: "6.8k",
-            amenCount: "3.7k",
-            socials: { youtube: "#", instagram: "#" }
-        },
-        "DJ Israel": {
-            name: "DJ Israel",
-            role: "Ministerio de Alabanza 🕊️",
-            avatar: "https://i.pravatar.cc/150?img=11",
-            banner: "https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            bio: "Explorando ritmos de reggaetón celestial y electro worship para conectar a los jóvenes con Dios. ¡DJS Revolution!",
-            mixesCount: 0, // Will increase as the user posts
-            followers: "920",
-            amenCount: "1.5k",
-            socials: { youtube: "#", instagram: "#" }
-        }
-    };
+document.addEventListener('DOMContentLoaded', async () => {
+    // ==========================================
+    // 1. CONFIGURACIÓN DE SUPABASE & MUX
+    // ==========================================
+    const SUPABASE_URL = "https://szptdgmdktxowgokpeye.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6cHRkZ21ka3R4b3dnb2twZXllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4MDUwNjAsImV4cCI6MjEwNDM4MTA2MH0.tSbLM2tCgWxfpnNRMg0qCVgQm63psYlD3_cbLW6qKyo";
+    const MUX_ENV_KEY = "kk0c2blkv34tchrb68f41uar5";
+    const MUX_SERVICE_URL = "https://szptdgmdktxowgokpeye.supabase.co/functions/v1/mux-service";
 
-    // --- BASE DE DATOS DE PUBLICACIONES INICIALES ---
-    let posts = [
-        {
-            id: 1,
-            author: "DJ Alpha",
-            time: "Hace 2 horas",
-            content: "¡Bendiciones mi gente! Les comparto este nuevo set de worship electrónico y remixes de alabanzas contemporáneas. ¡Espero que sea de gran edificación para sus vidas! 🔥🎧🙌",
-            type: "video",
-            title: "Holy Spirit Worship Electronic Set 2026",
-            genre: "Worship Electrónico",
-            mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-worship-hands-raised-in-church-41764-large.mp4",
-            coverUrl: "https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            downloadsCount: 120,
-            likes: { amen: 85, bendicion: 40, like: 15 },
-            comments: [
-                { author: "DJ Grace", avatar: "https://i.pravatar.cc/150?img=33", text: "¡Qué gran unción en este set hermana! Amén.", time: "Hace 1 hora" },
-                { author: "VJ Zion", avatar: "https://i.pravatar.cc/150?img=60", text: "¡Los bajos suenan increíbles! Lo usaré para el próximo retiro juvenil.", time: "Hace 30 min" }
-            ]
-        },
-        {
-            id: 2,
-            author: "DJ Grace",
-            time: "Hace 5 horas",
-            content: "Sesión de adoración profunda y paz. Ambient & Chill Christian Music Vol. 3 🕊️✨ Ideal para momentos de oración personal y lectura bíblica.",
-            type: "audio",
-            title: "Ambient Worship Vol 3",
-            genre: "Deep Ambient Worship",
-            mediaUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-            coverUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            downloadsCount: 340,
-            likes: { amen: 120, bendicion: 90, like: 45 },
-            comments: [
-                { author: "DJ Alpha", avatar: "https://i.pravatar.cc/150?img=12", text: "Hermosa atmósfera de paz espiritual, gracias por compartir.", time: "Hace 4 horas" }
-            ]
-        },
-        {
-            id: 3,
-            author: "VJ Zion",
-            time: "Ayer",
-            content: "Bendiciones hermanos VJs. Les dejo este bucle de video en alta definición con motivos de láseres y luces abstractas, ideal para usar como fondo de las letras de las canciones de alabanza en sus proyectores de iglesia. 🎥🙌",
-            type: "recurso",
-            title: "VJ Laser Lights Loop - Alabanza congregacional",
-            genre: "Loops de Alabanza",
-            mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-41880-large.mp4",
-            coverUrl: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            downloadsCount: 520,
-            likes: { amen: 65, bendicion: 30, like: 12 },
-            comments: [
-                { author: "DJ Israel", avatar: "https://i.pravatar.cc/150?img=11", text: "¡Gran aporte hermano! Lo necesitábamos para el ministerio este domingo.", time: "Hace 18 horas" }
-            ]
-        }
-    ];
+    // Inicializar cliente Supabase
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- VARIABLES DE ESTADO ---
+    // ==========================================
+    // 2. ESTADO GLOBAL DE LA APLICACIÓN
+    // ==========================================
+    let currentUser = null;
+    let currentProfile = null;
+    let posts = [];
+    let djsList = [];
     let currentTab = 'inicio';
     let searchQuery = '';
-    let savedPostIds = [];
-    let userLoggedIn = false; // Modo Oyente Público por defecto
-    
-    // Variables del Reproductor de Audio
+    let savedPostIds = JSON.parse(localStorage.getItem('djs_revolution_saved') || '[]');
+    let currentLightboxPost = null;
+
+    // Reproductor Global Inferior
     let currentPlayingPostId = null;
     const globalAudio = document.getElementById('global-audio-element');
     const persistentPlayer = document.getElementById('persistent-player');
@@ -124,147 +40,409 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerMuteBtn = document.getElementById('player-mute-btn');
     const playerDownloadBtn = document.getElementById('player-download-btn');
 
-    // Actualiza la interfaz según el estado de sesión (Oyente vs DJ/VJ)
+    // ==========================================
+    // 3. GESTIÓN DE SESIÓN Y PERFIL (SUPABASE AUTH)
+    // ==========================================
+    async function initAuth() {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                currentUser = session.user;
+                await fetchCurrentProfile();
+            }
+        } catch (e) {
+            console.warn("Error al inicializar sesión:", e);
+        }
+
+        updateAuthUI();
+
+        // Escuchar cambios de sesión en tiempo real
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            currentUser = session?.user || null;
+            if (currentUser) {
+                await fetchCurrentProfile();
+            } else {
+                currentProfile = null;
+            }
+            updateAuthUI();
+            fetchPosts();
+        });
+    }
+
+    async function fetchCurrentProfile() {
+        if (!currentUser) return;
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', currentUser.id)
+            .single();
+
+        if (data) {
+            currentProfile = data;
+        } else if (error) {
+            // Crear perfil inicial si no existía
+            const djName = currentUser.user_metadata?.dj_name || 'DJ ' + (currentUser.email?.split('@')[0] || 'Nuevo');
+            const { data: newProf } = await supabase
+                .from('profiles')
+                .upsert({
+                    id: currentUser.id,
+                    username: currentUser.email?.split('@')[0],
+                    dj_name: djName,
+                    full_name: djName,
+                    role: 'DJ de Worship 🕊️',
+                    avatar_url: 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'
+                })
+                .select()
+                .single();
+            currentProfile = newProf;
+        }
+    }
+
     function updateAuthUI() {
         const navContainer = document.getElementById('navbar-actions-container');
         const sidebarContainer = document.getElementById('sidebar-user-card');
         const createPostContainer = document.getElementById('create-post-container');
 
-        if (userLoggedIn) {
-            // Acciones del Navbar para DJ
+        if (currentUser && currentProfile) {
+            const djName = currentProfile.dj_name || 'Mi Perfil';
+            const avatar = currentProfile.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80';
+
+            // Navbar para DJ conectado
             if (navContainer) {
                 navContainer.innerHTML = `
-                    <span class="user-status-badge dj-status" style="background: rgba(139, 92, 246, 0.1); color: var(--accent-primary); padding: 6px 12px; border-radius: 100px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-compact-disc fa-spin"></i> DJ Israel
+                    <span class="user-status-badge dj-status" style="background: rgba(139, 92, 246, 0.15); color: var(--accent-primary); padding: 6px 14px; border-radius: 100px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-compact-disc fa-spin"></i> ${escapeHTML(djName)}
                     </span>
-                    <button class="btn btn-primary" onclick="toggleModal('upload-modal', true)"><i class="fa-solid fa-upload"></i> <span class="nav-btn-text">Compartir Mix</span></button>
-                    <div class="user-profile" onclick="openCurrentUserProfile()">
-                        <img src="https://i.pravatar.cc/150?img=11" alt="Perfil DJ Israel">
+                    <button class="btn btn-primary" onclick="toggleModal('upload-modal', true)"><i class="fa-solid fa-upload"></i> <span class="nav-btn-text">Subir Mix</span></button>
+                    <div class="user-profile" onclick="openCurrentUserProfile()" title="Ver mi perfil" style="cursor: pointer;">
+                        <img src="${avatar}" alt="${escapeHTML(djName)}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-primary);">
                     </div>
-                    <button class="btn btn-danger-link" onclick="simulateLogout()" title="Cerrar Sesión" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem; padding: 5px; transition: color 0.3s;"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    <button class="btn btn-danger-link" onclick="handleRealLogout()" title="Cerrar Sesión" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem; padding: 5px; transition: color 0.3s;"><i class="fa-solid fa-right-from-bracket"></i></button>
                 `;
             }
 
-            // Tarjeta del Sidebar para DJ
+            // Sidebar para DJ conectado
             if (sidebarContainer) {
                 sidebarContainer.innerHTML = `
-                    <div class="user-card-header">
-                        <img src="https://i.pravatar.cc/150?img=11" alt="Mi Perfil" onclick="openCurrentUserProfile()">
+                    <div class="user-info">
+                        <img src="${avatar}" alt="${escapeHTML(djName)}" class="avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                         <div>
-                            <h4 onclick="openCurrentUserProfile()">DJ Israel</h4>
-                            <span>Ministerio de Alabanza 🕊️</span>
+                            <h4>${escapeHTML(djName)}</h4>
+                            <span>${escapeHTML(currentProfile.role || 'DJ de Worship 🕊️')}</span>
                         </div>
                     </div>
-                    <div class="user-card-stats">
-                        <div>
-                            <strong id="sidebar-mixes-count">${djsDatabase["DJ Israel"].mixesCount}</strong>
-                            <span>Mixes</span>
+                    <div class="user-stats">
+                        <div class="stat">
+                            <span class="count" id="sidebar-mixes-count">0</span>
+                            <span class="label">Mixes</span>
                         </div>
-                        <div>
-                            <strong>920</strong>
-                            <span>Seguidores</span>
+                        <div class="stat">
+                            <span class="count" id="sidebar-amen-count">0</span>
+                            <span class="label">Amén</span>
                         </div>
-                        <div>
-                            <strong>1.5k</strong>
-                            <span>Amén</span>
-                        </div>
+                    </div>
+                    <div style="margin-top: 12px; display: flex; gap: 8px;">
+                        <button class="btn btn-primary" onclick="openCurrentUserProfile()" style="flex: 1; font-size: 0.8rem; padding: 8px;"><i class="fa-solid fa-user"></i> Mi Perfil</button>
+                        <button class="btn" onclick="openEditProfileModal()" style="background: rgba(255,255,255,0.08); font-size: 0.8rem; padding: 8px;" title="Editar Perfil y Donaciones"><i class="fa-solid fa-gear"></i></button>
                     </div>
                 `;
+                updateSidebarStats();
             }
 
-            // Caja de creación de post para DJ
+            // Feed header para crear post
             if (createPostContainer) {
                 createPostContainer.innerHTML = `
-                    <div class="create-post glass-panel">
-                        <div class="create-post-header">
-                            <img src="https://i.pravatar.cc/150?img=11" alt="Mi Perfil" onclick="openCurrentUserProfile()">
-                            <input type="text" placeholder="¿Qué nuevo mix o bucle quieres compartir hoy para bendición?" onclick="toggleModal('upload-modal', true)">
-                        </div>
-                        <div class="create-post-actions">
-                            <button onclick="openUploadModalWithType('audio')"><i class="fa-solid fa-music" style="color: var(--accent-primary);"></i> Audio Mix</button>
-                            <button onclick="openUploadModalWithType('video')"><i class="fa-solid fa-video" style="color: var(--accent-secondary);"></i> Video Mix</button>
-                            <button onclick="openUploadModalWithType('recurso')"><i class="fa-solid fa-folder-open" style="color: var(--success);"></i> Bucle / Recurso</button>
-                        </div>
+                    <div class="create-post glass-panel" style="padding: 16px; display: flex; align-items: center; gap: 12px; border-radius: 16px;">
+                        <img src="${avatar}" alt="${escapeHTML(djName)}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;">
+                        <button class="create-post-trigger" onclick="toggleModal('upload-modal', true)" style="flex: 1; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--surface-border); border-radius: 100px; padding: 12px 20px; color: var(--text-secondary); cursor: pointer; font-family: 'Outfit'; font-size: 0.95rem;">
+                            ¿Qué nuevo mix de adoración o loop vas a compartir hoy, ${escapeHTML(djName)}? 🎧🕊️
+                        </button>
+                        <button class="btn btn-primary" onclick="toggleModal('upload-modal', true)" style="padding: 10px 16px; border-radius: 100px;">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </button>
                     </div>
                 `;
             }
         } else {
-            // Acciones del Navbar para Oyente Público
+            // Navbar para Invitado / Oyente
             if (navContainer) {
                 navContainer.innerHTML = `
-                    <span class="user-status-badge guest-status" style="background: rgba(14, 165, 233, 0.1); color: var(--accent-secondary); padding: 6px 12px; border-radius: 100px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-eye"></i> Oyente (Público)
-                    </span>
-                    <button class="btn btn-secondary" onclick="simulateLogin()" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--surface-border); border-radius: 12px; font-weight:600; padding: 8px 16px; font-size: 0.85rem;"><i class="fa-solid fa-sign-in-alt"></i> <span class="nav-btn-text">Iniciar Sesión</span></button>
+                    <button class="btn btn-primary" onclick="openAuthModal('login')"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</button>
+                    <button class="btn" onclick="openAuthModal('signup')" style="background: rgba(255,255,255,0.08);"><i class="fa-solid fa-user-plus"></i> Registrarme</button>
                 `;
             }
 
-            // Tarjeta del Sidebar para Oyente Público
+            // Sidebar para Oyente
             if (sidebarContainer) {
                 sidebarContainer.innerHTML = `
                     <div style="text-align: center; padding: 10px 5px;">
                         <i class="fa-solid fa-dove" style="font-size: 2rem; color: var(--accent-secondary); margin-bottom: 12px; display: block;"></i>
                         <h4 style="margin-bottom: 6px;">¡Bienvenido, Oyente! 🕊️</h4>
-                        <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 15px;">Explora y descarga mixes de video y audio gratis para bendecir tu iglesia o tu vida espiritual.</p>
-                        <button class="btn btn-primary" onclick="simulateLogin()" style="width: 100%; font-size: 0.85rem; padding: 8px 12px; border-radius: 8px;"><i class="fa-solid fa-compact-disc"></i> Ingresar como DJ/VJ</button>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 15px;">Explora y descarga mixes de video y audio en alta velocidad para bendecir tu congregación.</p>
+                        <button class="btn btn-primary" onclick="openAuthModal('login')" style="width: 100%; font-size: 0.85rem; padding: 10px 12px; border-radius: 10px;"><i class="fa-solid fa-compact-disc"></i> Ingresar como DJ / VJ</button>
                     </div>
                 `;
             }
 
-            // Banner de invitación para Oyente Público en el Feed
+            // Feed banner de invitación para Oyente
             if (createPostContainer) {
                 createPostContainer.innerHTML = `
                     <div class="create-post glass-panel" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(14, 165, 233, 0.05)); border-color: rgba(139, 92, 246, 0.2); padding: 25px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; border-radius: 20px;">
                         <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 4px;">¿Eres DJ o VJ Cristiano? 🎧🕊️</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 500px; line-height: 1.4; margin-bottom: 4px;">Únete a nuestra hermandad para publicar tus propios sets de audio, video y recursos para proyectores.</p>
-                        <button class="btn btn-primary" onclick="simulateLogin()"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión para Publicar</button>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 500px; line-height: 1.4; margin-bottom: 4px;">Crea tu cuenta para publicar tus propios sets de audio, video y loops con la mejor calidad.</p>
+                        <button class="btn btn-primary" onclick="openAuthModal('signup')"><i class="fa-solid fa-user-plus"></i> Crear Cuenta de DJ Gratis</button>
                     </div>
                 `;
             }
         }
     }
 
-    window.simulateLogin = function() {
-        userLoggedIn = true;
-        updateAuthUI();
-        alert("¡Sesión de prueba iniciada como DJ Israel! Ahora puedes publicar mixes, escribir comentarios y reaccionar con Amén.");
-        renderFeed(getFilteredPosts());
+    function updateSidebarStats() {
+        if (!currentUser) return;
+        const myPosts = posts.filter(p => p.author_id === currentUser.id);
+        const myMixesCountEl = document.getElementById('sidebar-mixes-count');
+        const myAmenCountEl = document.getElementById('sidebar-amen-count');
+
+        if (myMixesCountEl) myMixesCountEl.textContent = myPosts.length;
+        if (myAmenCountEl) {
+            let amenTotal = 0;
+            myPosts.forEach(p => {
+                amenTotal += (p.reactions || []).filter(r => r.reaction_type === 'amen').length;
+            });
+            myAmenCountEl.textContent = amenTotal;
+        }
+    }
+
+    // Modal de Autenticación (Login / Signup)
+    window.openAuthModal = function(tab = 'login') {
+        switchAuthTab(tab);
+        toggleModal('auth-modal', true);
     };
 
-    window.simulateLogout = function() {
-        userLoggedIn = false;
-        updateAuthUI();
-        alert("Sesión cerrada. Ahora estás en Modo Oyente Público (puedes escuchar y descargar mixes).");
-        renderFeed(getFilteredPosts());
+    window.switchAuthTab = function(tab) {
+        const loginBtn = document.getElementById('tab-login-btn');
+        const signupBtn = document.getElementById('tab-signup-btn');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const title = document.getElementById('auth-modal-title');
+
+        if (tab === 'login') {
+            loginBtn.classList.add('active');
+            signupBtn.classList.remove('active');
+            loginForm.style.display = 'flex';
+            signupForm.style.display = 'none';
+            title.textContent = 'Acceso a la Cabina 🕊️';
+        } else {
+            loginBtn.classList.remove('active');
+            signupBtn.classList.add('active');
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'flex';
+            title.textContent = 'Registro de Creador DJ / VJ 🎧';
+        }
     };
 
-    // --- RENDERIZADO DEL MURO PRINCIPAL ---
+    window.handleRealLogin = async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const errorMsg = document.getElementById('login-error-msg');
+        const btn = document.getElementById('login-submit-btn');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando credenciales...';
+        errorMsg.style.display = 'none';
+
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+
+            currentUser = data.user;
+            await fetchCurrentProfile();
+            toggleModal('auth-modal', false);
+            document.getElementById('login-form').reset();
+            alert(`¡Bienvenido de vuelta, ${currentProfile?.dj_name || 'hermano DJ'}! 🕊️`);
+        } catch (err) {
+            errorMsg.textContent = err.message || "Error al iniciar sesión. Verifica tu correo y contraseña.";
+            errorMsg.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Ingresar a la Plataforma 🎧';
+        }
+    };
+
+    window.handleRealSignUp = async function(e) {
+        e.preventDefault();
+        const djName = document.getElementById('signup-dj-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value;
+        const errorMsg = document.getElementById('signup-error-msg');
+        const btn = document.getElementById('signup-submit-btn');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando DJ...';
+        errorMsg.style.display = 'none';
+
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: { dj_name: djName, full_name: djName }
+                }
+            });
+            if (error) throw error;
+
+            currentUser = data.user;
+            await fetchCurrentProfile();
+            toggleModal('auth-modal', false);
+            document.getElementById('signup-form').reset();
+            alert(`¡Cuenta creada con éxito! Bienvenido a DJ's Revolution, ${djName}. 🕊️`);
+        } catch (err) {
+            errorMsg.textContent = err.message || "Error al registrarte. Verifica los datos ingresados.";
+            errorMsg.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Registrarme como DJ 🕊️';
+        }
+    };
+
+    window.handleRealLogout = async function() {
+        await supabase.auth.signOut();
+        currentUser = null;
+        currentProfile = null;
+        updateAuthUI();
+        renderFeed(getFilteredPosts());
+        alert("Sesión cerrada. Ahora estás en Modo Oyente Público.");
+    };
+
+    // Modal de Edición de Perfil & Donaciones
+    window.openEditProfileModal = function() {
+        if (!currentProfile) return;
+        document.getElementById('edit-dj-name').value = currentProfile.dj_name || '';
+        document.getElementById('edit-dj-role').value = currentProfile.role || '';
+        document.getElementById('edit-dj-bio').value = currentProfile.bio || '';
+        document.getElementById('edit-donation-url').value = currentProfile.donation_url || '';
+        
+        const socials = currentProfile.socials || {};
+        document.getElementById('edit-social-instagram').value = socials.instagram || '';
+        document.getElementById('edit-social-youtube').value = socials.youtube || '';
+
+        toggleModal('edit-profile-modal', true);
+    };
+
+    window.handleSaveProfile = async function(e) {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        const djName = document.getElementById('edit-dj-name').value.trim();
+        const role = document.getElementById('edit-dj-role').value.trim();
+        const bio = document.getElementById('edit-dj-bio').value.trim();
+        const donationUrl = document.getElementById('edit-donation-url').value.trim();
+        const instagram = document.getElementById('edit-social-instagram').value.trim();
+        const youtube = document.getElementById('edit-social-youtube').value.trim();
+
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .update({
+                    dj_name: djName,
+                    role: role,
+                    bio: bio,
+                    donation_url: donationUrl || null,
+                    socials: { instagram, youtube },
+                    updated_at: new Date()
+                })
+                .eq('id', currentUser.id)
+                .select()
+                .single();
+
+            if (error) throw error;
+            currentProfile = data;
+            updateAuthUI();
+            toggleModal('edit-profile-modal', false);
+            alert("¡Perfil actualizado con éxito! 🕊️");
+            await fetchPosts();
+        } catch (err) {
+            alert("Error al actualizar perfil: " + err.message);
+        }
+    };
+
+    // ==========================================
+    // 4. CARGA DE POSTS Y FEED DESDE SUPABASE
+    // ==========================================
+    async function fetchPosts() {
+        const feedContainer = document.getElementById('feed-posts');
+        if (!feedContainer) return;
+
+        try {
+            const { data, error } = await supabase
+                .from('posts')
+                .select(`
+                    *,
+                    profiles:author_id (*),
+                    reactions (*),
+                    comments (*, profiles:author_id (*))
+                `)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Error cargando posts de Supabase:", error);
+            } else {
+                posts = data || [];
+            }
+        } catch (e) {
+            console.error("Fallo de red al consultar posts:", e);
+        }
+
+        renderFeed(getFilteredPosts());
+        renderTopDownloaded();
+        updateSidebarStats();
+    }
+
     function renderFeed(feedPosts = posts) {
         const feedContainer = document.getElementById('feed-posts');
+        if (!feedContainer) return;
         feedContainer.innerHTML = '';
 
+        // Si no hay posts (base de datos limpia y sin datos falsos)
         if (feedPosts.length === 0) {
-            feedContainer.innerHTML = getComingSoonHTML({
-                title: "En Cabina Ajustando Frecuencias",
-                tagline: `Sección ${currentTab.toUpperCase()} en Preparación`,
-                desc: "Nuestros DJs y productores están subiendo nuevos tracks y calibrando los últimos detalles para esta sección. ¡Muy pronto disponible!",
-                progress: 88
-            });
+            feedContainer.innerHTML = `
+                <div class="feed-empty-state glass-panel">
+                    <div class="feed-empty-icon"><i class="fa-solid fa-compact-disc"></i></div>
+                    <h2 class="feed-empty-title">Cabina Lista • Sin Publicaciones Aún</h2>
+                    <p class="feed-empty-desc">
+                        La cabina está lista para ti. ¡Sé el primer DJ o VJ en publicar un mix de adoración o loop de video en alta definición!
+                    </p>
+                    <button class="btn btn-primary" onclick="${currentUser ? "toggleModal('upload-modal', true)" : "openAuthModal('signup')"}">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> ${currentUser ? "Publicar el Primer Mix" : "Crear Cuenta de DJ"}
+                    </button>
+                </div>
+            `;
             return;
         }
 
         feedPosts.forEach(post => {
-            const authorData = djsDatabase[post.author] || djsDatabase["DJ Israel"];
-            const totalLikes = post.likes.amen + post.likes.bendicion + post.likes.like;
+            const author = post.profiles || { dj_name: "DJ Creador", avatar_url: "https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80" };
+            const timeAgo = formatRelativeTime(post.created_at);
             const isSaved = savedPostIds.includes(post.id);
 
-            // Generar contenedor de contenido multimedia
+            // Contar reacciones por tipo
+            const reactionsList = post.reactions || [];
+            const amenCount = reactionsList.filter(r => r.reaction_type === 'amen').length;
+            const bendicionCount = reactionsList.filter(r => r.reaction_type === 'bendicion').length;
+            const likeCount = reactionsList.filter(r => r.reaction_type === 'like').length;
+
+            const commentsList = post.comments || [];
+
+            // Miniatura y Medios
             let mediaHTML = '';
+            const coverImage = post.cover_url || (post.mux_playback_id ? `https://image.mux.com/${post.mux_playback_id}/thumbnail.jpg` : 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80');
+
             if (post.type === 'audio') {
                 const isThisPlaying = (currentPlayingPostId === post.id && !globalAudio.paused);
                 mediaHTML = `
                     <div class="media-container audio-container">
-                        <img src="${post.coverUrl}" alt="Cover" class="audio-cover">
+                        <img src="${coverImage}" alt="Cover" class="audio-cover">
                         <div class="audio-player">
                             <button class="play-btn post-play-btn" data-post-id="${post.id}">
                                 <i class="fa-solid ${isThisPlaying ? 'fa-pause' : 'fa-play'}"></i>
@@ -278,154 +456,494 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
-            } else if (post.type === 'video' || post.type === 'recurso') {
+            } else {
                 const badge = post.type === 'recurso' ? '<span class="post-tag recurso-tag" style="position:absolute; top:12px; right:12px; z-index:2;"><i class="fa-solid fa-folder-open"></i> VJ Loop</span>' : '';
                 mediaHTML = `
-                    <div class="media-container video-container" onclick="openVideoLightbox(${post.id})">
+                    <div class="media-container video-container" onclick="openVideoLightbox('${post.id}')">
                         ${badge}
                         <div class="video-placeholder">
                             <i class="fa-solid fa-play play-icon"></i>
-                            <img src="${post.coverUrl}" alt="Video Cover">
+                            <img src="${coverImage}" alt="Video Cover">
                         </div>
                     </div>
                 `;
             }
 
-            // Generar etiquetas cristianas
-            const tagHTML = `<div class="post-tags"><span class="post-tag ${post.type === 'audio' ? 'audio-tag' : post.type === 'video' ? 'vj-tag' : 'recurso-tag'}">#${post.genre}</span></div>`;
+            // Botón de Donación para el autor si lo tiene configurado
+            let donateBtnHTML = '';
+            if (author.donation_url) {
+                donateBtnHTML = `
+                    <a href="${author.donation_url}" target="_blank" rel="noopener noreferrer" class="btn-donate-post" title="Sembrar ofrenda / apoyar ministerio">
+                        <i class="fa-solid fa-hand-holding-dollar"></i> Sembrar
+                    </a>
+                `;
+            }
 
-            // Construir elemento artículo
+            const tagHTML = `<div class="post-tags"><span class="post-tag ${post.type === 'audio' ? 'audio-tag' : post.type === 'video' ? 'vj-tag' : 'recurso-tag'}">#${escapeHTML(post.genre || 'Worship')}</span></div>`;
+
             const article = document.createElement('article');
             article.className = 'post glass-panel';
             article.id = `post-${post.id}`;
             article.innerHTML = `
                 <div class="post-header">
-                    <div class="post-author" onclick="openDJProfile('${post.author}')" style="cursor: pointer;">
-                        <img src="${authorData.avatar}" alt="${post.author}">
+                    <div class="post-author" onclick="openDJProfileById('${author.id}')" style="cursor: pointer;">
+                        <img src="${author.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'}" alt="${escapeHTML(author.dj_name)}">
                         <div>
-                            <h3>${post.author}</h3>
-                            <span>${post.time} • <i class="fa-solid fa-globe"></i> Público</span>
+                            <h3>${escapeHTML(author.dj_name)}</h3>
+                            <span>${timeAgo} • <i class="fa-solid fa-globe"></i> HD Stream</span>
                         </div>
                     </div>
-                    <button class="post-options" onclick="toggleSavePost(${post.id})">
-                        <i class="${isSaved ? 'fa-solid' : 'fa-regular'} fa-bookmark" style="color: ${isSaved ? 'var(--accent-secondary)' : ''}"></i>
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        ${donateBtnHTML}
+                        <button class="post-options" onclick="toggleSavePost('${post.id}')" title="Guardar">
+                            <i class="${isSaved ? 'fa-solid' : 'fa-regular'} fa-bookmark" style="color: ${isSaved ? 'var(--accent-secondary)' : ''}"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="post-content">
-                    <p>${post.content}</p>
+                    <h4 style="font-size: 1.15rem; margin-bottom: 6px;">${escapeHTML(post.title)}</h4>
+                    ${post.content ? `<p style="margin-bottom: 12px;">${escapeHTML(post.content)}</p>` : ''}
                     ${mediaHTML}
                     ${tagHTML}
                 </div>
                 
                 <div class="post-stats">
                     <div style="display: flex; gap: 8px;">
-                        <span class="faith-count" style="color: var(--accent-secondary);"><i class="fa-solid fa-dove"></i> ${post.likes.amen} Amén</span>
-                        <span class="faith-count" style="color: var(--success);"><i class="fa-solid fa-hands-praying"></i> ${post.likes.bendicion} Bendiciones</span>
-                        <span class="faith-count" style="color: var(--danger);"><i class="fa-solid fa-heart"></i> ${post.likes.like}</span>
+                        <span class="faith-count" style="color: var(--accent-secondary);"><i class="fa-solid fa-dove"></i> ${amenCount} Amén</span>
+                        <span class="faith-count" style="color: var(--success);"><i class="fa-solid fa-hands-praying"></i> ${bendicionCount} Bendiciones</span>
+                        <span class="faith-count" style="color: var(--danger);"><i class="fa-solid fa-heart"></i> ${likeCount}</span>
                     </div>
-                    <span>${post.comments.length} Comentarios • ${post.downloadsCount} Descargas</span>
+                    <span>${commentsList.length} Comentarios • ${post.downloads_count || 0} Descargas</span>
                 </div>
                 
                 <div class="post-actions">
                     <div class="reactions-wrapper">
                         <button class="action-btn"><i class="fa-regular fa-hands-praying"></i> Reaccionar</button>
                         <div class="reactions-popover">
-                            <span class="reaction-option" onclick="handleReaction(${post.id}, 'amen')" title="Amén 🕊️">🕊️</span>
-                            <span class="reaction-option" onclick="handleReaction(${post.id}, 'bendicion')" title="Bendición 🙌">🙌</span>
-                            <span class="reaction-option" onclick="handleReaction(${post.id}, 'like')" title="Me encanta ❤️">❤️</span>
+                            <span class="reaction-option" onclick="handleReaction('${post.id}', 'amen')" title="Amén 🕊️">🕊️</span>
+                            <span class="reaction-option" onclick="handleReaction('${post.id}', 'bendicion')" title="Bendición 🙌">🙌</span>
+                            <span class="reaction-option" onclick="handleReaction('${post.id}', 'like')" title="Me encanta ❤️">❤️</span>
                         </div>
                     </div>
                     
-                    <button class="action-btn" onclick="toggleComments(${post.id})"><i class="fa-regular fa-comment"></i> Comentar</button>
+                    <button class="action-btn" onclick="toggleComments('${post.id}')"><i class="fa-regular fa-comment"></i> Comentar</button>
                     
-                    <button class="action-btn" onclick="sharePost(${post.id})"><i class="fa-solid fa-share"></i> Compartir</button>
+                    <button class="action-btn" onclick="sharePost('${post.id}')"><i class="fa-solid fa-share"></i> Compartir</button>
                     
-                    <button class="action-btn download-btn" onclick="triggerDirectDownload('${post.title}', '${post.mediaUrl}')">
+                    <button class="action-btn download-btn" onclick="triggerDirectDownload('${escapeHTML(post.title)}', '${post.media_url || ''}', '${post.id}')">
                         <i class="fa-solid fa-download"></i> Descargar
                     </button>
                 </div>
 
-                <!-- Collapsible Comments Section -->
+                <!-- Sección de Comentarios -->
                 <div class="post-comments-section hidden" id="comments-section-${post.id}">
                     <div class="comments-list" id="comments-list-${post.id}">
-                        ${post.comments.map(c => `
+                        ${commentsList.map(c => `
                             <div class="comment-item">
-                                <img src="${c.avatar}" alt="${c.author}" onclick="openDJProfile('${c.author}')" style="cursor:pointer;">
+                                <img src="${c.profiles?.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'}" alt="Avatar">
                                 <div class="comment-bubble">
-                                    <h5 onclick="openDJProfile('${c.author}')">${c.author}</h5>
-                                    <p>${c.text}</p>
-                                    <span>${c.time}</span>
+                                    <h5>${escapeHTML(c.profiles?.dj_name || 'Hermano')}</h5>
+                                    <p>${escapeHTML(c.text)}</p>
+                                    <span>${formatRelativeTime(c.created_at)}</span>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
-                    <div class="post-comments-input-area">
-                        <img src="https://i.pravatar.cc/150?img=11" alt="Mi Perfil">
-                        <input type="text" placeholder="Escribe un mensaje de bendición..." id="comment-input-${post.id}" onkeypress="handleCommentKeyPress(event, ${post.id})">
+                    <div class="comment-input-box">
+                        <img src="${currentProfile?.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'}" alt="Avatar">
+                        <input type="text" id="comment-input-${post.id}" placeholder="Escribe un mensaje de bendición..." onkeypress="handleCommentKeyPress(event, '${post.id}')">
                     </div>
                 </div>
             `;
             feedContainer.appendChild(article);
         });
 
-        // Re-sincronizar botones de play en los posts cargados
         setupPostAudioTriggers();
     }
 
-    // --- RENDERIZAR WIDGET TOP DESCARGAS ---
-    function renderTopDownloaded() {
-        const topList = document.getElementById('top-downloaded-list');
-        topList.innerHTML = '';
+    // ==========================================
+    // 5. SUBIDA DIRECTA A MUX (DIRECT UPLOAD CON UPCHUNK)
+    // ==========================================
+    window.handleFileSelected = function(input) {
+        const file = input.files[0];
+        const badge = document.getElementById('file-selected-badge');
+        const fileNameEl = document.getElementById('file-selected-name');
+        const uploadText = document.getElementById('file-upload-text');
+        const coverGroup = document.getElementById('custom-cover-group');
 
-        // Ordenar posts por descargas de mayor a menor y tomar los 3 primeros
-        const sorted = [...posts].sort((a, b) => b.downloadsCount - a.downloadsCount).slice(0, 3);
+        if (file) {
+            badge.style.display = 'inline-flex';
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+            fileNameEl.textContent = `${file.name} (${sizeMB} MB)`;
+            uploadText.textContent = 'Archivo preparado para subir';
 
-        sorted.forEach(post => {
-            const authorData = djsDatabase[post.author] || djsDatabase["DJ Israel"];
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <img src="${post.coverUrl}" alt="Cover" onclick="openDJProfile('${post.author}')">
-                <div class="mix-info" onclick="playAudioFromMetadata('${post.title}', '${post.author}', '${post.mediaUrl}', '${post.coverUrl}', ${post.id})">
-                    <h4>${post.title}</h4>
-                    <span>${post.author} • ${post.downloadsCount} descargas</span>
+            // Si es audio, sugerir portada personalizada opcional
+            if (file.type.startsWith('audio/') || file.name.endsWith('.mp3') || file.name.endsWith('.wav')) {
+                coverGroup.style.display = 'block';
+            } else {
+                coverGroup.style.display = 'none';
+            }
+        }
+    };
+
+    window.handleFormTypeChange = function() {
+        const type = document.getElementById('mix-type').value;
+        const coverGroup = document.getElementById('custom-cover-group');
+        if (type === 'audio') {
+            coverGroup.style.display = 'block';
+        } else {
+            coverGroup.style.display = 'none';
+        }
+    };
+
+    window.handleRealUploadSubmit = async function(e) {
+        e.preventDefault();
+        if (!currentUser) {
+            alert("Debes iniciar sesión para publicar en la comunidad.");
+            openAuthModal('login');
+            return;
+        }
+
+        const fileInput = document.getElementById('mix-file-input');
+        const file = fileInput.files[0];
+        if (!file) {
+            alert("Por favor selecciona un archivo multimedia (audio o video).");
+            return;
+        }
+
+        const title = document.getElementById('mix-title').value.trim();
+        const description = document.getElementById('mix-description').value.trim();
+        const type = document.getElementById('mix-type').value;
+        const genre = document.getElementById('mix-genre').value;
+        const coverFileInput = document.getElementById('mix-cover-file');
+        
+        const submitBtn = document.getElementById('btn-submit-upload');
+        const progressContainer = document.getElementById('upload-progress-container');
+        const progressFill = document.getElementById('upload-progress-fill');
+        const percentText = document.getElementById('upload-percent-text');
+        const statusText = document.getElementById('upload-status-text');
+
+        submitBtn.disabled = true;
+        progressContainer.style.display = 'block';
+        statusText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando con el servidor...';
+        progressFill.style.width = '5%';
+        percentText.textContent = '5%';
+
+        try {
+            // 1. Pedir Direct Upload a la Edge Function
+            const res = await fetch(`${MUX_SERVICE_URL}?action=create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const muxData = await res.json();
+            if (!res.ok || !muxData.upload_url) {
+                throw new Error(muxData.error || "No se pudo iniciar la subida");
+            }
+
+            const { upload_url, upload_id } = muxData;
+            statusText.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Subiendo a DJ\'s Revolution...';
+
+            // 2. Subida en chunks mediante Mux UpChunk con progreso en tiempo real
+            await new Promise((resolve, reject) => {
+                const upload = window.UpChunk.createUpload({
+                    endpoint: upload_url,
+                    file: file,
+                    chunkSize: 5120 // 5MB chunks
+                });
+
+                upload.on('progress', (progressDetail) => {
+                    const percent = Math.round(progressDetail.detail);
+                    progressFill.style.width = `${percent}%`;
+                    percentText.textContent = `${percent}%`;
+                });
+
+                upload.on('success', () => {
+                    resolve();
+                });
+
+                upload.on('error', (err) => {
+                    reject(new Error(err.detail?.message || "Error durante la subida"));
+                });
+            });
+
+            // 3. Subida finalizada, optimizar procesamiento
+            statusText.innerHTML = '<i class="fa-solid fa-compact-disc fa-spin"></i> Optimizando calidad de transmisión HD...';
+            percentText.textContent = '100%';
+
+            let playbackId = null;
+            let assetId = null;
+            let attempts = 0;
+
+            // Consultar durante unos segundos para obtener el playback_id
+            while (attempts < 10 && !playbackId) {
+                await new Promise(r => setTimeout(r, 2500));
+                attempts++;
+                try {
+                    const statusRes = await fetch(`${MUX_SERVICE_URL}?action=status&upload_id=${upload_id}`);
+                    if (statusRes.ok) {
+                        const sData = await statusRes.json();
+                        if (sData.playback_id) {
+                            playbackId = sData.playback_id;
+                            assetId = sData.asset_id;
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Verificando Mux...", e);
+                }
+            }
+
+            // 4. Si es audio y subió portada, subir imagen a Supabase Storage
+            let coverUrl = null;
+            if (type === 'audio') {
+                if (coverFileInput && coverFileInput.files[0]) {
+                    const coverFile = coverFileInput.files[0];
+                    const ext = coverFile.name.split('.').pop();
+                    const path = `${currentUser.id}/${Date.now()}.${ext}`;
+                    const { error: sErr } = await supabase.storage.from('covers').upload(path, coverFile);
+                    if (!sErr) {
+                        const { data: pData } = supabase.storage.from('covers').getPublicUrl(path);
+                        coverUrl = pData.publicUrl;
+                    }
+                }
+                if (!coverUrl) {
+                    coverUrl = 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80';
+                }
+            } else {
+                // Para videos, usar miniatura automática de Mux
+                if (playbackId) {
+                    coverUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`;
+                } else {
+                    coverUrl = 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80';
+                }
+            }
+
+            const mediaUrl = playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : null;
+
+            // 5. Guardar post en Supabase
+            const { error: insErr } = await supabase.from('posts').insert({
+                author_id: currentUser.id,
+                title: title,
+                content: description,
+                type: type,
+                genre: genre,
+                mux_upload_id: upload_id,
+                mux_playback_id: playbackId,
+                mux_asset_id: assetId,
+                media_url: mediaUrl,
+                cover_url: coverUrl,
+                status: 'ready'
+            });
+
+            if (insErr) throw insErr;
+
+            alert("¡Mix subido con éxito y publicado en el muro! 🕊️🎧");
+            toggleModal('upload-modal', false);
+            document.getElementById('upload-mix-form').reset();
+            document.getElementById('file-selected-badge').style.display = 'none';
+            document.getElementById('file-upload-text').textContent = 'Haz clic o arrastra tu archivo aquí';
+            await fetchPosts();
+        } catch (err) {
+            console.error("Error al publicar:", err);
+            alert("Error: " + (err.message || "Fallo en la subida"));
+        } finally {
+            submitBtn.disabled = false;
+            progressContainer.style.display = 'none';
+            progressFill.style.width = '0%';
+        }
+    };
+
+    // ==========================================
+    // 6. REPRODUCTOR DE VIDEO LIGHTBOX CON MUX PLAYER
+    // ==========================================
+    window.openVideoLightbox = function(postId) {
+        const post = posts.find(p => p.id === postId);
+        if (!post) return;
+        currentLightboxPost = post;
+
+        const mount = document.getElementById('lightbox-video-mount');
+        mount.innerHTML = '';
+
+        // Si tiene playback_id de Mux, montar <mux-player>
+        if (post.mux_playback_id) {
+            const player = document.createElement('mux-player');
+            player.setAttribute('playback-id', post.mux_playback_id);
+            player.setAttribute('env-key', MUX_ENV_KEY);
+            player.setAttribute('stream-type', 'on-demand');
+            player.setAttribute('controls', '');
+            player.setAttribute('autoplay', '');
+            player.style.width = '100%';
+            player.style.height = '100%';
+            mount.appendChild(player);
+        } else if (post.media_url) {
+            const video = document.createElement('video');
+            video.src = post.media_url;
+            video.controls = true;
+            video.autoplay = true;
+            video.style.width = '100%';
+            video.style.height = '100%';
+            mount.appendChild(video);
+        }
+
+        const author = post.profiles || {};
+        document.getElementById('lightbox-author-img').src = author.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80';
+        document.getElementById('lightbox-author-name').textContent = author.dj_name || 'DJ';
+        document.getElementById('lightbox-author-box').onclick = () => { closeVideoLightbox(); openDJProfileById(author.id); };
+        document.getElementById('lightbox-post-time').textContent = formatRelativeTime(post.created_at);
+        document.getElementById('lightbox-video-title').textContent = post.title;
+        document.getElementById('lightbox-video-desc').textContent = post.content || '';
+
+        // Botón de donación en Lightbox si aplica
+        const donateSlot = document.getElementById('lightbox-author-donate-slot');
+        if (author.donation_url) {
+            donateSlot.innerHTML = `
+                <a href="${author.donation_url}" target="_blank" rel="noopener noreferrer" class="btn-donate-post">
+                    <i class="fa-solid fa-heart-circle-bolt"></i> Sembrar Ofrenda
+                </a>
+            `;
+        } else {
+            donateSlot.innerHTML = '';
+        }
+
+        // Tags
+        document.getElementById('lightbox-video-tags').innerHTML = `
+            <span class="post-tag ${post.type === 'recurso' ? 'recurso-tag' : 'vj-tag'}">#${escapeHTML(post.genre || 'Worship')}</span>
+        `;
+
+        updateLightboxStats(post);
+        renderLightboxComments(post);
+
+        toggleModal('video-lightbox', true);
+    };
+
+    window.closeVideoLightbox = function() {
+        const mount = document.getElementById('lightbox-video-mount');
+        if (mount) mount.innerHTML = '';
+        currentLightboxPost = null;
+        toggleModal('video-lightbox', false);
+    };
+
+    function updateLightboxStats(post) {
+        const reactionsList = post.reactions || [];
+        document.getElementById('lightbox-likes-stat').innerHTML = `<i class="fa-solid fa-heart"></i> ${reactionsList.length} reacciones`;
+        document.getElementById('lightbox-comments-stat').textContent = `${(post.comments || []).length} Comentarios`;
+    }
+
+    function renderLightboxComments(post) {
+        const list = document.getElementById('lightbox-comments-list');
+        list.innerHTML = '';
+        const comments = post.comments || [];
+
+        if (comments.length === 0) {
+            list.innerHTML = `<p style="color: var(--text-secondary); text-align: center; font-size: 0.85rem;">Ningún comentario aún. ¡Sé el primero en bendecir!</p>`;
+            return;
+        }
+
+        comments.forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'comment-item';
+            div.innerHTML = `
+                <img src="${c.profiles?.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'}" alt="Avatar">
+                <div class="comment-bubble">
+                    <h5>${escapeHTML(c.profiles?.dj_name || 'Hermano')}</h5>
+                    <p>${escapeHTML(c.text)}</p>
+                    <span>${formatRelativeTime(c.created_at)}</span>
                 </div>
             `;
-            topList.appendChild(li);
+            list.appendChild(div);
         });
     }
 
-    // --- SISTEMA DE REPRODUCCIÓN PERSISTENTE (AUDIO PLAYER) ---
-    function playAudioFromMetadata(title, author, url, cover, postId) {
-        // Mostrar reproductor flotante
-        persistentPlayer.classList.remove('persistent-player-hidden');
-        
-        // Actualizar datos del reproductor
-        playerCover.src = cover;
-        playerTitle.textContent = title;
-        playerArtist.textContent = author;
-        playerDownloadBtn.onclick = () => triggerDirectDownload(title, url);
+    window.submitLightboxComment = async function() {
+        if (!currentUser) {
+            alert("Debes iniciar sesión para comentar.");
+            openAuthModal('login');
+            return;
+        }
+        if (!currentLightboxPost) return;
 
-        // Si es una canción nueva, recargar e iniciar
-        if (currentPlayingPostId !== postId) {
-            currentPlayingPostId = postId;
-            globalAudio.src = url;
+        const field = document.getElementById('lightbox-comment-field');
+        const text = field.value.trim();
+        if (!text) return;
+
+        try {
+            const { data, error } = await supabase.from('comments').insert({
+                post_id: currentLightboxPost.id,
+                author_id: currentUser.id,
+                text: text
+            }).select('*, profiles:author_id(*)').single();
+
+            if (error) throw error;
+            field.value = '';
+
+            if (!currentLightboxPost.comments) currentLightboxPost.comments = [];
+            currentLightboxPost.comments.push(data);
+
+            renderLightboxComments(currentLightboxPost);
+            updateLightboxStats(currentLightboxPost);
+            renderFeed(getFilteredPosts());
+        } catch (err) {
+            alert("Error al comentar: " + err.message);
+        }
+    };
+
+    // ==========================================
+    // 7. REPRODUCTOR DE AUDIO INFERIOR PERSISTENTE
+    // ==========================================
+    function setupPostAudioTriggers() {
+        const playButtons = document.querySelectorAll('.post-play-btn');
+        playButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const id = this.getAttribute('data-post-id');
+                const post = posts.find(p => p.id === id);
+                if (post) {
+                    playAudioFromMetadata(post);
+                }
+            });
+        });
+
+        const progressBars = document.querySelectorAll('.post-progress-bar');
+        progressBars.forEach(bar => {
+            bar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const id = this.getAttribute('data-post-id');
+                if (id === currentPlayingPostId && globalAudio.duration) {
+                    const rect = this.getBoundingClientRect();
+                    const percentage = (e.clientX - rect.left) / rect.width;
+                    globalAudio.currentTime = percentage * globalAudio.duration;
+                }
+            });
+        });
+    }
+
+    function playAudioFromMetadata(post) {
+        persistentPlayer.classList.remove('persistent-player-hidden');
+        const author = post.profiles?.dj_name || 'DJ';
+        const cover = post.cover_url || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80';
+
+        playerCover.src = cover;
+        playerTitle.textContent = post.title;
+        playerArtist.textContent = author;
+        playerDownloadBtn.onclick = () => triggerDirectDownload(post.title, post.media_url, post.id);
+
+        if (currentPlayingPostId !== post.id) {
+            currentPlayingPostId = post.id;
+            globalAudio.src = post.media_url || '';
             globalAudio.load();
         }
 
-        // Reproducir / Pausar
         toggleGlobalAudioPlay();
     }
 
     function toggleGlobalAudioPlay() {
-        if (globalAudio.src === "" || globalAudio.src.endsWith('#') || globalAudio.src.includes('undefined')) return;
+        if (!globalAudio.src || globalAudio.src.endsWith('#')) return;
 
         if (globalAudio.paused) {
             globalAudio.play().then(() => {
                 playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
                 updateFeedPlayButtons(true);
-            }).catch(err => {
-                console.error("Audio playback error: ", err);
-            });
+            }).catch(err => console.error("Error reproduciendo audio:", err));
         } else {
             globalAudio.pause();
             playerPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
@@ -434,10 +952,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateFeedPlayButtons(isPlaying) {
-        // Buscar botones de play en los posts y actualizar su icono
         const playButtons = document.querySelectorAll('.post-play-btn');
         playButtons.forEach(btn => {
-            const id = parseInt(btn.getAttribute('data-post-id'));
+            const id = btn.getAttribute('data-post-id');
             const icon = btn.querySelector('i');
             if (id === currentPlayingPostId) {
                 if (isPlaying) {
@@ -454,56 +971,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Configurar listeners para botones de Play en las tarjetas del feed
-    function setupPostAudioTriggers() {
-        const playButtons = document.querySelectorAll('.post-play-btn');
-        playButtons.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const id = parseInt(this.getAttribute('data-post-id'));
-                const post = posts.find(p => p.id === id);
-                if (post) {
-                    playAudioFromMetadata(post.title, post.author, post.mediaUrl, post.coverUrl, post.id);
-                }
-            });
-        });
-
-        // Progreso clickeable en los posts
-        const progressBars = document.querySelectorAll('.post-progress-bar');
-        progressBars.forEach(bar => {
-            bar.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const id = parseInt(this.getAttribute('data-post-id'));
-                if (id === currentPlayingPostId) {
-                    const rect = this.getBoundingClientRect();
-                    const clickX = e.clientX - rect.left;
-                    const width = rect.width;
-                    const percentage = clickX / width;
-                    globalAudio.currentTime = percentage * globalAudio.duration;
-                }
-            });
-        });
-    }
-
-    // Actualización del progreso de audio global
     globalAudio.addEventListener('timeupdate', () => {
         if (!globalAudio.duration) return;
-
         const percentage = (globalAudio.currentTime / globalAudio.duration) * 100;
         playerProgress.style.width = percentage + '%';
         playerCurrentTime.textContent = formatTime(globalAudio.currentTime);
         playerDuration.textContent = formatTime(globalAudio.duration);
 
-        // Actualizar también la barra de progreso dentro del post activo en el feed
         if (currentPlayingPostId !== null) {
-            const activePostBar = document.querySelector(`.post-progress-bar[data-post-id="${currentPlayingPostId}"] .progress`);
-            const activePostTime = document.querySelector(`.post-time[data-post-id="${currentPlayingPostId}"]`);
-            if (activePostBar) {
-                activePostBar.style.width = percentage + '%';
-            }
-            if (activePostTime) {
-                activePostTime.textContent = formatTime(globalAudio.currentTime) + ' / ' + formatTime(globalAudio.duration);
-            }
+            const bar = document.querySelector(`.post-progress-bar[data-post-id="${currentPlayingPostId}"] .progress`);
+            const timeSpan = document.querySelector(`.post-time[data-post-id="${currentPlayingPostId}"]`);
+            if (bar) bar.style.width = percentage + '%';
+            if (timeSpan) timeSpan.textContent = formatTime(globalAudio.currentTime) + ' / ' + formatTime(globalAudio.duration);
         }
     });
 
@@ -514,58 +993,23 @@ document.addEventListener('DOMContentLoaded', () => {
         playerCurrentTime.textContent = "00:00";
     });
 
-    // Control de barra de progreso del player inferior (dragging/click)
     playerProgressBar.addEventListener('click', (e) => {
         if (!globalAudio.duration) return;
         const rect = playerProgressBar.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const width = rect.width;
-        const percentage = clickX / width;
+        const percentage = (e.clientX - rect.left) / rect.width;
         globalAudio.currentTime = percentage * globalAudio.duration;
     });
 
-    // Play/Pause en reproductor persistente
     playerPlayBtn.addEventListener('click', toggleGlobalAudioPlay);
 
-    // Mute / Volumen
     playerVolumeSlider.addEventListener('input', (e) => {
         globalAudio.volume = e.target.value;
-        if (globalAudio.volume === 0) {
-            playerMuteBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-        } else if (globalAudio.volume < 0.5) {
-            playerMuteBtn.innerHTML = '<i class="fa-solid fa-volume-low"></i>';
-        } else {
-            playerMuteBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-        }
+        playerMuteBtn.innerHTML = e.target.value == 0 ? '<i class="fa-solid fa-volume-xmark"></i>' : (e.target.value < 0.5 ? '<i class="fa-solid fa-volume-low"></i>' : '<i class="fa-solid fa-volume-high"></i>');
     });
 
     playerMuteBtn.addEventListener('click', () => {
         globalAudio.muted = !globalAudio.muted;
-        if (globalAudio.muted) {
-            playerMuteBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-        } else {
-            playerMuteBtn.innerHTML = globalAudio.volume < 0.5 ? '<i class="fa-solid fa-volume-low"></i>' : '<i class="fa-solid fa-volume-high"></i>';
-        }
-    });
-
-    // Botones Siguiente / Anterior en reproductor global (simulados dentro de los audios del feed)
-    document.getElementById('player-next-btn').addEventListener('click', () => {
-        const audioPosts = posts.filter(p => p.type === 'audio');
-        if (audioPosts.length <= 1) return;
-        let currentIndex = audioPosts.findIndex(p => p.id === currentPlayingPostId);
-        let nextIndex = (currentIndex + 1) % audioPosts.length;
-        const nextPost = audioPosts[nextIndex];
-        playAudioFromMetadata(nextPost.title, nextPost.author, nextPost.mediaUrl, nextPost.coverUrl, nextPost.id);
-    });
-
-    document.getElementById('player-prev-btn').addEventListener('click', () => {
-        const audioPosts = posts.filter(p => p.type === 'audio');
-        if (audioPosts.length <= 1) return;
-        let currentIndex = audioPosts.findIndex(p => p.id === currentPlayingPostId);
-        let prevIndex = currentIndex - 1;
-        if (prevIndex < 0) prevIndex = audioPosts.length - 1;
-        const prevPost = audioPosts[prevIndex];
-        playAudioFromMetadata(prevPost.title, prevPost.author, prevPost.mediaUrl, prevPost.coverUrl, prevPost.id);
+        playerMuteBtn.innerHTML = globalAudio.muted ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>';
     });
 
     document.getElementById('player-close-btn').addEventListener('click', () => {
@@ -575,428 +1019,188 @@ document.addEventListener('DOMContentLoaded', () => {
         currentPlayingPostId = null;
     });
 
-    // Helper para formatear tiempo
-    function formatTime(seconds) {
-        if (isNaN(seconds)) return "00:00";
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    // --- REACCIONES (AMEN, BENDICION, ME GUSTA) ---
-    window.handleReaction = function(postId, reactionType) {
-        if (!userLoggedIn) {
-            alert("Para reaccionar debes iniciar sesión. Inicia sesión en modo demo.");
-            simulateLogin();
+    // ==========================================
+    // 8. REACCIONES Y COMENTARIOS REALES EN SUPABASE
+    // ==========================================
+    window.handleReaction = async function(postId, reactionType) {
+        if (!currentUser) {
+            alert("Inicia sesión para reaccionar a las publicaciones.");
+            openAuthModal('login');
             return;
         }
-        const post = posts.find(p => p.id === postId);
-        if (post) {
-            post.likes[reactionType]++;
-            
-            // Si el post del autor es el usuario logueado o un DJ, aumentar su Amen general
-            if (reactionType === 'amen') {
-                const authorData = djsDatabase[post.author];
-                if (authorData) {
-                    let count = parseFloat(authorData.amenCount);
-                    if (!isNaN(count)) {
-                        authorData.amenCount = (count + 0.001).toFixed(1) + 'k';
-                    }
-                }
+
+        try {
+            // Verificar si ya reaccionó
+            const post = posts.find(p => p.id === postId);
+            const existing = (post?.reactions || []).find(r => r.user_id === currentUser.id && r.reaction_type === reactionType);
+
+            if (existing) {
+                // Eliminar reacción
+                await supabase.from('reactions').delete().eq('id', existing.id);
+            } else {
+                // Insertar reacción
+                await supabase.from('reactions').insert({
+                    post_id: postId,
+                    user_id: currentUser.id,
+                    reaction_type: reactionType
+                });
             }
-
-            renderFeed(getFilteredPosts());
-            renderTopDownloaded();
-            
-            // Si el lightbox de video está abierto para este post, actualizar estadísticas allí
-            const lightbox = document.getElementById('video-lightbox');
-            if (lightbox.classList.contains('active') && currentLightboxPostId === postId) {
-                updateLightboxStats(post);
-            }
+            await fetchPosts();
+        } catch (err) {
+            console.error("Error al reaccionar:", err);
         }
     };
 
-    // --- COMPARTIR Y GUARDADOS ---
-    window.sharePost = function(postId) {
-        const post = posts.find(p => p.id === postId);
-        if (post) {
-            // Copiar al portapapeles una URL simulada de bendición
-            const dummyUrl = `https://djs-revolution.com/mix/${post.id}`;
-            navigator.clipboard.writeText(dummyUrl).then(() => {
-                alert(`¡Vínculo de bendición copiado al portapapeles! Comparte este mix: ${post.title}`);
-            });
-        }
-    };
-
-    window.toggleSavePost = function(postId) {
-        const index = savedPostIds.indexOf(postId);
-        if (index > -1) {
-            savedPostIds.splice(index, 1);
-            alert("Eliminado de tus guardados/favoritos.");
-        } else {
-            savedPostIds.push(postId);
-            alert("¡Mix guardado en tus favoritos espirituales!");
-        }
-        renderFeed(getFilteredPosts());
-    };
-
-    // --- COMENTARIOS INTERACTIVOS ---
     window.toggleComments = function(postId) {
-        const commentSection = document.getElementById(`comments-section-${postId}`);
-        if (commentSection) {
-            commentSection.classList.toggle('hidden');
-        }
+        const sec = document.getElementById(`comments-section-${postId}`);
+        if (sec) sec.classList.toggle('hidden');
     };
 
-    window.handleCommentKeyPress = function(event, postId) {
+    window.handleCommentKeyPress = async function(event, postId) {
         if (event.key === 'Enter') {
-            if (!userLoggedIn) {
-                alert("Para escribir un comentario debes registrarte como DJ o VJ. Iniciando sesión de prueba...");
-                simulateLogin();
+            if (!currentUser) {
+                alert("Inicia sesión para comentar.");
+                openAuthModal('login');
                 return;
             }
-            const inputField = document.getElementById(`comment-input-${postId}`);
-            const commentText = inputField.value.trim();
-            if (commentText) {
-                const post = posts.find(p => p.id === postId);
-                if (post) {
-                    post.comments.push({
-                        author: "DJ Israel",
-                        avatar: "https://i.pravatar.cc/150?img=11",
-                        text: commentText,
-                        time: "Hace un momento"
-                    });
-                    
-                    inputField.value = '';
-                    renderFeed(getFilteredPosts());
-                    
-                    // Si los comentarios estaban ocultos, mantenerlos visibles al recargar
-                    const newCommentSection = document.getElementById(`comments-section-${postId}`);
-                    if (newCommentSection) {
-                        newCommentSection.classList.remove('hidden');
-                    }
-                }
-            }
-        }
-    };
+            const input = document.getElementById(`comment-input-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
 
-    // --- MODALES (SUBIR MIX, VIDEO LIGHTBOX, PERFIL) ---
-    window.toggleModal = function(modalId, show) {
-        if (modalId === 'upload-modal' && show && !userLoggedIn) {
-            alert("Para subir un mix debes estar registrado como DJ o VJ.");
-            simulateLogin();
-            return;
-        }
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            if (show) {
-                modal.classList.add('active');
-            } else {
-                modal.classList.remove('active');
-                if (modalId === 'video-lightbox') {
-                    // Detener video si se cierra lightbox
-                    const videoEl = document.getElementById('lightbox-video-element');
-                    if (videoEl) videoEl.pause();
-                }
-            }
-        }
-    };
-
-    window.openUploadModalWithType = function(type) {
-        const typeSelect = document.getElementById('mix-type');
-        if (typeSelect) {
-            typeSelect.value = type;
-            handleFormTypeChange();
-        }
-        toggleModal('upload-modal', true);
-    };
-
-    // Cambiar las opciones del selector de archivos en base al tipo de post (audio / video)
-    window.handleFormTypeChange = function() {
-        const type = document.getElementById('mix-type').value;
-        const fileSelect = document.getElementById('mix-media-file');
-        const genreSelect = document.getElementById('mix-genre');
-        
-        // Filtrar opciones de archivos multimedia
-        const options = fileSelect.querySelectorAll('option');
-        let firstVisibleSet = false;
-
-        options.forEach(opt => {
-            const optType = opt.getAttribute('data-type');
-            if (optType === type) {
-                opt.style.display = 'block';
-                if (!firstVisibleSet) {
-                    fileSelect.value = opt.value;
-                    firstVisibleSet = true;
-                }
-            } else {
-                opt.style.display = 'none';
-            }
-        });
-
-        // Sugerir géneros afines
-        if (type === 'audio') {
-            genreSelect.value = 'Worship Electrónico';
-        } else if (type === 'video') {
-            genreSelect.value = 'Worship Electrónico';
-        } else {
-            genreSelect.value = 'Loops de Alabanza';
-        }
-    };
-
-    // Envío del formulario de subida
-    const uploadForm = document.getElementById('upload-mix-form');
-    uploadForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const title = document.getElementById('mix-title').value.trim();
-        const description = document.getElementById('mix-description').value.trim();
-        const type = document.getElementById('mix-type').value;
-        const genre = document.getElementById('mix-genre').value;
-        const mediaUrl = document.getElementById('mix-media-file').value;
-        
-        const coverRadios = document.getElementsByName('mix-cover');
-        let coverUrl = '';
-        for (let r of coverRadios) {
-            if (r.checked) {
-                coverUrl = r.value;
-                break;
-            }
-        }
-
-        const newPost = {
-            id: posts.length + 1,
-            author: "DJ Israel",
-            time: "Hace un momento",
-            content: description,
-            type: type,
-            title: title,
-            genre: genre,
-            mediaUrl: mediaUrl,
-            coverUrl: coverUrl,
-            downloadsCount: 0,
-            likes: { amen: 0, bendicion: 0, like: 0 },
-            comments: []
-        };
-
-        // Agregar al inicio del feed
-        posts.unshift(newPost);
-        
-        // Incrementar mix count del usuario
-        djsDatabase["DJ Israel"].mixesCount++;
-        updateAuthUI();
-
-        // Limpiar formulario y cerrar
-        uploadForm.reset();
-        toggleModal('upload-modal', false);
-
-        // Recargar vistas
-        renderFeed(getFilteredPosts());
-        renderTopDownloaded();
-    });
-
-    // --- FACEBOOK WATCH STYLE LIGHTBOX ---
-    let currentLightboxPostId = null;
-    const lightboxVideo = document.getElementById('lightbox-video-element');
-
-    window.openVideoLightbox = function(postId) {
-        const post = posts.find(p => p.id === postId);
-        if (post && (post.type === 'video' || post.type === 'recurso')) {
-            currentLightboxPostId = postId;
-            
-            // Cargar datos en lightbox
-            lightboxVideo.src = post.mediaUrl;
-            lightboxVideo.poster = post.coverUrl;
-            lightboxVideo.load();
-            lightboxVideo.play();
-
-            const authorData = djsDatabase[post.author] || djsDatabase["DJ Israel"];
-            document.getElementById('lightbox-author-img').src = authorData.avatar;
-            document.getElementById('lightbox-author-name').textContent = post.author;
-            document.getElementById('lightbox-author-name').onclick = () => { closeVideoLightbox(); openDJProfile(post.author); };
-            document.getElementById('lightbox-post-time').textContent = post.time;
-            document.getElementById('lightbox-video-title').textContent = post.title;
-            document.getElementById('lightbox-video-desc').textContent = post.content;
-
-            // Inyectar tags
-            const tagsContainer = document.getElementById('lightbox-video-tags');
-            tagsContainer.innerHTML = `<span class="post-tag ${post.type === 'recurso' ? 'recurso-tag' : 'vj-tag'}">#${post.genre}</span>`;
-
-            updateLightboxStats(post);
-            renderLightboxComments(post);
-
-            // Listener para enviar comentarios desde lightbox
-            const sendBtn = document.getElementById('lightbox-comment-submit-btn');
-            const commentField = document.getElementById('lightbox-comment-field');
-            
-            sendBtn.onclick = () => submitLightboxComment(post.id);
-            commentField.onkeypress = (e) => {
-                if (e.key === 'Enter') submitLightboxComment(post.id);
-            };
-
-            toggleModal('video-lightbox', true);
-        }
-    };
-
-    window.closeVideoLightbox = function() {
-        toggleModal('video-lightbox', false);
-    };
-
-    function updateLightboxStats(post) {
-        const totalLikes = post.likes.amen + post.likes.bendicion + post.likes.like;
-        document.getElementById('lightbox-likes-stat').innerHTML = `<i class="fa-solid fa-heart"></i> ${totalLikes} reacciones de fe`;
-        document.getElementById('lightbox-comments-stat').textContent = `${post.comments.length} Comentarios`;
-    }
-
-    function renderLightboxComments(post) {
-        const list = document.getElementById('lightbox-comments-list');
-        list.innerHTML = '';
-
-        if (post.comments.length === 0) {
-            list.innerHTML = `<p style="color: var(--text-secondary); text-align: center; font-size: 0.85rem;">Ningún comentario aún. ¡Sé el primero en bendecir esta obra!</p>`;
-            return;
-        }
-
-        post.comments.forEach(c => {
-            const item = document.createElement('div');
-            item.className = 'comment-item';
-            item.innerHTML = `
-                <img src="${c.avatar}" alt="${c.author}" onclick="closeVideoLightbox(); openDJProfile('${c.author}')" style="cursor:pointer;">
-                <div class="comment-bubble">
-                    <h5 onclick="closeVideoLightbox(); openDJProfile('${c.author}')">${c.author}</h5>
-                    <p>${c.text}</p>
-                    <span>${c.time}</span>
-                </div>
-            `;
-            list.appendChild(item);
-        });
-    }
-
-    function submitLightboxComment(postId) {
-        if (!userLoggedIn) {
-            alert("Para comentar debes estar registrado como DJ o VJ. Iniciando sesión de prueba...");
-            simulateLogin();
-            return;
-        }
-        const field = document.getElementById('lightbox-comment-field');
-        const text = field.value.trim();
-        if (text) {
-            const post = posts.find(p => p.id === postId);
-            if (post) {
-                post.comments.push({
-                    author: "DJ Israel",
-                    avatar: "https://i.pravatar.cc/150?img=11",
-                    text: text,
-                    time: "Hace un momento"
+            try {
+                const { error } = await supabase.from('comments').insert({
+                    post_id: postId,
+                    author_id: currentUser.id,
+                    text: text
                 });
-                field.value = '';
-                
-                // Recargar muro y lightbox
-                renderFeed(getFilteredPosts());
-                updateLightboxStats(post);
-                renderLightboxComments(post);
+                if (error) throw error;
+                input.value = '';
+                await fetchPosts();
+                const newSec = document.getElementById(`comments-section-${postId}`);
+                if (newSec) newSec.classList.remove('hidden');
+            } catch (err) {
+                alert("Error al comentar: " + err.message);
             }
         }
-    }
+    };
 
-    // --- SIMULADOR DE PERFILES ---
-    window.openDJProfile = function(djName) {
-        const dj = djsDatabase[djName];
-        if (dj) {
-            // Cargar banner e info
-            const banner = document.getElementById('profile-banner-element');
-            if (banner) banner.style.backgroundImage = `linear-gradient(to bottom, rgba(5,5,5,0.2), #141419), url('${dj.banner}')`;
-            
+    // ==========================================
+    // 9. VISTA DE PERFIL DE DJ & DONACIONES A FUTURO
+    // ==========================================
+    window.openDJProfileById = async function(profileId) {
+        try {
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', profileId)
+                .single();
+
+            if (!profile || error) {
+                alert("No se pudo cargar el perfil del DJ.");
+                return;
+            }
+
             const picEl = document.getElementById('profile-picture');
-            if (picEl) picEl.src = dj.avatar;
+            if (picEl) picEl.src = profile.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80';
             
-            const nameEl = document.getElementById('profile-name');
-            if (nameEl) nameEl.textContent = dj.name;
-            
-            const roleEl = document.getElementById('profile-role');
-            if (roleEl) roleEl.textContent = dj.role;
-            
-            const bioEl = document.getElementById('profile-bio');
-            if (bioEl) bioEl.textContent = dj.bio;
-            
-            const feedNameEl = document.getElementById('profile-feed-name');
-            if (feedNameEl) feedNameEl.textContent = dj.name;
+            document.getElementById('profile-name').textContent = profile.dj_name || 'DJ';
+            document.getElementById('profile-role').textContent = profile.role || 'DJ de Worship 🕊️';
+            document.getElementById('profile-bio').textContent = profile.bio || 'Música cristiana para la gloria de Dios.';
+            document.getElementById('profile-feed-name').textContent = profile.dj_name || 'este DJ';
+
+            // Donaciones Slot
+            const donContainer = document.getElementById('profile-donation-container');
+            if (profile.donation_url) {
+                donContainer.innerHTML = `
+                    <a href="${profile.donation_url}" target="_blank" rel="noopener noreferrer" class="btn btn-donate">
+                        <i class="fa-solid fa-heart-circle-bolt"></i> ${escapeHTML(profile.donation_label || 'Sembrar Ofrenda / Apoyar')}
+                    </a>
+                `;
+            } else {
+                donContainer.innerHTML = '';
+            }
+
+            // Acciones del dueño del perfil
+            const ownerContainer = document.getElementById('profile-owner-actions');
+            if (currentUser && currentUser.id === profile.id) {
+                ownerContainer.innerHTML = `
+                    <button class="btn btn-primary" onclick="toggleModal('profile-modal', false); openEditProfileModal()" style="font-size: 0.85rem;">
+                        <i class="fa-solid fa-pen-to-square"></i> Editar Mi Perfil
+                    </button>
+                `;
+            } else {
+                ownerContainer.innerHTML = '';
+            }
+
+            // Redes Sociales
+            const socialsContainer = document.getElementById('profile-socials-container');
+            const soc = profile.socials || {};
+            socialsContainer.innerHTML = `
+                ${soc.youtube ? `<a href="${soc.youtube}" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>` : ''}
+                ${soc.instagram ? `<a href="${soc.instagram.startsWith('http') ? soc.instagram : 'https://instagram.com/' + soc.instagram}" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>` : ''}
+            `;
 
             // Estadísticas
-            // Contar mixes reales subidos por el autor en nuestra base de datos de posts
-            const realMixCount = posts.filter(p => p.author === djName).length;
-            document.getElementById('profile-stat-mixes').textContent = djName === "DJ Israel" ? dj.mixesCount : realMixCount;
-            document.getElementById('profile-stat-followers').textContent = dj.followers;
-            document.getElementById('profile-stat-likes').textContent = dj.amenCount;
-
-            // Filtrar posts específicos de este DJ
-            const profileFeed = document.getElementById('profile-posts-feed');
-            profileFeed.innerHTML = '';
+            const djPosts = posts.filter(p => p.author_id === profile.id);
+            document.getElementById('profile-stat-mixes').textContent = djPosts.length;
             
-            const djPosts = posts.filter(p => p.author === djName);
+            let totalAmen = 0;
+            djPosts.forEach(p => {
+                totalAmen += (p.reactions || []).filter(r => r.reaction_type === 'amen').length;
+            });
+            document.getElementById('profile-stat-likes').textContent = totalAmen;
+
+            // Mini feed del DJ
+            const pFeed = document.getElementById('profile-posts-feed');
+            pFeed.innerHTML = '';
             if (djPosts.length === 0) {
-                profileFeed.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 20px;">Este DJ no ha subido mixes todavía.</p>`;
+                pFeed.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 20px;">Este DJ no ha subido mixes todavía.</p>`;
             } else {
-                // Inyectar mini feed
-                djPosts.forEach(post => {
-                    const totalLikes = post.likes.amen + post.likes.bendicion + post.likes.like;
+                djPosts.forEach(p => {
                     const div = document.createElement('div');
                     div.className = 'post glass-panel';
-                    div.style.marginBottom = '15px';
-                    
-                    let miniMedia = '';
-                    if (post.type === 'audio') {
-                        miniMedia = `<button class="btn btn-primary" onclick="toggleModal('profile-modal', false); playAudioFromMetadata('${post.title}', '${post.author}', '${post.mediaUrl}', '${post.coverUrl}', ${post.id})"><i class="fa-solid fa-play"></i> Escuchar Audio Mix</button>`;
-                    } else {
-                        miniMedia = `<button class="btn btn-primary" onclick="toggleModal('profile-modal', false); openVideoLightbox(${post.id})"><i class="fa-solid fa-play"></i> Ver Video Mix</button>`;
-                    }
-
+                    div.style.marginBottom = '12px';
                     div.innerHTML = `
-                        <h4 style="font-size: 1.1rem; margin-bottom: 8px;">${post.title}</h4>
-                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">${post.content}</p>
-                        <div style="display:flex; justify-content: space-between; align-items:center;">
-                            <span style="font-size: 0.8rem; color: var(--accent-secondary); font-weight:600;">#${post.genre}</span>
-                            ${miniMedia}
+                        <h4 style="font-size: 1.05rem; margin-bottom: 6px;">${escapeHTML(p.title)}</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">${escapeHTML(p.content || '')}</p>
+                        <div style="display:flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.8rem; color: var(--accent-secondary); font-weight:600;">#${escapeHTML(p.genre || 'Worship')}</span>
+                            <button class="btn btn-primary" onclick="toggleModal('profile-modal', false); ${p.type === 'audio' ? `playAudioFromMetadata(posts.find(x => x.id === '${p.id}'))` : `openVideoLightbox('${p.id}')`}" style="padding: 6px 14px; font-size: 0.8rem;">
+                                <i class="fa-solid fa-play"></i> Reproducir
+                            </button>
                         </div>
                     `;
-                    profileFeed.appendChild(div);
+                    pFeed.appendChild(div);
                 });
             }
 
             toggleModal('profile-modal', true);
+        } catch (e) {
+            console.error("Error cargando perfil:", e);
         }
     };
 
     window.openCurrentUserProfile = function() {
-        openDJProfile("DJ Israel");
+        if (currentUser) {
+            openDJProfileById(currentUser.id);
+        } else {
+            openAuthModal('login');
+        }
     };
 
-    // --- FILTRADO DE TABS Y NAVEGACIÓN ---
+    // ==========================================
+    // 10. TABS, FILTRADO Y DIRECTORIO
+    // ==========================================
     window.setTab = function(tabName) {
         currentTab = tabName;
-        
-        // Actualizar estado visual de los enlaces (tanto navbar como sidebar)
-        const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
-        sidebarLinks.forEach(link => {
-            const linkTab = link.getAttribute('data-tab');
-            if (linkTab === tabName) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
+
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            link.classList.toggle('active', link.getAttribute('data-tab') === tabName);
+        });
+        document.querySelectorAll('.nav-shortcuts .nav-shortcut').forEach(sc => {
+            sc.classList.toggle('active', sc.getAttribute('data-tab') === tabName);
         });
 
-        const navShortcuts = document.querySelectorAll('.nav-shortcuts .nav-shortcut');
-        navShortcuts.forEach(shortcut => {
-            const shortTab = shortcut.getAttribute('data-tab');
-            if (shortTab === tabName) {
-                shortcut.classList.add('active');
-            } else {
-                shortcut.classList.remove('active');
-            }
-        });
-
-        // Título del filtro visible
         const filterHeader = document.getElementById('feed-filter-title');
         const filterTitleText = document.getElementById('filter-title-text');
         
@@ -1006,12 +1210,11 @@ document.addEventListener('DOMContentLoaded', () => {
             filterHeader.style.display = 'block';
             if (tabName === 'audios') filterTitleText.innerHTML = '<i class="fa-solid fa-music"></i> Mixes de Audio Cristianos';
             else if (tabName === 'videos') filterTitleText.innerHTML = '<i class="fa-solid fa-video"></i> Sets de Video (VJ)';
-            else if (tabName === 'djs') filterTitleText.innerHTML = '<i class="fa-solid fa-users"></i> Directorio de DJs & VJs Cristianos';
+            else if (tabName === 'djs') filterTitleText.innerHTML = '<i class="fa-solid fa-users"></i> Directorio de DJs & Creadores Cristianos';
             else if (tabName === 'recursos') filterTitleText.innerHTML = '<i class="fa-solid fa-folder-open"></i> Loops y Visuales para Proyectores';
             else if (tabName === 'guardados') filterTitleText.innerHTML = '<i class="fa-solid fa-bookmark"></i> Mis Publicaciones Guardadas';
         }
 
-        // Renderizar en base al filtro seleccionado
         if (tabName === 'djs') {
             renderDJDirectory();
         } else {
@@ -1019,11 +1222,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Retorna los posts filtrados por tab y búsqueda
     function getFilteredPosts() {
         let list = [...posts];
 
-        // 1. Filtrar por Tab
         if (currentTab === 'audios') {
             list = list.filter(p => p.type === 'audio');
         } else if (currentTab === 'videos') {
@@ -1034,38 +1235,50 @@ document.addEventListener('DOMContentLoaded', () => {
             list = list.filter(p => savedPostIds.includes(p.id));
         }
 
-        // 2. Filtrar por Búsqueda
         if (searchQuery) {
             const q = searchQuery.toLowerCase();
             list = list.filter(p => 
-                p.title.toLowerCase().includes(q) || 
-                p.author.toLowerCase().includes(q) || 
-                p.content.toLowerCase().includes(q) || 
-                p.genre.toLowerCase().includes(q)
+                (p.title || '').toLowerCase().includes(q) || 
+                (p.profiles?.dj_name || '').toLowerCase().includes(q) || 
+                (p.content || '').toLowerCase().includes(q) || 
+                (p.genre || '').toLowerCase().includes(q)
             );
         }
 
         return list;
     }
 
-    // Renderizar directorio de DJs
-    function renderDJDirectory() {
+    async function renderDJDirectory() {
         const container = document.getElementById('feed-posts');
-        container.innerHTML = '';
+        container.innerHTML = '<div class="loading-placeholder"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando DJs...</div>';
 
+        const { data: djs, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+
+        container.innerHTML = '';
         const grid = document.createElement('div');
         grid.className = 'directory-grid';
 
-        Object.values(djsDatabase).forEach(dj => {
+        if (!djs || djs.length === 0) {
+            container.innerHTML = `
+                <div class="feed-empty-state glass-panel">
+                    <div class="feed-empty-icon"><i class="fa-solid fa-users"></i></div>
+                    <h2 class="feed-empty-title">Directorio Limpio y Listo</h2>
+                    <p class="feed-empty-desc">Aún no hay otros DJs registrados. ¡Sé el primero en unirte y abrir tu perfil ministerial!</p>
+                    <button class="btn btn-primary" onclick="openAuthModal('signup')"><i class="fa-solid fa-user-plus"></i> Registrarme como DJ</button>
+                </div>
+            `;
+            return;
+        }
+
+        djs.forEach(dj => {
             const div = document.createElement('div');
-            const isVJ = dj.name === "VJ Zion";
-            div.className = `dj-card glass-panel ${isVJ ? 'vj-type' : ''}`;
+            div.className = 'dj-card glass-panel';
             div.innerHTML = `
-                <img src="${dj.avatar}" alt="${dj.name}">
-                <h4>${dj.name}</h4>
-                <span>${dj.role}</span>
-                <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:12px; height: 35px; overflow:hidden; text-overflow:ellipsis;">${dj.bio}</p>
-                <button class="btn btn-primary" onclick="openDJProfile('${dj.name}')">Ver Perfil</button>
+                <img src="${dj.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'}" alt="${escapeHTML(dj.dj_name)}">
+                <h4>${escapeHTML(dj.dj_name)}</h4>
+                <span>${escapeHTML(dj.role || 'DJ Cristiano')}</span>
+                <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:12px; height: 35px; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(dj.bio || '')}</p>
+                <button class="btn btn-primary" onclick="openDJProfileById('${dj.id}')">Ver Perfil</button>
             `;
             grid.appendChild(div);
         });
@@ -1073,81 +1286,74 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(grid);
     }
 
-    // Configurar listeners de clicks en las sidebars y navbar para pestañas
-    const links = document.querySelectorAll('[data-tab]');
-    links.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const tab = this.getAttribute('data-tab');
-            setTab(tab);
+    // Top Descargas Sidebar
+    function renderTopDownloaded() {
+        const listEl = document.getElementById('top-downloaded-list');
+        if (!listEl) return;
+        listEl.innerHTML = '';
+
+        const sorted = [...posts].sort((a, b) => (b.downloads_count || 0) - (a.downloads_count || 0)).slice(0, 3);
+        if (sorted.length === 0) {
+            listEl.innerHTML = '<li style="font-size:0.8rem; color:var(--text-secondary); padding: 8px;">Las mezclas más descargadas aparecerán aquí.</li>';
+            return;
+        }
+
+        sorted.forEach(p => {
+            const li = document.createElement('li');
+            li.className = 'top-mix-item';
+            li.style.cursor = 'pointer';
+            li.onclick = () => {
+                if (p.type === 'audio') playAudioFromMetadata(p);
+                else openVideoLightbox(p.id);
+            };
+            li.innerHTML = `
+                <img src="${p.cover_url || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=100&q=80'}" alt="Cover">
+                <div class="mix-info">
+                    <h4>${escapeHTML(p.title)}</h4>
+                    <span>${p.downloads_count || 0} descargas</span>
+                </div>
+            `;
+            listEl.appendChild(li);
         });
-    });
+    }
 
-    // --- BÚSQUEDA FUNCIONAL EN TIEMPO REAL ---
-    const searchInput = document.getElementById('global-search');
-    searchInput.addEventListener('input', (e) => {
-        searchQuery = e.target.value;
-        if (currentTab === 'djs') {
-            // Filtrar directorio
-            const cards = document.querySelectorAll('.dj-card');
-            cards.forEach(card => {
-                const name = card.querySelector('h4').textContent.toLowerCase();
-                const role = card.querySelector('span').textContent.toLowerCase();
-                if (name.includes(searchQuery.toLowerCase()) || role.includes(searchQuery.toLowerCase())) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+    // Guardar / Compartir / Descargas
+    window.toggleSavePost = function(postId) {
+        const idx = savedPostIds.indexOf(postId);
+        if (idx > -1) {
+            savedPostIds.splice(idx, 1);
+            alert("Eliminado de favoritos.");
         } else {
-            renderFeed(getFilteredPosts());
+            savedPostIds.push(postId);
+            alert("¡Mix guardado en tus favoritos! 🕊️");
         }
-    });
-
-    // --- MOCK LIVE STREAM SIMULATION ---
-    window.startMockLive = function(djName, streamName, avatar) {
-        alert(`¡Conectándote al Live Stream de ${djName} - "${streamName}"! 🕊️`);
-        
-        // Simular abriendo un reproductor de video con el stream en vivo (usando video de adoración de mixkit)
-        const mockPost = {
-            id: 999,
-            author: djName,
-            time: "Transmitiendo EN VIVO ahora 🔴",
-            content: `Únete a la transmisión en vivo de edificación de ${djName}. ${streamName}. 🙌✨`,
-            type: 'video',
-            title: `${djName} en Vivo`,
-            genre: "EDM Cristiano Live",
-            mediaUrl: djName === 'DJ Grace' ? "https://assets.mixkit.co/videos/preview/mixkit-worship-hands-raised-in-church-41764-large.mp4" : "https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-41880-large.mp4",
-            coverUrl: avatar,
-            downloadsCount: 0,
-            likes: { amen: 150, bendicion: 80, like: 30 },
-            comments: [
-                { author: "DJ Alpha", avatar: "https://i.pravatar.cc/150?img=12", text: "¡El Señor está en este lugar! Gran set.", time: "Hace 1 min" }
-            ]
-        };
-
-        // Insertar temporalmente el post de live en la base de datos de posts para abrirlo en el lightbox
-        const exist = posts.find(p => p.id === 999);
-        if (exist) {
-            posts = posts.filter(p => p.id !== 999);
-        }
-        posts.unshift(mockPost);
-        openVideoLightbox(999);
+        localStorage.setItem('djs_revolution_saved', JSON.stringify(savedPostIds));
+        renderFeed(getFilteredPosts());
     };
 
-    // --- DESCARGAS SIMULADAS ---
-    window.triggerDirectDownload = function(title, fileUrl) {
-        alert(`¡Iniciando descarga de bendición! \nArchivo: ${title}\nDescarga limpia, libre de virus, para uso ministerial.`);
-        
-        // Incrementar descarga en base de datos
-        const post = posts.find(p => p.title === title || p.mediaUrl === fileUrl);
-        if (post) {
-            post.downloadsCount++;
-            renderFeed(getFilteredPosts());
-            renderTopDownloaded();
-        }
+    window.sharePost = function(postId) {
+        const url = `${window.location.origin}/#post-${postId}`;
+        navigator.clipboard.writeText(url).then(() => {
+            alert("¡Vínculo copiado al portapapeles! Comparte la bendición.");
+        });
+    };
 
-        // Simular descarga real abriendo el enlace en una pestaña nueva
+    window.triggerDirectDownload = async function(title, fileUrl, postId) {
+        if (!fileUrl) {
+            alert("El archivo se está procesando. Estará disponible en breve.");
+            return;
+        }
+        alert(`¡Iniciando descarga de "${title}"!`);
+        if (postId) {
+            // Incrementar contador en Supabase
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                post.downloads_count = (post.downloads_count || 0) + 1;
+                await supabase.from('posts').update({ downloads_count: post.downloads_count }).eq('id', postId);
+                renderFeed(getFilteredPosts());
+                renderTopDownloaded();
+            }
+        }
         const a = document.createElement('a');
         a.href = fileUrl;
         a.download = title;
@@ -1157,152 +1363,109 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(a);
     };
 
-    // --- COMPONENTE EN DESARROLLO / SOUNDCHECK COMING SOON ---
-    window.getComingSoonHTML = function({
-        title = "En Cabina Ajustando Frecuencias",
-        tagline = "Soundcheck en Curso • Muy Pronto al Aire",
-        desc = "Estamos calibrando los faders, afinando las frecuencias y preparando una experiencia de alto calibre para la comunidad. ¡El lanzamiento oficial está a punto de sonar!",
-        progress = 85,
-        verse = '"Todo tiene su tiempo, y todo lo que se quiere debajo del cielo tiene su hora..." — Eclesiastés 3:1'
-    } = {}) {
-        return `
-            <div class="soundcheck-card glass-panel">
-                <div class="soundcheck-content">
-                    <div class="soundcheck-badge">
-                        <span class="live-dot"></span> Soundcheck en Curso • Beta V1.0
-                    </div>
-                    
-                    <div class="soundcheck-visual">
-                        <div class="soundcheck-vinyl"></div>
-                        <i class="fa-solid fa-headphones-simple soundcheck-center-icon"></i>
-                    </div>
-
-                    <div class="soundcheck-equalizer">
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                    </div>
-
-                    <h2 class="soundcheck-title">${title}</h2>
-                    <div class="soundcheck-tagline">
-                        <i class="fa-solid fa-sliders"></i> ${tagline}
-                    </div>
-                    <p class="soundcheck-desc">${desc}</p>
-
-                    <div class="soundcheck-meter-box">
-                        <div class="soundcheck-meter-header">
-                            <span><i class="fa-solid fa-gauge-high"></i> Calibración Master</span>
-                            <span>${progress}% LISTO</span>
-                        </div>
-                        <div class="soundcheck-progress-track">
-                            <div class="soundcheck-progress-fill" style="width: ${progress}%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="soundcheck-actions">
-                        <button class="btn-notify" onclick="handleComingSoonNotify(this)">
-                            <i class="fa-solid fa-bell"></i> Notificarme al Lanzamiento
-                        </button>
-                        <button class="btn-back-home" onclick="setTab('inicio')">
-                            <i class="fa-solid fa-house"></i> Volver al Inicio
-                        </button>
-                    </div>
-
-                    <p class="soundcheck-verse">${verse}</p>
-                </div>
-            </div>
-        `;
+    // Modal helpers
+    window.toggleModal = function(modalId, show) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.toggle('active', show);
+            if (modalId === 'video-lightbox' && !show) {
+                closeVideoLightbox();
+            }
+        }
     };
 
-    window.handleComingSoonNotify = function(btn) {
-        if (!btn) return;
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Suscrito al Soundcheck! 🕊️';
-        btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-        btn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.4)';
-        btn.disabled = true;
-        alert("¡Excelente! Te notificaremos de inmediato en cuanto este módulo y sus nuevos mixes estén al aire.");
-    };
+    // Búsqueda en tiempo real
+    const searchInput = document.getElementById('global-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderFeed(getFilteredPosts());
+        });
+    }
 
-    // --- PANTALLA COMPLETA DE BIENVENIDA / COMING SOON LAUNCHPAD ---
+    // Navegación con enlaces data-tab
+    document.querySelectorAll('[data-tab]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            setTab(this.getAttribute('data-tab'));
+        });
+    });
+
+    // Launchpad Coming Soon helpers
     window.dismissComingSoon = function() {
-        const overlay = document.getElementById('coming-soon-launchpad');
+        document.getElementById('coming-soon-launchpad')?.classList.add('hidden');
         const pill = document.getElementById('floating-coming-soon-pill');
-        if (overlay) {
-            overlay.classList.add('hidden');
-        }
-        if (pill) {
-            pill.style.display = 'flex';
-        }
+        if (pill) pill.style.display = 'flex';
     };
 
     window.showComingSoon = function() {
-        const overlay = document.getElementById('coming-soon-launchpad');
+        document.getElementById('coming-soon-launchpad')?.classList.remove('hidden');
         const pill = document.getElementById('floating-coming-soon-pill');
-        if (overlay) {
-            overlay.classList.remove('hidden');
-        }
-        if (pill) {
-            pill.style.display = 'none';
-        }
+        if (pill) pill.style.display = 'none';
     };
 
     window.handleEarlyAccessSubmit = function(e) {
         e.preventDefault();
         const input = document.getElementById('early-access-email');
-        const btn = document.getElementById('early-access-btn');
-        if (!input || !btn) return;
-
-        const val = input.value.trim();
-        if (val) {
-            btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> ¡Invitación VIP Confirmada! 🕊️';
-            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-            btn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.5)';
-            input.disabled = true;
-            btn.disabled = true;
-            alert(`¡Gloria a Dios! Hemos registrado "${val}". Te enviaremos tu pase de acceso preferencial antes del lanzamiento oficial.`);
+        if (input && input.value.trim()) {
+            alert(`¡Gloria a Dios! Hemos registrado "${input.value.trim()}". Te notificaremos.`);
+            input.value = '';
         }
     };
 
-    // Contador regresivo en tiempo real
+    // Formato de tiempo y utilidades
+    function formatTime(seconds) {
+        if (isNaN(seconds)) return "00:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function formatRelativeTime(dateStr) {
+        if (!dateStr) return "Reciente";
+        const date = new Date(dateStr);
+        const diffSecs = Math.floor((new Date() - date) / 1000);
+        if (diffSecs < 60) return "Hace un momento";
+        if (diffSecs < 3600) return `Hace ${Math.floor(diffSecs / 60)} min`;
+        if (diffSecs < 86400) return `Hace ${Math.floor(diffSecs / 3600)} h`;
+        return `Hace ${Math.floor(diffSecs / 86400)} días`;
+    }
+
+    function escapeHTML(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>'"]/g, 
+            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+        );
+    }
+
+    // Inicializar cuenta regresiva del banner
     function initCountdown() {
-        // Fijar fecha meta a 14 días en el futuro
         const targetDate = new Date();
         targetDate.setDate(targetDate.getDate() + 14);
-        targetDate.setHours(targetDate.getHours() + 8);
-
-        function updateTimer() {
-            const now = new Date().getTime();
-            const diff = targetDate.getTime() - now;
-
+        function update() {
+            const diff = targetDate.getTime() - new Date().getTime();
             if (diff <= 0) return;
-
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
             const dEl = document.getElementById('cd-days');
             const hEl = document.getElementById('cd-hours');
             const mEl = document.getElementById('cd-minutes');
             const sEl = document.getElementById('cd-seconds');
-
-            if (dEl) dEl.textContent = days.toString().padStart(2, '0');
-            if (hEl) hEl.textContent = hours.toString().padStart(2, '0');
-            if (mEl) mEl.textContent = minutes.toString().padStart(2, '0');
-            if (sEl) sEl.textContent = seconds.toString().padStart(2, '0');
+            if (dEl) dEl.textContent = d.toString().padStart(2, '0');
+            if (hEl) hEl.textContent = h.toString().padStart(2, '0');
+            if (mEl) mEl.textContent = m.toString().padStart(2, '0');
+            if (sEl) sEl.textContent = s.toString().padStart(2, '0');
         }
-
-        updateTimer();
-        setInterval(updateTimer, 1000);
+        update();
+        setInterval(update, 1000);
     }
 
-    // --- INICIALIZACIÓN ---
-    renderFeed();
-    renderTopDownloaded();
-    updateAuthUI();
+    // ==========================================
+    // 11. ARRANQUE
+    // ==========================================
+    await initAuth();
+    await fetchPosts();
     initCountdown();
 });

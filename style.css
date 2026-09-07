@@ -2342,4 +2342,218 @@ h1, h2, h3, h4 {
     }
 }
 
+/* ========================================================== */
+/* ESTILOS PARA MUX UPLOADS, AUTENTICACIÓN, DONACIONES & VACÍO */
+/* ========================================================== */
+
+/* File Upload Dropzone */
+.file-upload-box {
+    border: 2px dashed rgba(139, 92, 246, 0.4);
+    background: rgba(139, 92, 246, 0.05);
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.file-upload-box:hover, .file-upload-box.dragover {
+    border-color: var(--accent-secondary);
+    background: rgba(14, 165, 233, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);
+}
+
+.file-selected-badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    word-break: break-all;
+}
+
+/* Upload Progress Bar */
+.upload-progress-container {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.progress-status-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+#upload-status-text {
+    color: var(--accent-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#upload-percent-text {
+    color: #ffffff;
+}
+
+.progress-bar-bg {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 6px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+}
+
+/* Auth Modal Tabs & Forms */
+.auth-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px;
+    border-radius: 12px;
+}
+
+.auth-tab-btn {
+    flex: 1;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-tab-btn.active {
+    background: var(--accent-gradient);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Donation Buttons */
+.btn-donate {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    border: 1px solid rgba(253, 230, 138, 0.3);
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-donate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+    filter: brightness(1.1);
+    color: #ffffff;
+}
+
+.btn-donate-post {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-donate-post:hover {
+    background: #f59e0b;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+}
+
+/* Feed Empty State */
+.feed-empty-state {
+    padding: 50px 30px;
+    text-align: center;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    background: rgba(15, 15, 20, 0.5);
+}
+
+.feed-empty-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(14, 165, 233, 0.2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--accent-secondary);
+    box-shadow: 0 0 25px rgba(14, 165, 233, 0.3);
+}
+
+.feed-empty-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.feed-empty-desc {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    max-width: 480px;
+    line-height: 1.5;
+}
+
+/* Mux Player integration styling */
+mux-player {
+    --media-brand: #8b5cf6;
+    --media-accent-color: #0ea5e9;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000000;
+}
+
+
 

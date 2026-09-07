@@ -26,6 +26,13 @@
     <link rel="stylesheet" href="style.css">
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase JS Client v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Mux Player Official Web Component -->
+    <script src="https://cdn.jsdelivr.net/npm/@mux/mux-player"></script>
+    <!-- Mux UpChunk for Resumable Direct Uploads with Real Progress -->
+    <script src="https://cdn.jsdelivr.net/npm/@mux/upchunk@3/dist/upchunk.min.js"></script>
 </head>
 <body>
     <!-- ========================================== -->
@@ -182,12 +189,26 @@
                 <a href="#" data-tab="djs"><i class="fa-solid fa-users"></i> DJs & VJs Cristianos</a>
                 <a href="#" data-tab="recursos"><i class="fa-solid fa-folder-open"></i> Recursos & Loops</a>
                 <a href="#" data-tab="guardados"><i class="fa-solid fa-bookmark"></i> Mis Favoritos</a>
+                <a href="#" onclick="toggleModal('donation-modal', true)" style="color: #fbbf24;"><i class="fa-solid fa-heart-circle-bolt"></i> Sembrar / Donar</a>
             </div>
             
             <div class="ministry-box glass-panel">
                 <h4>Versículo del Día</h4>
                 <p class="verse-text">"Alabadle con pandero y danza; alabadle con cuerdas y flautas. Alabadle con címbalos resonantes..."</p>
                 <span class="verse-ref">Salmo 150:4-5</span>
+            </div>
+
+            <!-- Widget de Donaciones con PayPal -->
+            <div class="donation-box glass-panel" style="margin-top: 15px; text-align: center;">
+                <h4 style="font-size: 0.95rem; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; color: #fbbf24;">
+                    <i class="fa-solid fa-hand-holding-dollar"></i> Sembrar en el Ministerio
+                </h4>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 12px;">
+                    Tu ofrenda voluntaria ayuda a sostener los servidores de streaming y bendecir a las iglesias.
+                </p>
+                <div id="donate-button-container" style="display: flex; justify-content: center; min-height: 40px; align-items: center;">
+                    <div id="donate-button"></div>
+                </div>
             </div>
         </aside>
 
@@ -218,48 +239,30 @@
             <!-- Widget Transmisiones en Vivo -->
             <div class="widget glass-panel">
                 <h3>Transmitiendo en Vivo 🔴</h3>
-                <ul class="live-list">
-                    <li class="live-item" onclick="startMockLive('DJ Grace', 'Ambient Worship Electrónico', 'https://i.pravatar.cc/150?img=33')">
-                        <span class="live-pulse"></span>
-                        <img src="https://i.pravatar.cc/150?img=33" alt="DJ Grace">
-                        <div class="mix-info">
-                            <h4>DJ Grace en Vivo</h4>
-                            <span>Adoración profunda • 1.2k oyentes</span>
-                        </div>
-                    </li>
-                    <li class="live-item" onclick="startMockLive('VJ Zion', 'Bucles de Alabanza Visuales', 'https://i.pravatar.cc/150?img=60')">
-                        <span class="live-pulse"></span>
-                        <img src="https://i.pravatar.cc/150?img=60" alt="VJ Zion">
-                        <div class="mix-info">
-                            <h4>VJ Zion en Pantalla</h4>
-                            <span>Fondos para iglesias • 540 viendo</span>
-                        </div>
-                    </li>
-                </ul>
+                <div style="text-align: center; padding: 16px 8px; color: var(--text-secondary); font-size: 0.85rem;">
+                    <i class="fa-solid fa-tower-broadcast" style="font-size: 2rem; color: var(--accent-primary); margin-bottom: 10px; display: block;"></i>
+                    <p style="margin-bottom: 6px; font-weight: 600; color: #fff;">Sin transmisiones activas</p>
+                    <p style="font-size: 0.8rem; line-height: 1.4;">Cuando un DJ o ministerio inicie un Live Stream, aparecerá automáticamente aquí.</p>
+                </div>
             </div>
 
             <!-- Widget Top Descargas -->
             <div class="widget glass-panel">
                 <h3>Más Descargados 📥</h3>
                 <ul class="top-mixes" id="top-downloaded-list">
-                    <!-- Hydrated by JS -->
+                    <!-- Sincronizado dinámicamente con Supabase -->
                 </ul>
             </div>
 
             <!-- Widget Loops y Recursos -->
             <div class="widget glass-panel">
                 <h3>Recursos para Proyectores 🖥️</h3>
-                <div class="resource-ad">
-                    <div class="resource-preview" style="background-image: url('https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80');">
-                        <i class="fa-solid fa-play"></i>
-                    </div>
-                    <div class="resource-ad-info">
-                        <h4>VJ Loops Pack Vol. 1</h4>
-                        <p>5 bucles abstractos oscuros ideales para adoración congregacional.</p>
-                        <button class="btn btn-primary btn-small-download" onclick="triggerDirectDownload('VJ Loops Pack Vol. 1', 'https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-41880-large.mp4')">
-                            <i class="fa-solid fa-download"></i> Descargar Pack
-                        </button>
-                    </div>
+                <div style="text-align: center; padding: 12px 6px;">
+                    <i class="fa-solid fa-folder-open" style="font-size: 2rem; color: var(--accent-secondary); margin-bottom: 8px; display: block;"></i>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">Descubre bucles visuales y fondos HD para las pantallas de tu congregación.</p>
+                    <button class="btn btn-primary" onclick="setTab('recursos')" style="width: 100%; justify-content: center; font-size: 0.85rem; padding: 8px 12px;">
+                        <i class="fa-solid fa-video"></i> Ver Bucles Visuales
+                    </button>
                 </div>
             </div>
         </aside>
@@ -306,75 +309,74 @@
     <div id="upload-modal" class="modal-overlay">
         <div class="modal-content glass-panel">
             <div class="modal-header">
-                <h2>Compartir en la Comunidad 🕊️</h2>
+                <h2>Publicar en DJ's Revolution 🕊️</h2>
                 <button class="close-modal-btn" onclick="toggleModal('upload-modal', false)">&times;</button>
             </div>
-            <form id="upload-mix-form" class="modal-form">
+            <form id="upload-mix-form" class="modal-form" onsubmit="handleRealUploadSubmit(event)">
                 <div class="form-group">
-                    <label for="mix-title">Título del Mix / Recurso</label>
-                    <input type="text" id="mix-title" required placeholder="Ej. Holy Spirit Worship Electronic Mix 2026">
+                    <label for="mix-title">Título del Mix / Recurso *</label>
+                    <input type="text" id="mix-title" required placeholder="Ej. Holy Spirit Deep Electronic Set 2026">
                 </div>
                 <div class="form-group">
-                    <label for="mix-description">Descripción / Listado de Temas / Versículos</label>
-                    <textarea id="mix-description" rows="3" required placeholder="Comparte una bendición, cita un versículo o detalla el listado de temas..."></textarea>
+                    <label for="mix-description">Descripción / Citas Bíblicas / Tracklist</label>
+                    <textarea id="mix-description" rows="3" placeholder="Comparte una bendición, versículos o detalla las canciones del set..."></textarea>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="mix-type">Tipo de Contenido</label>
+                        <label for="mix-type">Tipo de Contenido *</label>
                         <select id="mix-type" required onchange="handleFormTypeChange()">
-                            <option value="audio">Mix de Audio (MP3)</option>
-                            <option value="video">Set de Video / VJ Mix (MP4)</option>
+                            <option value="audio">Mix de Audio (MP3 / WAV)</option>
+                            <option value="video" selected>Set de Video / VJ Mix (MP4 / MOV)</option>
                             <option value="recurso">Bucle de Video / VJ Loop (Recurso)</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="mix-genre">Género Principal</label>
+                        <label for="mix-genre">Género Principal *</label>
                         <select id="mix-genre" required>
                             <option value="Worship Electrónico">Worship Electrónico</option>
                             <option value="Electro-Gospel">Electro-Gospel</option>
                             <option value="Reggaetón Celestial">Reggaetón Celestial</option>
                             <option value="Deep Ambient Worship">Deep Ambient Worship</option>
                             <option value="Loops de Alabanza">Bucles / Visuales de Alabanza</option>
+                            <option value="Afrobeat Cristiano">Afrobeat Cristiano</option>
                         </select>
                     </div>
                 </div>
                 
+                <!-- Archivo Multimedia Real -->
                 <div class="form-group">
-                    <label>Archivo Multimedia de Demostración</label>
-                    <select id="mix-media-file" class="form-control" required>
-                        <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" data-type="audio">Pista de Audio 1 - Adoración Electrónica</option>
-                        <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" data-type="audio">Pista de Audio 2 - Electro Gospel Beat</option>
-                        <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" data-type="audio">Pista de Audio 3 - Celestial Synth Deep Mix</option>
-                        <option value="https://assets.mixkit.co/videos/preview/mixkit-worship-hands-raised-in-church-41764-large.mp4" data-type="video" style="display:none;">Video de Muestra - Adoración en la Iglesia (MP4)</option>
-                        <option value="https://assets.mixkit.co/videos/preview/mixkit-dj-playing-music-at-a-club-34289-large.mp4" data-type="video" style="display:none;">Video de Muestra - DJ Cristiano Pro (MP4)</option>
-                        <option value="https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-41880-large.mp4" data-type="recurso" style="display:none;">VJ Loop Muestra - Luces Láser Abstractas (MP4)</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Seleccionar Imagen de Portada</label>
-                    <div class="cover-selector-grid">
-                        <label class="cover-option-label">
-                            <input type="radio" name="mix-cover" value="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" checked>
-                            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Cover 1">
-                        </label>
-                        <label class="cover-option-label">
-                            <input type="radio" name="mix-cover" value="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80">
-                            <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Cover 2">
-                        </label>
-                        <label class="cover-option-label">
-                            <input type="radio" name="mix-cover" value="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80">
-                            <img src="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Cover 3">
-                        </label>
-                        <label class="cover-option-label">
-                            <input type="radio" name="mix-cover" value="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80">
-                            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Cover 4">
-                        </label>
+                    <label>Archivo Multimedia (Audio o Video) *</label>
+                    <div class="file-upload-box" id="file-drop-area" onclick="document.getElementById('mix-file-input').click()">
+                        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.2rem; color: var(--accent-secondary); margin-bottom: 6px;"></i>
+                        <p id="file-upload-text" style="font-weight: 600;">Haz clic o arrastra tu archivo aquí</p>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Servidor de Audio & Video de Alta Velocidad • MP4, MOV, MP3, WAV</span>
+                        <input type="file" id="mix-file-input" accept="video/*,audio/*" style="display: none;" onchange="handleFileSelected(this)" required>
+                    </div>
+                    <div id="file-selected-badge" style="display: none;" class="file-selected-badge">
+                        <i class="fa-solid fa-file-circle-check"></i> <span id="file-selected-name">archivo.mp4</span>
                     </div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-block">Publicar en el Muro 🕊️</button>
+                <!-- Portada Opcional (Para Audios) -->
+                <div class="form-group" id="custom-cover-group" style="display: none;">
+                    <label for="mix-cover-file">Imagen de Portada (Opcional para Audio - JPG/PNG)</label>
+                    <input type="file" id="mix-cover-file" accept="image/*">
+                    <span style="font-size: 0.75rem; color: var(--text-secondary);">Para videos, la carátula se genera automáticamente.</span>
+                </div>
+
+                <!-- Barra de Progreso de Subida Real -->
+                <div id="upload-progress-container" class="upload-progress-container" style="display: none;">
+                    <div class="progress-status-info">
+                        <span id="upload-status-text"><i class="fa-solid fa-spinner fa-spin"></i> Subiendo a DJ's Revolution...</span>
+                        <span id="upload-percent-text">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="upload-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                
+                <button type="submit" id="btn-submit-upload" class="btn btn-primary btn-block">Publicar en el Muro 🕊️</button>
             </form>
         </div>
     </div>
@@ -383,22 +385,27 @@
     <div id="video-lightbox" class="modal-overlay video-lightbox-overlay">
         <div class="video-lightbox-container glass-panel">
             <button class="close-lightbox-btn" onclick="closeVideoLightbox()">&times;</button>
-            <div class="video-lightbox-player-section">
-                <video id="lightbox-video-element" controls src=""></video>
+            <div class="video-lightbox-player-section" id="lightbox-video-mount">
+                <!-- Se inyecta reproductor dinámicamente -->
+                <div class="loading-placeholder">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Cargando reproductor HD...
+                </div>
             </div>
             <div class="video-lightbox-info-section">
                 <div class="lightbox-info-header">
-                    <div class="post-author">
-                        <img id="lightbox-author-img" src="" alt="Avatar VJ">
+                    <div class="post-author" id="lightbox-author-box">
+                        <img id="lightbox-author-img" src="" alt="Avatar DJ">
                         <div>
-                            <h3 id="lightbox-author-name">DJ Alpha</h3>
-                            <span id="lightbox-post-time">Hace 2 horas</span>
+                            <h3 id="lightbox-author-name">DJ</h3>
+                            <span id="lightbox-post-time">Reciente</span>
                         </div>
                     </div>
+                    <!-- Botón donar autor si aplica -->
+                    <div id="lightbox-author-donate-slot"></div>
                 </div>
                 <div class="lightbox-content-area">
-                    <h2 id="lightbox-video-title">Worship Reggaeton Mix</h2>
-                    <p id="lightbox-video-desc">Detalles del video...</p>
+                    <h2 id="lightbox-video-title">Título del Video</h2>
+                    <p id="lightbox-video-desc">Descripción...</p>
                     <div id="lightbox-video-tags" class="post-tags"></div>
                     
                     <div class="lightbox-stats">
@@ -409,19 +416,19 @@
                 <div class="lightbox-comments-area">
                     <h4>Mensajes y Comentarios</h4>
                     <div id="lightbox-comments-list" class="comments-list">
-                        <!-- Hydrated by JS -->
+                        <!-- Comentarios dinámicos -->
                     </div>
                 </div>
                 <div class="lightbox-comment-input-area">
-                    <img src="https://i.pravatar.cc/150?img=11" alt="Mi Perfil">
+                    <img id="lightbox-my-avatar" src="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80" alt="Mi Perfil">
                     <input type="text" id="lightbox-comment-field" placeholder="Comparte tu bendición o comentario...">
-                    <button id="lightbox-comment-submit-btn" class="btn-send-comment"><i class="fa-solid fa-paper-plane"></i></button>
+                    <button id="lightbox-comment-submit-btn" class="btn-send-comment" onclick="submitLightboxComment()"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- DJ Profile View Modal -->
+    <!-- DJ Profile View Modal (Con soporte para Donaciones) -->
     <div id="profile-modal" class="modal-overlay">
         <div class="profile-modal-content glass-panel">
             <button class="close-profile-modal-btn" onclick="toggleModal('profile-modal', false)">&times;</button>
@@ -431,13 +438,19 @@
                 <div class="profile-main-info">
                     <img id="profile-picture" src="" alt="Avatar DJ">
                     <div class="profile-text">
-                        <h2 id="profile-name">DJ Alpha</h2>
+                        <h2 id="profile-name">Nombre del DJ</h2>
                         <span id="profile-role">DJ de Worship / Productor</span>
-                        <p id="profile-bio">Dedicado a glorificar el nombre de Dios por medio de sets electrónicos y remixes de adoración.</p>
-                        <div class="profile-socials">
-                            <a href="#" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-                            <a href="#" title="SoundCloud"><i class="fa-brands fa-soundcloud"></i></a>
-                            <a href="#" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <p id="profile-bio">Biografía del DJ...</p>
+                        
+                        <div class="profile-actions-row" style="display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap;">
+                            <!-- Botón de Donaciones / Ofrenda -->
+                            <div id="profile-donation-container"></div>
+                            <!-- Botón Editar Perfil (Solo para el dueño) -->
+                            <div id="profile-owner-actions"></div>
+                        </div>
+
+                        <div class="profile-socials" id="profile-socials-container">
+                            <!-- Enlaces a redes -->
                         </div>
                     </div>
                 </div>
@@ -449,11 +462,11 @@
                     <span class="stat-label">Mixes Subidos</span>
                 </div>
                 <div class="stat-box">
-                    <span class="stat-num" id="profile-stat-followers">12.5k</span>
+                    <span class="stat-num" id="profile-stat-followers">0</span>
                     <span class="stat-label">Seguidores</span>
                 </div>
                 <div class="stat-box">
-                    <span class="stat-num" id="profile-stat-likes">8.4k</span>
+                    <span class="stat-num" id="profile-stat-likes">0</span>
                     <span class="stat-label">Reacciones Amén</span>
                 </div>
             </div>
@@ -461,11 +474,153 @@
             <div class="profile-feed-container">
                 <h3>Publicaciones de <span id="profile-feed-name">este DJ/VJ</span></h3>
                 <div id="profile-posts-feed" class="feed">
-                    <!-- Specific DJ posts dynamic target -->
+                    <!-- Mixes del DJ -->
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Auth Modal (Login / Registro con Supabase) -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 440px;">
+            <div class="modal-header">
+                <h2 id="auth-modal-title">Acceso a la Cabina 🕊️</h2>
+                <button class="close-modal-btn" onclick="toggleModal('auth-modal', false)">&times;</button>
+            </div>
+            
+            <!-- Selector Pestañas Iniciar Sesión / Registrarse -->
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab-btn active" id="tab-login-btn" onclick="switchAuthTab('login')">Iniciar Sesión</button>
+                <button type="button" class="auth-tab-btn" id="tab-signup-btn" onclick="switchAuthTab('signup')">Crear Cuenta DJ</button>
+            </div>
+
+            <!-- Formulario de Login -->
+            <form id="login-form" class="modal-form" onsubmit="handleRealLogin(event)">
+                <div class="form-group">
+                    <label for="login-email">Correo Electrónico</label>
+                    <input type="email" id="login-email" required placeholder="tu-correo@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <div id="login-error-msg" style="color: var(--danger); font-size: 0.85rem; display: none;"></div>
+                <button type="submit" id="login-submit-btn" class="btn btn-primary btn-block">Ingresar a la Plataforma 🎧</button>
+            </form>
+
+            <!-- Formulario de Registro -->
+            <form id="signup-form" class="modal-form" onsubmit="handleRealSignUp(event)" style="display: none;">
+                <div class="form-group">
+                    <label for="signup-dj-name">Nombre Artístico / DJ Name *</label>
+                    <input type="text" id="signup-dj-name" required placeholder="Ej. DJ Emmanuel / VJ Grace">
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Correo Electrónico *</label>
+                    <input type="email" id="signup-email" required placeholder="tu-correo@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Contraseña (mínimo 6 caracteres) *</label>
+                    <input type="password" id="signup-password" minlength="6" required placeholder="••••••••">
+                </div>
+                <div id="signup-error-msg" style="color: var(--danger); font-size: 0.85rem; display: none;"></div>
+                <button type="submit" id="signup-submit-btn" class="btn btn-primary btn-block">Registrarme como DJ 🕊️</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal (Configuración de Perfil y Enlace de Donaciones) -->
+    <div id="edit-profile-modal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Editar Mi Perfil de DJ 🎧</h2>
+                <button class="close-modal-btn" onclick="toggleModal('edit-profile-modal', false)">&times;</button>
+            </div>
+            <form id="edit-profile-form" class="modal-form" onsubmit="handleSaveProfile(event)">
+                <div class="form-group">
+                    <label for="edit-dj-name">Nombre Artístico</label>
+                    <input type="text" id="edit-dj-name" required placeholder="Ej. DJ Israel">
+                </div>
+                <div class="form-group">
+                    <label for="edit-dj-role">Rol / Ministerio</label>
+                    <input type="text" id="edit-dj-role" placeholder="Ej. DJ de Worship / Productor / VJ">
+                </div>
+                <div class="form-group">
+                    <label for="edit-dj-bio">Biografía / Testimonio</label>
+                    <textarea id="edit-dj-bio" rows="3" placeholder="Cuéntale a la comunidad sobre tu llamado y pasión musical..."></textarea>
+                </div>
+                
+                <!-- Campo de Donaciones a Futuro -->
+                <div class="form-group" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 14px;">
+                    <label for="edit-donation-url" style="color: #fbbf24; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-hand-holding-dollar"></i> Enlace para Donaciones / Ofrendas
+                    </label>
+                    <input type="url" id="edit-donation-url" placeholder="https://paypal.me/tu-usuario o enlace de Stripe / Yappy">
+                    <span style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; display: block;">
+                        Permite a los oyentes y pastores sembrar una ofrenda voluntaria en tu ministerio directamente desde tu perfil.
+                    </span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-social-instagram"><i class="fa-brands fa-instagram"></i> Instagram</label>
+                        <input type="text" id="edit-social-instagram" placeholder="@tucuenta">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-social-youtube"><i class="fa-brands fa-youtube"></i> YouTube</label>
+                        <input type="text" id="edit-social-youtube" placeholder="https://youtube.com/...">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Guardar Cambios 💾</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Donaciones Oficial de DJ's Revolution -->
+    <div id="donation-modal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 480px; text-align: center;">
+            <div class="modal-header">
+                <h2>Sembrar en DJ's Revolution 🕊️</h2>
+                <button class="close-modal-btn" onclick="toggleModal('donation-modal', false)">&times;</button>
+            </div>
+            <div style="padding: 10px 5px;">
+                <div style="width: 65px; height: 65px; border-radius: 50%; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2)); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 15px auto; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);">
+                    <i class="fa-solid fa-heart-circle-bolt"></i>
+                </div>
+                <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Bendice la Plataforma</h3>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px;">
+                    DJ's Revolution es un espacio dedicado a glorificar a Dios mediante mezclas de adoración y recursos para proyectores de iglesias. Tu aporte voluntario permite sostener la infraestructura de servidores de audio y video de alta velocidad.
+                </p>
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 20px; margin-bottom: 16px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: #fff;">Donación segura a través de PayPal:</span>
+                    <a href="https://www.paypal.com/donate/?hosted_button_id=BK7PTKT23ZQFW" target="_blank" rel="noopener noreferrer" class="btn btn-donate" style="width: 100%; justify-content: center; font-size: 1rem; padding: 12px 20px;">
+                        <i class="fa-brands fa-paypal"></i> Donar con PayPal
+                    </a>
+                </div>
+                <p style="font-size: 0.78rem; color: var(--text-secondary); font-style: italic;">
+                    "Cada uno dé como propuso en su corazón: no con tristeza, ni por necesidad, porque Dios ama al dador alegre." — 2 Corintios 9:7
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PayPal Donation SDK -->
+    <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js" charset="UTF-8"></script>
+    <script>
+    window.addEventListener('load', function() {
+        if (window.PayPal && PayPal.Donation) {
+            PayPal.Donation.Button({
+                env: 'production',
+                hosted_button_id: 'BK7PTKT23ZQFW',
+                image: {
+                    src: 'https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif',
+                    alt: 'Donate with PayPal button',
+                    title: 'PayPal - The safer, easier way to pay online!',
+                }
+            }).render('#donate-button');
+        }
+    });
+    </script>
 
     <script src="script.js"></script>
 </body>
