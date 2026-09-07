@@ -27,8 +27,15 @@ export function DonationModal({ isOpen, onClose }) {
         </button>
 
         <div className="text-center mb-5">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-dark-950 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-amber-500/30">
-            <Heart className="w-8 h-8 fill-dark-950" />
+          <div className="relative w-16 h-16 mx-auto mb-3">
+            <img 
+              src="/logo_emblem.png" 
+              alt="DJ's Revolution" 
+              className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+            />
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-amber-400 text-dark-950 flex items-center justify-center shadow-md">
+              <Heart className="w-3.5 h-3.5 fill-dark-950" />
+            </div>
           </div>
           <h3 className="text-lg font-bold text-white mb-1">
             Sembrar en el Ministerio 🕊️

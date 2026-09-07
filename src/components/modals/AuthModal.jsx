@@ -59,6 +59,15 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
           <X className="w-5 h-5" />
         </button>
 
+        {/* Logo de DJ's Revolution */}
+        <div className="flex flex-col items-center justify-center mb-4">
+          <img 
+            src="/logo_emblem.png" 
+            alt="DJ's Revolution" 
+            className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(14,165,233,0.45)]"
+          />
+        </div>
+
         {/* Tab Switcher */}
         <div className="flex rounded-2xl bg-white/5 p-1 mb-6 border border-white/5">
           <button

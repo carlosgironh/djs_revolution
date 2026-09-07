@@ -67,11 +67,13 @@ export function MobileDrawer({
             </div>
           ) : (
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-full bg-violet-500/20 text-violet-300 flex items-center justify-center font-bold">
-                🕊️
-              </div>
+              <img 
+                src="/logo_emblem.png" 
+                alt="DJ's Revolution" 
+                className="w-10 h-10 object-contain drop-shadow-[0_0_10px_rgba(14,165,233,0.4)]"
+              />
               <div>
-                <h4 className="font-bold text-sm text-white">Oyente Público</h4>
+                <h4 className="font-bold text-sm text-white">DJ's Revolution</h4>
                 <p className="text-xs text-zinc-400">Muro libre de adoración</p>
               </div>
             </div>

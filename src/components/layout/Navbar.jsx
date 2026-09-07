@@ -25,16 +25,16 @@ export function Navbar({
     <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-dark-950/85 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
         
-        {/* LOGO: Garantizado en UNA SOLA LÍNEA sin partirse */}
+        {/* LOGO: Oficial Transparente de DJ's Revolution */}
         <div 
           onClick={() => onTabChange('inicio')} 
-          className="flex items-center gap-2 cursor-pointer select-none flex-shrink-0 min-w-max"
+          className="flex items-center gap-2.5 cursor-pointer select-none flex-shrink-0 min-w-max group"
         >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-violet-600 to-cyan-500 p-0.5 shadow-glow-violet flex-shrink-0 flex items-center justify-center">
-            <div className="w-full h-full bg-dark-950 rounded-[10px] flex items-center justify-center text-lg sm:text-xl">
-              🕊️
-            </div>
-          </div>
+          <img 
+            src="/logo_emblem.png" 
+            alt="DJ's Revolution Logo" 
+            className="w-10 h-10 sm:w-11 sm:h-11 object-contain drop-shadow-[0_0_12px_rgba(14,165,233,0.4)] group-hover:scale-105 group-hover:rotate-6 transition-all duration-300"
+          />
           <div className="flex flex-col leading-none">
             <span className="text-base sm:text-lg font-black tracking-tight whitespace-nowrap">
               DJ's <span className="text-gradient">Revolution</span>

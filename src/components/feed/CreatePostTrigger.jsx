@@ -10,7 +10,12 @@ export function CreatePostTrigger({ onOpenUpload, onOpenAuth }) {
   // 1. Invitado no autenticado
   if (!currentUser) {
     return (
-      <div className="glass-panel rounded-2xl p-5 text-center border-violet-500/20 bg-gradient-to-r from-violet-600/10 via-transparent to-cyan-500/10 mb-4">
+      <div className="glass-panel rounded-2xl p-5 text-center border-cyan-500/20 bg-gradient-to-r from-violet-600/10 via-transparent to-cyan-500/10 mb-4">
+        <img 
+          src="/logo_emblem.png" 
+          alt="DJ's Revolution" 
+          className="w-12 h-12 object-contain mx-auto mb-2 drop-shadow-[0_0_12px_rgba(14,165,233,0.4)]"
+        />
         <h3 className="text-sm sm:text-base font-bold text-white mb-1">
           Comunidad Global de Música y Adoración Cristiana 🕊️
         </h3>
