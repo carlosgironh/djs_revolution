@@ -1,0 +1,18 @@
+{
+  "name": "DJ's Revolution 🕊️",
+  "short_name": "DJs Rev",
+  "description": "Comunidad global de DJs y VJs Cristianos • Sets de Video y Mixes de Adoración",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060609",
+  "theme_color": "#0a0a10",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
