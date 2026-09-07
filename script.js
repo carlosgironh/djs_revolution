@@ -1391,28 +1391,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // Launchpad Coming Soon helpers
-    window.dismissComingSoon = function() {
-        document.getElementById('coming-soon-launchpad')?.classList.add('hidden');
-        const pill = document.getElementById('floating-coming-soon-pill');
-        if (pill) pill.style.display = 'flex';
-    };
-
-    window.showComingSoon = function() {
-        document.getElementById('coming-soon-launchpad')?.classList.remove('hidden');
-        const pill = document.getElementById('floating-coming-soon-pill');
-        if (pill) pill.style.display = 'none';
-    };
-
-    window.handleEarlyAccessSubmit = function(e) {
-        e.preventDefault();
-        const input = document.getElementById('early-access-email');
-        if (input && input.value.trim()) {
-            alert(`¡Gloria a Dios! Hemos registrado "${input.value.trim()}". Te notificaremos.`);
-            input.value = '';
-        }
-    };
-
     // Formato de tiempo y utilidades
     function formatTime(seconds) {
         if (isNaN(seconds)) return "00:00";
@@ -1438,34 +1416,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
     }
 
-    // Inicializar cuenta regresiva del banner
-    function initCountdown() {
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() + 14);
-        function update() {
-            const diff = targetDate.getTime() - new Date().getTime();
-            if (diff <= 0) return;
-            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((diff % (1000 * 60)) / 1000);
-            const dEl = document.getElementById('cd-days');
-            const hEl = document.getElementById('cd-hours');
-            const mEl = document.getElementById('cd-minutes');
-            const sEl = document.getElementById('cd-seconds');
-            if (dEl) dEl.textContent = d.toString().padStart(2, '0');
-            if (hEl) hEl.textContent = h.toString().padStart(2, '0');
-            if (mEl) mEl.textContent = m.toString().padStart(2, '0');
-            if (sEl) sEl.textContent = s.toString().padStart(2, '0');
-        }
-        update();
-        setInterval(update, 1000);
-    }
-
     // ==========================================
     // 11. ARRANQUE
     // ==========================================
     await initAuth();
     await fetchPosts();
-    initCountdown();
 });
