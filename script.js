@@ -106,16 +106,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (currentUser && currentProfile) {
             const djName = currentProfile.dj_name || 'Mi Perfil';
             const avatar = currentProfile.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80';
+            const isSuperAdmin = currentProfile.is_super_admin || (currentProfile.role && currentProfile.role.includes('Super Admin'));
 
             // Navbar para DJ conectado
             if (navContainer) {
                 navContainer.innerHTML = `
-                    <span class="user-status-badge dj-status" style="background: rgba(139, 92, 246, 0.15); color: var(--accent-primary); padding: 6px 14px; border-radius: 100px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-compact-disc fa-spin"></i> ${escapeHTML(djName)}
+                    <span class="user-status-badge dj-status" style="background: ${isSuperAdmin ? 'rgba(245, 158, 11, 0.15)' : 'rgba(139, 92, 246, 0.15)'}; color: ${isSuperAdmin ? '#fbbf24' : 'var(--accent-primary)'}; padding: 6px 14px; border-radius: 100px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid ${isSuperAdmin ? 'rgba(245, 158, 11, 0.3)' : 'transparent'};">
+                        <i class="fa-solid ${isSuperAdmin ? 'fa-crown' : 'fa-compact-disc fa-spin'}"></i> ${escapeHTML(djName)} ${isSuperAdmin ? '<span style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 6px; font-weight: 800;">ADMIN</span>' : ''}
                     </span>
                     <button class="btn btn-primary" onclick="toggleModal('upload-modal', true)"><i class="fa-solid fa-upload"></i> <span class="nav-btn-text">Subir Mix</span></button>
                     <div class="user-profile" onclick="openCurrentUserProfile()" title="Ver mi perfil" style="cursor: pointer;">
-                        <img src="${avatar}" alt="${escapeHTML(djName)}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-primary);">
+                        <img src="${avatar}" alt="${escapeHTML(djName)}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid ${isSuperAdmin ? '#f59e0b' : 'var(--accent-primary)'};">
                     </div>
                     <button class="btn btn-danger-link" onclick="handleRealLogout()" title="Cerrar Sesión" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem; padding: 5px; transition: color 0.3s;"><i class="fa-solid fa-right-from-bracket"></i></button>
                 `;
@@ -125,10 +126,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (sidebarContainer) {
                 sidebarContainer.innerHTML = `
                     <div class="user-info">
-                        <img src="${avatar}" alt="${escapeHTML(djName)}" class="avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                        <img src="${avatar}" alt="${escapeHTML(djName)}" class="avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid ${isSuperAdmin ? '#f59e0b' : 'transparent'};">
                         <div>
-                            <h4>${escapeHTML(djName)}</h4>
-                            <span>${escapeHTML(currentProfile.role || 'DJ de Worship 🕊️')}</span>
+                            <h4>${escapeHTML(djName)} ${isSuperAdmin ? '<i class="fa-solid fa-crown" style="color: #fbbf24; font-size: 0.85rem;" title="Super Administrador"></i>' : ''}</h4>
+                            <span style="${isSuperAdmin ? 'color: #fbbf24; font-weight: 600;' : ''}">${escapeHTML(currentProfile.role || 'DJ de Worship 🕊️')}</span>
                         </div>
                     </div>
                     <div class="user-stats">
@@ -423,6 +424,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         feedPosts.forEach(post => {
             const author = post.profiles || { dj_name: "DJ Creador", avatar_url: "https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80" };
+            const isAuthorAdmin = author.is_super_admin || (author.role && author.role.includes('Super Admin'));
             const timeInfo = formatPanamaTimestamp(post.created_at);
             const isSaved = savedPostIds.includes(post.id);
 
@@ -489,7 +491,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="post-author" onclick="openDJProfileById('${author.id}')" style="cursor: pointer;">
                         <img src="${author.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'}" alt="${escapeHTML(author.dj_name)}">
                         <div>
-                            <h3>${escapeHTML(author.dj_name)}</h3>
+                            <h3>${escapeHTML(author.dj_name)} ${isAuthorAdmin ? '<i class="fa-solid fa-crown" style="color: #fbbf24; font-size: 0.85rem;" title="Super Administrador"></i>' : ''}</h3>
                             <span title="${timeInfo.fullTooltip}">${timeInfo.displayBadge} • <i class="fa-solid fa-globe"></i> HD Stream</span>
                         </div>
                     </div>
@@ -540,11 +542,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="comments-list" id="comments-list-${post.id}">
                         ${commentsList.map(c => {
                             const cTime = formatPanamaTimestamp(c.created_at);
+                            const isCAdmin = c.profiles?.is_super_admin || (c.profiles?.role && c.profiles.role.includes('Super Admin'));
                             return `
                             <div class="comment-item">
                                 <img src="${c.profiles?.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'}" alt="Avatar">
                                 <div class="comment-bubble">
-                                    <h5>${escapeHTML(c.profiles?.dj_name || 'Hermano')}</h5>
+                                    <h5>${escapeHTML(c.profiles?.dj_name || 'Hermano')} ${isCAdmin ? '<i class="fa-solid fa-crown" style="color: #fbbf24; font-size: 0.75rem;" title="Super Administrador"></i>' : ''}</h5>
                                     <p>${escapeHTML(c.text)}</p>
                                     <span title="${cTime.fullTooltip}">${cTime.relative} • ${cTime.panamaTime} (PTY)</span>
                                 </div>
