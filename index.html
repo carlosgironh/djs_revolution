@@ -53,6 +53,13 @@
                 <input type="text" id="global-search" placeholder="Buscar mixes, djs, etiquetas cristianas...">
             </div>
 
+            <!-- Reloj Oficial de Cabina (Panamá GMT-5) -->
+            <div class="panama-clock" id="panama-clock" title="Hora Oficial de Cabina • Panamá (GMT-5)">
+                <i class="fa-regular fa-clock"></i>
+                <span id="panama-clock-time">--:--:--</span>
+                <span class="panama-badge">🇵🇦 PTY</span>
+            </div>
+
             <div id="navbar-actions-container" class="nav-actions"></div>
         </div>
     </nav>
@@ -120,11 +127,14 @@
         <aside class="right-sidebar">
             <!-- Widget Transmisiones en Vivo -->
             <div class="widget glass-panel">
-                <h3>Transmitiendo en Vivo 🔴</h3>
-                <div style="text-align: center; padding: 16px 8px; color: var(--text-secondary); font-size: 0.85rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin-bottom: 0;">Transmitiendo en Vivo 🔴</h3>
+                    <span class="panama-badge" title="Horarios sincronizados con Hora Oficial de Panamá (GMT-5)">🇵🇦 GMT-5</span>
+                </div>
+                <div style="text-align: center; padding: 14px 8px; color: var(--text-secondary); font-size: 0.85rem;">
                     <i class="fa-solid fa-tower-broadcast" style="font-size: 2rem; color: var(--accent-primary); margin-bottom: 10px; display: block;"></i>
                     <p style="margin-bottom: 6px; font-weight: 600; color: #fff;">Sin transmisiones activas</p>
-                    <p style="font-size: 0.8rem; line-height: 1.4;">Cuando un DJ o ministerio inicie un Live Stream, aparecerá automáticamente aquí.</p>
+                    <p style="font-size: 0.8rem; line-height: 1.4;">Cuando un DJ o ministerio inicie un Live Stream, aparecerá automáticamente aquí ajustado a la <strong>Hora Oficial de Panamá</strong>.</p>
                 </div>
             </div>
 

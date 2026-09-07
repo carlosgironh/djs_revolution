@@ -423,7 +423,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         feedPosts.forEach(post => {
             const author = post.profiles || { dj_name: "DJ Creador", avatar_url: "https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80" };
-            const timeAgo = formatRelativeTime(post.created_at);
+            const timeInfo = formatPanamaTimestamp(post.created_at);
             const isSaved = savedPostIds.includes(post.id);
 
             // Contar reacciones por tipo
@@ -490,7 +490,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <img src="${author.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'}" alt="${escapeHTML(author.dj_name)}">
                         <div>
                             <h3>${escapeHTML(author.dj_name)}</h3>
-                            <span>${timeAgo} • <i class="fa-solid fa-globe"></i> HD Stream</span>
+                            <span title="${timeInfo.fullTooltip}">${timeInfo.displayBadge} • <i class="fa-solid fa-globe"></i> HD Stream</span>
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
@@ -538,16 +538,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <!-- Sección de Comentarios -->
                 <div class="post-comments-section hidden" id="comments-section-${post.id}">
                     <div class="comments-list" id="comments-list-${post.id}">
-                        ${commentsList.map(c => `
+                        ${commentsList.map(c => {
+                            const cTime = formatPanamaTimestamp(c.created_at);
+                            return `
                             <div class="comment-item">
                                 <img src="${c.profiles?.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'}" alt="Avatar">
                                 <div class="comment-bubble">
                                     <h5>${escapeHTML(c.profiles?.dj_name || 'Hermano')}</h5>
                                     <p>${escapeHTML(c.text)}</p>
-                                    <span>${formatRelativeTime(c.created_at)}</span>
+                                    <span title="${cTime.fullTooltip}">${cTime.relative} • ${cTime.panamaTime} (PTY)</span>
                                 </div>
                             </div>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                     <div class="comment-input-box">
                         <img src="${currentProfile?.avatar_url || 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=150&q=80'}" alt="Avatar">
@@ -1391,7 +1394,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // Formato de tiempo y utilidades
+    // Formato de tiempo y utilidades con Hora Oficial de Panamá (America/Panama, GMT-5)
     function formatTime(seconds) {
         if (isNaN(seconds)) return "00:00";
         const mins = Math.floor(seconds / 60);
@@ -1399,14 +1402,81 @@ document.addEventListener('DOMContentLoaded', async () => {
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    function formatRelativeTime(dateStr) {
-        if (!dateStr) return "Reciente";
+    function formatPanamaTimestamp(dateStr) {
+        if (!dateStr) return { relative: "Reciente", panamaTime: "", displayBadge: "Reciente", fullTooltip: "Reciente" };
         const date = new Date(dateStr);
-        const diffSecs = Math.floor((new Date() - date) / 1000);
-        if (diffSecs < 60) return "Hace un momento";
-        if (diffSecs < 3600) return `Hace ${Math.floor(diffSecs / 60)} min`;
-        if (diffSecs < 86400) return `Hace ${Math.floor(diffSecs / 3600)} h`;
-        return `Hace ${Math.floor(diffSecs / 86400)} días`;
+        const now = new Date();
+        const diffSecs = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+        // Hora exacta formateada en zona horaria oficial de Panamá (America/Panama - GMT-5)
+        const panamaTimeStr = date.toLocaleTimeString('es-PA', {
+            timeZone: 'America/Panama',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+
+        const panamaDateStr = date.toLocaleDateString('es-PA', {
+            timeZone: 'America/Panama',
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+
+        // Comparar con el reloj local del cliente (Windows / Navegador)
+        let relative = "Hace un momento";
+        if (diffSecs >= 60 && diffSecs < 3600) {
+            relative = `Hace ${Math.floor(diffSecs / 60)} min`;
+        } else if (diffSecs >= 3600 && diffSecs < 86400) {
+            relative = `Hace ${Math.floor(diffSecs / 3600)} h`;
+        } else if (diffSecs >= 86400 && diffSecs < 604800) {
+            relative = `Hace ${Math.floor(diffSecs / 86400)} d`;
+        } else if (diffSecs >= 604800) {
+            relative = panamaDateStr;
+        }
+
+        return {
+            relative,
+            panamaTime: panamaTimeStr,
+            panamaDate: panamaDateStr,
+            fullTooltip: `Publicado: ${panamaDateStr}, ${panamaTimeStr} (Hora Oficial de Panamá - GMT-5)`,
+            displayBadge: `${relative} • ${panamaTimeStr} (PTY)`
+        };
+    }
+
+    function formatRelativeTime(dateStr) {
+        return formatPanamaTimestamp(dateStr).displayBadge;
+    }
+
+    // Reloj Oficial de Panamá en vivo para la cabina y el navbar
+    function initPanamaClock() {
+        const timeEl = document.getElementById('panama-clock-time');
+        const clockContainer = document.getElementById('panama-clock');
+        if (!timeEl) return;
+
+        function update() {
+            const now = new Date();
+            const panamaTimeStr = now.toLocaleTimeString('es-PA', {
+                timeZone: 'America/Panama',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            timeEl.textContent = panamaTimeStr;
+
+            // Comparar con reloj de Windows / local del usuario
+            const localTimeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local';
+            if (clockContainer) {
+                clockContainer.setAttribute(
+                    'title', 
+                    `🇵🇦 Hora Oficial de Cabina: ${panamaTimeStr} (Panamá GMT-5)\n💻 Tu reloj local de Windows (${localTz}): ${localTimeStr}`
+                );
+            }
+        }
+        update();
+        setInterval(update, 1000);
     }
 
     function escapeHTML(str) {
@@ -1421,4 +1491,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ==========================================
     await initAuth();
     await fetchPosts();
+    initPanamaClock();
 });
