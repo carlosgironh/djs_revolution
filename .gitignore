@@ -11,3 +11,6 @@ dist-ssr
 .claude-flow/logs/
 .claude-flow/sessions/
 
+# Mobile App Project
+/djs_revolution_mobile/
+
