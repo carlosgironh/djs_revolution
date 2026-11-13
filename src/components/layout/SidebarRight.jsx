@@ -2,6 +2,7 @@ import React from 'react';
 import { Download, Radio, Flame, Play, Music, Sparkles } from 'lucide-react';
 import { usePlayer } from '../../context/PlayerContext';
 import { getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
+import { AdSenseBanner } from '../ads/AdSenseBanner';
 
 export function SidebarRight({ topPosts = [], onOpenVideo }) {
   const { playTrack } = usePlayer();
@@ -100,6 +101,9 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
           <p className="text-[11px] text-zinc-400">Audio y video optimizados para iglesias y eventos.</p>
         </div>
       </div>
+
+      {/* Espacio Publicitario AdSense */}
+      <AdSenseBanner />
 
     </aside>
   );

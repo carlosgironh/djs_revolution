@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
-import { Play, Sparkles, Maximize2, RefreshCw, Download } from 'lucide-react';
+import { Play, Sparkles, Maximize2, RefreshCw } from 'lucide-react';
 
 export function InlineVideoPlayer({ 
   streamUrl, 
@@ -9,8 +9,7 @@ export function InlineVideoPlayer({
   posterUrl, 
   title, 
   badge = 'Video HD',
-  onExpand,
-  onDownload
+  onExpand
 }) {
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
@@ -146,35 +145,20 @@ export function InlineVideoPlayer({
             <span>{badge}</span>
           </div>
 
-          {/* Botones Superiores (Descargar & Pantalla Grande) */}
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
-            {onDownload && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDownload();
-                }}
-                className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-cyan-400 backdrop-blur-md border border-white/10 transition-all"
-                title="Descargar Video MP4"
-              >
-                <Download className="w-3.5 h-3.5" />
-              </button>
-            )}
-            {onExpand && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onExpand();
-                }}
-                className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-white backdrop-blur-md border border-white/10 transition-all"
-                title="Abrir en pantalla grande"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+          {/* Botón Abrir en pantalla grande */}
+          {onExpand && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onExpand();
+              }}
+              className="absolute top-3 right-3 p-2 rounded-full bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-white backdrop-blur-md border border-white/10 transition-all z-10"
+              title="Abrir en pantalla grande"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       ) : (
         // Reproductor de Video Inline
@@ -190,28 +174,16 @@ export function InlineVideoPlayer({
             onPause={() => setIsPlaying(false)}
           />
 
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
-            {onDownload && (
-              <button
-                type="button"
-                onClick={onDownload}
-                className="p-1.5 rounded-lg bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-cyan-400 backdrop-blur-md border border-white/10 transition-all"
-                title="Descargar Video MP4"
-              >
-                <Download className="w-3.5 h-3.5" />
-              </button>
-            )}
-            {onExpand && (
-              <button
-                type="button"
-                onClick={onExpand}
-                className="p-1.5 rounded-lg bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-white backdrop-blur-md border border-white/10 transition-all"
-                title="Maximizar video"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+          {onExpand && (
+            <button
+              type="button"
+              onClick={onExpand}
+              className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-white backdrop-blur-md border border-white/10 transition-all z-10"
+              title="Maximizar video"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          )}
 
           {useFallback && (
             <div className="absolute bottom-12 left-3 px-2 py-0.5 rounded bg-black/80 border border-amber-500/30 text-[10px] text-amber-300 flex items-center gap-1 pointer-events-none">

@@ -181,7 +181,7 @@ export function VideoLightboxModal({ post, isOpen, onClose }) {
         <div className="p-3 sm:p-4 bg-dark-900/60 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-400">
           <span className="flex items-center gap-1.5 text-rose-400 font-bold">
             <Sparkles className="w-3.5 h-3.5" />
-            {useFallback ? 'Reproduciendo archivo directo HD' : 'Transmisión Oficial HD'}
+            {useFallback ? 'Reproduciendo archivo directo HD' : 'Transmisión HD'}
           </span>
           <span className="truncate">{post.content || 'Sets de Adoración en Video'}</span>
         </div>

@@ -64,7 +64,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
 
             if (putRes.ok) {
               setUploadProgress(70);
-              setStatusText("Optimizando streaming en alta definición...");
+              setStatusText("Optimizando streaming HD...");
 
               // Consultar estado de Mux para obtener playback_id y asset_id
               if (uploadId) {

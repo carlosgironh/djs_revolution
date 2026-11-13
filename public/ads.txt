@@ -1,0 +1,3 @@
+# Google AdSense ads.txt - DJ's Revolution
+# Reemplaza pub-XXXXXXXXXXXXXXXX con tu ID de editor de AdSense (Publisher ID)
+google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
