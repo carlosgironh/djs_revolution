@@ -269,7 +269,7 @@ export function PostCard({
               )}
             </button>
 
-            {/* Badge HD Stream Mux */}
+            {/* Badge HD Audio Stream */}
             <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-bold text-cyan-300">
               <Sparkles className="w-3 h-3 text-cyan-400" />
               <span>HD Audio Stream</span>
@@ -283,8 +283,9 @@ export function PostCard({
             directUrl={getDirectMediaUrl(post)}
             posterUrl={coverUrl}
             title={post.title}
-            badge={post.type === 'video' ? 'VJ Video Set (Mux HD)' : 'Visual Loop'}
+            badge={post.type === 'video' ? 'VJ Video Set HD' : 'Visual Loop'}
             onExpand={() => onOpenVideo?.(post)}
+            onDownload={handleDownload}
           />
         )}
       </div>
@@ -357,7 +358,7 @@ export function PostCard({
           <button
             onClick={handleDownload}
             className="p-2 rounded-full hover:bg-white/10 hover:text-cyan-400 transition-colors"
-            title="Descargar archivo"
+            title={post.type === 'video' ? 'Descargar Video MP4' : 'Descargar Audio MP3'}
           >
             <Download className="w-4 h-4" />
           </button>
