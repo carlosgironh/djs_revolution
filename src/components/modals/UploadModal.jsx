@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, CloudUpload, Loader2, Music, Video, Sparkles, CheckCircle2 } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { X, CloudUpload, Loader2, Music, Video, Sparkles, CheckCircle2, FolderOpen, FileAudio } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase, MUX_SERVICE_URL } from '../../lib/supabase';
 
@@ -15,6 +15,9 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [statusText, setStatusText] = useState('');
 
+  const fileInputRef = useRef(null);
+  const allFilesInputRef = useRef(null);
+
   if (!isOpen) return null;
 
   async function handleUpload(e) {
@@ -29,6 +32,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
     setUploadProgress(15);
 
     try {
+      let uploadId = null;
       let playbackId = null;
       let assetId = null;
       let directFileUrl = null;
@@ -47,6 +51,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         if (edgeRes.ok) {
           const edgeData = await edgeRes.json();
           if (edgeData.upload_url) {
+            uploadId = edgeData.upload_id;
             setStatusText("Subiendo archivo a DJ's Revolution...");
             setUploadProgress(50);
 
@@ -58,10 +63,26 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
             });
 
             if (putRes.ok) {
-              assetId = edgeData.asset_id || null;
-              playbackId = edgeData.playback_id || null;
-              setUploadProgress(80);
-              setStatusText("Optimizando calidad de streaming HD...");
+              setUploadProgress(70);
+              setStatusText("Optimizando streaming HD en Mux...");
+
+              // Consultar estado de Mux para obtener playback_id y asset_id
+              if (uploadId) {
+                for (let attempt = 0; attempt < 4; attempt++) {
+                  await new Promise(r => setTimeout(r, 1500));
+                  try {
+                    const statusRes = await fetch(`${MUX_SERVICE_URL}?action=status&upload_id=${uploadId}`);
+                    if (statusRes.ok) {
+                      const statusData = await statusRes.json();
+                      if (statusData.asset_id) assetId = statusData.asset_id;
+                      if (statusData.playback_id) {
+                        playbackId = statusData.playback_id;
+                        break;
+                      }
+                    }
+                  } catch (_) {}
+                }
+              }
             }
           }
         }
@@ -69,11 +90,12 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         console.warn("Mux Edge service fallback, guardando archivo directo:", muxErr);
       }
 
-      // Si no tenemos URL de Mux directa o como respaldo: subir a Supabase Storage
-      if (!playbackId) {
-        setStatusText("Guardando archivo en servidores de audio...");
-        setUploadProgress(65);
-        const fileName = `${currentUser.id}/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+      // 2. Subir también a Supabase Storage (bucket 'media') como copia permanente y respaldo
+      try {
+        setStatusText("Asegurando almacenamiento de audio permanente...");
+        setUploadProgress(85);
+        const safeName = file.name.replace(/\s+/g, '_');
+        const fileName = `${currentUser.id}/${Date.now()}_${safeName}`;
         
         const { data: storageData, error: storageErr } = await supabase
           .storage
@@ -83,26 +105,34 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         if (!storageErr && storageData) {
           const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(fileName);
           directFileUrl = publicUrl;
-        } else {
-          // Si el bucket media no existe o no tiene permisos, generamos URL local representativa
-          directFileUrl = URL.createObjectURL(file);
         }
+      } catch (stErr) {
+        console.warn("Supabase Storage warning:", stErr);
       }
 
-      setUploadProgress(90);
+      setUploadProgress(92);
       setStatusText("Registrando publicación en el Muro...");
 
-      // 2. Insertar en tabla posts de Supabase
+      // Determinar la URL final de reproducción
+      const streamUrl = playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : null;
+      const finalMediaUrl = streamUrl || directFileUrl || (file ? URL.createObjectURL(file) : '');
+
+      // 3. Insertar en tabla posts de Supabase con compatibilidad total
       const { error: insertErr } = await supabase.from('posts').insert({
         author_id: currentUser.id,
         title: title.trim(),
         content: description.trim(),
+        description: description.trim(),
         genre: genre,
         type: fileType,
+        mux_upload_id: uploadId,
         mux_asset_id: assetId,
         mux_playback_id: playbackId,
-        mux_audio_url: directFileUrl,
-        file_url: directFileUrl,
+        media_url: finalMediaUrl,
+        audio_url: finalMediaUrl,
+        file_url: directFileUrl || finalMediaUrl,
+        mux_audio_url: directFileUrl || finalMediaUrl,
+        status: 'ready',
         downloads_count: 0
       });
 
@@ -120,6 +150,17 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
     } catch (err) {
       alert("Error al subir archivo: " + (err.message || err));
       setUploading(false);
+    }
+  }
+
+  function handleFileSelected(e) {
+    const selected = e.target.files?.[0];
+    if (selected) {
+      setFile(selected);
+      if (!title.trim()) {
+        const cleanName = selected.name.replace(/\.[^/.]+$/, "");
+        setTitle(cleanName);
+      }
     }
   }
 
@@ -243,38 +284,95 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
               />
             </div>
 
-            {/* Selector de Archivo */}
+            {/* Selector de Archivo Multimedia */}
             <div>
               <label className="block text-xs font-bold text-zinc-300 mb-1">Archivo Multimedia</label>
-              <div className="border-2 border-dashed border-white/15 rounded-2xl p-4 text-center hover:border-cyan-500/50 transition-colors">
-                <input
-                  type="file"
-                  id="media-file-input"
-                  required
-                  accept={fileType === 'audio' ? "audio/mp3,audio/wav,audio/*" : "video/mp4,video/quicktime,video/*"}
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="hidden"
-                />
-                <label htmlFor="media-file-input" className="cursor-pointer block">
-                  {file ? (
-                    <div className="flex items-center justify-center gap-2 text-xs font-bold text-cyan-400">
-                      <CheckCircle2 className="w-4 h-4" />
+              
+              {/* Inputs ocultos: uno estándar de medios y otro universal de Archivos/Descargas */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                id="media-file-input"
+                accept={fileType === 'audio' 
+                  ? "audio/*,audio/mpeg,audio/wav,audio/aac,audio/x-m4a,audio/mp4,.mp3,.wav,.aac,.m4a,.ogg,.flac" 
+                  : "video/*,video/mp4,video/quicktime,.mp4,.mov,.mkv"}
+                onChange={handleFileSelected}
+                className="hidden"
+              />
+
+              <input
+                ref={allFilesInputRef}
+                type="file"
+                id="all-files-input"
+                accept="*/*"
+                onChange={handleFileSelected}
+                className="hidden"
+              />
+
+              <div className="border-2 border-dashed border-white/15 rounded-2xl p-4 text-center hover:border-cyan-500/50 transition-colors bg-white/[0.02]">
+                {file ? (
+                  <div className="py-2">
+                    <div className="flex items-center justify-center gap-2 text-sm font-bold text-cyan-400 mb-2">
+                      <CheckCircle2 className="w-5 h-5" />
                       <span className="truncate max-w-xs">{file.name}</span>
                     </div>
-                  ) : (
-                    <div>
-                      <CloudUpload className="w-6 h-6 text-zinc-400 mx-auto mb-1" />
-                      <span className="text-xs text-zinc-300 font-medium">Toca para seleccionar archivo</span>
-                      <span className="block text-[10px] text-zinc-500 mt-0.5">MP3, WAV, MP4, MOV hasta 100MB</span>
+                    <span className="text-[11px] text-zinc-400">
+                      Tamaño: {(file.size / (1024 * 1024)).toFixed(1)} MB
+                    </span>
+                    <div className="mt-3 flex justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-xs text-zinc-300 hover:text-white px-3 py-1 rounded-lg bg-white/10 hover:bg-white/15 transition-all"
+                      >
+                        Cambiar archivo
+                      </button>
                     </div>
-                  )}
-                </label>
+                  </div>
+                ) : (
+                  <div>
+                    <CloudUpload className="w-7 h-7 text-zinc-400 mx-auto mb-2" />
+                    <span className="text-xs text-zinc-300 font-semibold block mb-1">Selecciona tu archivo de música o video</span>
+                    <span className="block text-[11px] text-zinc-500 mb-3">MP3, WAV, MP4, MOV hasta 250MB</span>
+                    
+                    {/* Botones de selección: Medios y Archivos del Dispositivo */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full sm:w-auto px-4 py-2 rounded-xl bg-violet-600/30 hover:bg-violet-600/50 text-violet-200 border border-violet-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-all"
+                      >
+                        <FileAudio className="w-4 h-4 text-violet-400" />
+                        <span>Música / Medios</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => allFilesInputRef.current?.click()}
+                        className="w-full sm:w-auto px-4 py-2 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-200 border border-cyan-500/30 text-xs font-bold flex items-center justify-center gap-2 transition-all"
+                        title="Abre la app de Archivos o Descargas de Android en lugar de la galería de fotos"
+                      >
+                        <FolderOpen className="w-4 h-4 text-cyan-400" />
+                        <span>Explorador de Archivos (Android / PC)</span>
+                      </button>
+                    </div>
+
+                    <p className="text-[10px] text-zinc-500 mt-2.5 italic">
+                      💡 En Android: Si solo te abre Google Fotos, toca <strong className="text-cyan-400">"Explorador de Archivos"</strong> para seleccionar desde tu app de Archivos o Descargas.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 shadow-glow-violet transition-all flex items-center justify-center gap-2"
+              disabled={!file}
+              className={`w-full py-3 rounded-xl font-bold text-sm text-white shadow-glow-violet transition-all flex items-center justify-center gap-2 ${
+                file 
+                  ? 'bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 cursor-pointer' 
+                  : 'bg-white/10 text-zinc-500 cursor-not-allowed'
+              }`}
             >
               <CloudUpload className="w-4 h-4" />
               <span>Publicar Mix en el Muro</span>

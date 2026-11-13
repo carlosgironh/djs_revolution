@@ -14,3 +14,8 @@ dist-ssr
 # Mobile App Project
 /djs_revolution_mobile/
 
+# IDE & Editor
+.history/
+.vscode/
+*.local
+
