@@ -6,8 +6,8 @@ import React, { useEffect, useRef } from 'react';
  * Set client and slot props according to your AdSense dashboard.
  */
 export function AdSenseBanner({
-  client = "ca-pub-XXXXXXXXXXXXXXXX",
-  slot = "1234567890",
+  client = "ca-pub-4074408230613118",
+  slot,
   format = "auto",
   responsive = true,
   className = ""
@@ -22,38 +22,25 @@ export function AdSenseBanner({
         pushedRef.current = true;
       }
     } catch (e) {
-      console.warn("AdSense push error or adblocker enabled:", e);
+      // Catch in case of adblocker or before domain approval
+      console.warn("AdSense push:", e);
     }
   }, []);
 
-  const isPlaceholder = client === "ca-pub-XXXXXXXXXXXXXXXX";
-
   return (
-    <div className={`overflow-hidden rounded-2xl bg-white/[0.02] border border-white/5 p-2 text-center ${className}`}>
-      {isPlaceholder ? (
-        <div className="py-3 px-4 flex flex-col items-center justify-center text-center">
-          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">
-            <span>Espacio Publicitario</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-500/60" />
-            <span>AdSense</span>
-          </div>
-          <p className="text-[11px] text-zinc-400">
-            Espacio reservado para anuncios patrocinados
-          </p>
-        </div>
-      ) : (
-        <ins
-          ref={adRef}
-          className="adsbygoogle block"
-          style={{ display: 'block' }}
-          data-ad-client={client}
-          data-ad-slot={slot}
-          data-ad-format={format}
-          data-full-width-responsive={responsive ? "true" : "false"}
-        />
-      )}
+    <div className={`overflow-hidden rounded-2xl bg-white/[0.02] border border-white/5 p-2 text-center min-h-[90px] flex items-center justify-center ${className}`}>
+      <ins
+        ref={adRef}
+        className="adsbygoogle block w-full"
+        style={{ display: 'block' }}
+        data-ad-client={client}
+        {...(slot ? { 'data-ad-slot': slot } : {})}
+        data-ad-format={format}
+        data-full-width-responsive={responsive ? "true" : "false"}
+      />
     </div>
   );
 }
 
 export default AdSenseBanner;
+

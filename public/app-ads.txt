@@ -1,0 +1,2 @@
+# Google AdMob app-ads.txt - DJ's Revolution
+google.com, pub-4074408230613118, DIRECT, f08c47fec0942fa0
