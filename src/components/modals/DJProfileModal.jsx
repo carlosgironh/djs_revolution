@@ -3,6 +3,7 @@ import { X, Heart, Play, Crown, ExternalLink, Music, Disc } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { usePlayer } from '../../context/PlayerContext';
 import { Avatar } from '../common/Avatar';
+import { getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
 
 export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwnProfile, onOpenVideo }) {
   const { currentUser } = useAuth();
@@ -165,7 +166,8 @@ export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwn
                           title: p.title,
                           artist: profile.dj_name,
                           coverUrl: p.cover_url,
-                          audioUrl: p.mux_audio_url || p.file_url
+                          audioUrl: getStreamingMediaUrl(p),
+                          fileUrl: getDirectMediaUrl(p)
                         });
                       } else {
                         onOpenVideo(p);

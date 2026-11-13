@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import Hls from 'hls.js';
 
 const PlayerContext = createContext({});
 
@@ -12,6 +13,7 @@ export function PlayerProvider({ children }) {
   const [isVisible, setIsVisible] = useState(false);
 
   const audioRef = useRef(null);
+  const hlsAudioRef = useRef(null);
 
   useEffect(() => {
     const audio = new Audio();
@@ -37,6 +39,10 @@ export function PlayerProvider({ children }) {
     audio.addEventListener('pause', onPause);
 
     return () => {
+      if (hlsAudioRef.current) {
+        hlsAudioRef.current.destroy();
+        hlsAudioRef.current = null;
+      }
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('play', onPlay);
@@ -46,23 +52,61 @@ export function PlayerProvider({ children }) {
   }, []);
 
   function playTrack(track) {
-    if (!audioRef.current || !track.audioUrl) return;
+    if (!audioRef.current || (!track.audioUrl && !track.fileUrl)) return;
 
     if (currentTrack?.id === track.id) {
       togglePlay();
       return;
     }
 
+    if (hlsAudioRef.current) {
+      hlsAudioRef.current.destroy();
+      hlsAudioRef.current = null;
+    }
+
     setCurrentTrack(track);
     setIsVisible(true);
-    audioRef.current.src = track.audioUrl;
-    audioRef.current.volume = volume;
-    audioRef.current.muted = muted;
-    audioRef.current.play().then(() => {
-      setIsPlaying(true);
-    }).catch(err => {
-      console.warn("Autoplay bloqueado o error al reproducir:", err);
-    });
+
+    const audio = audioRef.current;
+    audio.volume = volume;
+    audio.muted = muted;
+
+    const streamUrl = track.audioUrl || track.fileUrl;
+    const directUrl = track.fileUrl || (track.audioUrl && !track.audioUrl.includes('.m3u8') ? track.audioUrl : null);
+
+    if (streamUrl && streamUrl.includes('.m3u8')) {
+      if (Hls.isSupported()) {
+        const hls = new Hls({ enableWorker: true });
+        hlsAudioRef.current = hls;
+        hls.loadSource(streamUrl);
+        hls.attachMedia(audio);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          audio.play().then(() => setIsPlaying(true)).catch(console.warn);
+        });
+
+        hls.on(Hls.Events.ERROR, (_, data) => {
+          if (data.fatal) {
+            console.warn("Audio HLS fatal error, cambiando a directo:", data);
+            hls.destroy();
+            hlsAudioRef.current = null;
+            if (directUrl) {
+              audio.src = directUrl;
+              audio.play().then(() => setIsPlaying(true)).catch(console.warn);
+            }
+          }
+        });
+      } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+        audio.src = streamUrl;
+        audio.play().then(() => setIsPlaying(true)).catch(console.warn);
+      } else if (directUrl) {
+        audio.src = directUrl;
+        audio.play().then(() => setIsPlaying(true)).catch(console.warn);
+      }
+    } else {
+      audio.src = directUrl || streamUrl;
+      audio.play().then(() => setIsPlaying(true)).catch(console.warn);
+    }
   }
 
   function togglePlay() {
@@ -96,6 +140,10 @@ export function PlayerProvider({ children }) {
   }
 
   function closePlayer() {
+    if (hlsAudioRef.current) {
+      hlsAudioRef.current.destroy();
+      hlsAudioRef.current = null;
+    }
     if (audioRef.current) {
       audioRef.current.pause();
     }

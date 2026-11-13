@@ -118,6 +118,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
       const finalMediaUrl = streamUrl || directFileUrl || (file ? URL.createObjectURL(file) : '');
 
       // 3. Insertar en tabla posts de Supabase con compatibilidad total
+      const isVideo = fileType === 'video';
       const { error: insertErr } = await supabase.from('posts').insert({
         author_id: currentUser.id,
         title: title.trim(),
@@ -129,9 +130,10 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         mux_asset_id: assetId,
         mux_playback_id: playbackId,
         media_url: finalMediaUrl,
-        audio_url: finalMediaUrl,
+        audio_url: isVideo ? null : finalMediaUrl,
+        video_url: isVideo ? finalMediaUrl : null,
         file_url: directFileUrl || finalMediaUrl,
-        mux_audio_url: directFileUrl || finalMediaUrl,
+        mux_audio_url: isVideo ? null : (directFileUrl || finalMediaUrl),
         status: 'ready',
         downloads_count: 0
       });

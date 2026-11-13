@@ -1,6 +1,7 @@
 import React from 'react';
 import { Download, Radio, Flame, Play, Music, Sparkles } from 'lucide-react';
 import { usePlayer } from '../../context/PlayerContext';
+import { getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
 
 export function SidebarRight({ topPosts = [], onOpenVideo }) {
   const { playTrack } = usePlayer();
@@ -33,7 +34,8 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
                       title: post.title,
                       artist: post.profiles?.dj_name || 'DJ',
                       coverUrl: post.cover_url,
-                      audioUrl: post.mux_audio_url || post.file_url
+                      audioUrl: getStreamingMediaUrl(post),
+                      fileUrl: getDirectMediaUrl(post)
                     });
                   } else {
                     onOpenVideo(post);

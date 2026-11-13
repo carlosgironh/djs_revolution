@@ -1,18 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
-import { Play, Sparkles } from 'lucide-react';
+import { Play, Sparkles, Maximize2, RefreshCw } from 'lucide-react';
 
 export function InlineVideoPlayer({ 
   streamUrl, 
   playbackId, 
+  directUrl,
   posterUrl, 
   title, 
-  badge = 'Mux Video HD' 
+  badge = 'Mux Video HD',
+  onExpand
 }) {
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [useFallback, setUseFallback] = useState(false);
 
   const effectiveStreamUrl = playbackId
     ? `https://stream.mux.com/${playbackId}.m3u8`
@@ -24,9 +27,17 @@ export function InlineVideoPlayer({
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !hasStarted || !effectiveStreamUrl) return;
+    if (!video || !hasStarted) return;
 
-    if (effectiveStreamUrl.includes('.m3u8')) {
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
+    }
+
+    const currentUrl = useFallback ? directUrl : (effectiveStreamUrl || directUrl);
+    if (!currentUrl) return;
+
+    if (currentUrl.includes('.m3u8')) {
       if (Hls.isSupported()) {
         const hls = new Hls({
           enableWorker: true,
@@ -35,7 +46,7 @@ export function InlineVideoPlayer({
         });
         hlsRef.current = hls;
 
-        hls.loadSource(effectiveStreamUrl);
+        hls.loadSource(currentUrl);
         hls.attachMedia(video);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -44,6 +55,7 @@ export function InlineVideoPlayer({
 
         hls.on(Hls.Events.ERROR, (_, data) => {
           if (data.fatal) {
+            console.warn("HLS Error en InlinePlayer:", data);
             switch (data.type) {
               case Hls.ErrorTypes.NETWORK_ERROR:
                 hls.startLoad();
@@ -53,18 +65,26 @@ export function InlineVideoPlayer({
                 break;
               default:
                 hls.destroy();
+                hlsRef.current = null;
+                if (directUrl && !useFallback) {
+                  setUseFallback(true);
+                }
                 break;
             }
           }
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         // Soporte nativo de HLS (Safari iOS / macOS)
-        video.src = effectiveStreamUrl;
+        video.src = currentUrl;
+        video.play().catch(() => {});
+      } else if (directUrl) {
+        // Navegador sin HLS nativo -> directo MP4
+        video.src = directUrl;
         video.play().catch(() => {});
       }
     } else {
       // Archivo MP4 / WebM directo
-      video.src = effectiveStreamUrl;
+      video.src = currentUrl;
       video.play().catch(() => {});
     }
 
@@ -74,12 +94,19 @@ export function InlineVideoPlayer({
         hlsRef.current = null;
       }
     };
-  }, [hasStarted, effectiveStreamUrl]);
+  }, [hasStarted, effectiveStreamUrl, directUrl, useFallback]);
 
   function handleStartPlay(e) {
     e.stopPropagation();
     setHasStarted(true);
     setIsPlaying(true);
+  }
+
+  function handleVideoError() {
+    if (!useFallback && directUrl) {
+      console.warn("Inline player fallback a archivo directo:", directUrl);
+      setUseFallback(true);
+    }
   }
 
   return (
@@ -117,20 +144,55 @@ export function InlineVideoPlayer({
             <Sparkles className="w-3 h-3 text-rose-400" />
             <span>{badge}</span>
           </div>
+
+          {/* Botón Abrir en pantalla grande */}
+          {onExpand && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onExpand();
+              }}
+              className="absolute top-3 right-3 p-2 rounded-full bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-white backdrop-blur-md border border-white/10 transition-all z-10"
+              title="Abrir en pantalla grande"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       ) : (
         // Reproductor de Video Inline
-        <video
-          ref={videoRef}
-          poster={effectivePoster}
-          controls
-          playsInline
-          className="w-full h-full object-contain bg-black"
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-        />
+        <div className="relative w-full h-full">
+          <video
+            ref={videoRef}
+            poster={effectivePoster}
+            controls
+            playsInline
+            onError={handleVideoError}
+            className="w-full h-full object-contain bg-black"
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+          />
+
+          {onExpand && (
+            <button
+              type="button"
+              onClick={onExpand}
+              className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-white backdrop-blur-md border border-white/10 transition-all z-10"
+              title="Maximizar video"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {useFallback && (
+            <div className="absolute bottom-12 left-3 px-2 py-0.5 rounded bg-black/80 border border-amber-500/30 text-[10px] text-amber-300 flex items-center gap-1 pointer-events-none">
+              <RefreshCw className="w-2.5 h-2.5 animate-spin text-amber-400" />
+              <span>Directo</span>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
 }
-

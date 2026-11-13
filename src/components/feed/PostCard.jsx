@@ -10,6 +10,7 @@ import { formatPanamaTimestamp } from '../../lib/panamaTime';
 import { supabase } from '../../lib/supabase';
 import { Avatar } from '../common/Avatar';
 import { InlineVideoPlayer } from '../common/InlineVideoPlayer';
+import { downloadMediaFile, getDirectMediaUrl, getStreamingMediaUrl } from '../../lib/mediaUtils';
 
 export function PostCard({ 
   post, 
@@ -137,29 +138,7 @@ export function PostCard({
   }
 
   async function handleDownload() {
-    const fileUrl = post.mux_audio_url || post.file_url;
-    if (!fileUrl) {
-      alert("El archivo se está procesando en alta definición. Estará listo en un momento.");
-      return;
-    }
-
-    try {
-      await supabase
-        .from('posts')
-        .update({ downloads_count: (post.downloads_count || 0) + 1 })
-        .eq('id', post.id);
-      onRefresh();
-    } catch (e) {
-      console.warn(e);
-    }
-
-    const a = document.createElement('a');
-    a.href = fileUrl;
-    a.download = `${post.title || 'mix'}.mp3`;
-    a.target = '_blank';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    await downloadMediaFile(post, onRefresh);
   }
 
   function handleShare() {
@@ -273,7 +252,8 @@ export function PostCard({
                 title: post.title,
                 artist: author.dj_name,
                 coverUrl: coverUrl,
-                audioUrl: post.mux_audio_url || post.file_url
+                audioUrl: getStreamingMediaUrl(post),
+                fileUrl: getDirectMediaUrl(post)
               })}
               className={`w-16 h-16 rounded-full flex items-center justify-center text-white shadow-2xl transition-all duration-300 ${
                 isThisAudioPlaying
@@ -298,11 +278,13 @@ export function PostCard({
         ) : (
           /* Video Inline estilo Facebook */
           <InlineVideoPlayer
-            streamUrl={post.video_url || post.media_url || post.file_url}
+            streamUrl={getStreamingMediaUrl(post)}
             playbackId={post.mux_playback_id}
+            directUrl={getDirectMediaUrl(post)}
             posterUrl={coverUrl}
             title={post.title}
             badge={post.type === 'video' ? 'VJ Video Set (Mux HD)' : 'Visual Loop'}
+            onExpand={() => onOpenVideo?.(post)}
           />
         )}
       </div>
