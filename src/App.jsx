@@ -18,6 +18,7 @@ import { EditProfileModal } from './components/modals/EditProfileModal';
 import { DJProfileModal } from './components/modals/DJProfileModal';
 import { VideoLightboxModal } from './components/modals/VideoLightboxModal';
 import { AdminUsersModal } from './components/modals/AdminUsersModal';
+import { AdSenseBanner } from './components/ads/AdSenseBanner';
 import { Disc, Sparkles } from 'lucide-react';
 
 export function App() {
@@ -253,17 +254,21 @@ export function App() {
                   </button>
                 </div>
               ) : (
-                filteredPosts.map((post) => (
-                  <PostCard
-                    key={post.id}
-                    post={post}
-                    isSaved={savedPostIds.includes(post.id)}
-                    onToggleSave={handleToggleSave}
-                    onOpenVideo={(p) => { setSelectedVideoPost(p); setVideoLightboxOpen(true); }}
-                    onViewProfile={handleViewProfile}
-                    onOpenAuth={(t) => { setAuthModalTab(t); setAuthModalOpen(true); }}
-                    onRefresh={fetchPosts}
-                  />
+                filteredPosts.map((post, idx) => (
+                  <React.Fragment key={post.id}>
+                    <PostCard
+                      post={post}
+                      isSaved={savedPostIds.includes(post.id)}
+                      onToggleSave={handleToggleSave}
+                      onOpenVideo={(p) => { setSelectedVideoPost(p); setVideoLightboxOpen(true); }}
+                      onViewProfile={handleViewProfile}
+                      onOpenAuth={(t) => { setAuthModalTab(t); setAuthModalOpen(true); }}
+                      onRefresh={fetchPosts}
+                    />
+                    {idx === 1 && (
+                      <AdSenseBanner key={`ad-feed-${post.id}`} slot="5572757736" />
+                    )}
+                  </React.Fragment>
                 ))
               )}
             </div>

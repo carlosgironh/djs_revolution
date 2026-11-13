@@ -2,12 +2,11 @@ import React, { useEffect, useRef } from 'react';
 
 /**
  * AdSenseBanner Component
- * Renders a Google AdSense responsive ad unit.
- * Set client and slot props according to your AdSense dashboard.
+ * Renders the Google AdSense ad unit (Slot: 5572757736 / First).
  */
 export function AdSenseBanner({
   client = "ca-pub-4074408230613118",
-  slot,
+  slot = "5572757736",
   format = "auto",
   responsive = true,
   className = ""
@@ -22,19 +21,19 @@ export function AdSenseBanner({
         pushedRef.current = true;
       }
     } catch (e) {
-      // Catch in case of adblocker or before domain approval
       console.warn("AdSense push:", e);
     }
   }, []);
 
   return (
-    <div className={`overflow-hidden rounded-2xl bg-white/[0.02] border border-white/5 p-2 text-center min-h-[90px] flex items-center justify-center ${className}`}>
+    <div className={`overflow-hidden rounded-2xl bg-white/[0.02] border border-white/5 p-2 text-center min-h-[100px] flex items-center justify-center my-3 ${className}`}>
+      {/* First */}
       <ins
         ref={adRef}
         className="adsbygoogle block w-full"
         style={{ display: 'block' }}
         data-ad-client={client}
-        {...(slot ? { 'data-ad-slot': slot } : {})}
+        data-ad-slot={slot}
         data-ad-format={format}
         data-full-width-responsive={responsive ? "true" : "false"}
       />
@@ -43,4 +42,3 @@ export function AdSenseBanner({
 }
 
 export default AdSenseBanner;
-
