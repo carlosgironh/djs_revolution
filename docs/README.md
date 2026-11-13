@@ -29,3 +29,4 @@ Bienvenido a la documentación oficial del proyecto **DJ Revolution**.
 ### 🤖 Configuración de Asistentes & Ruflo
 * **[Guía de Configuración Claude / Ruflo](file:///c:/Proyectos_Git/djs_revolution/docs/CLAUDE.md)**:
   * Instrucciones, directrices de arquitectura y configuración de enjambres de agentes.
+

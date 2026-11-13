@@ -9,6 +9,7 @@ import { usePlayer } from '../../context/PlayerContext';
 import { formatPanamaTimestamp } from '../../lib/panamaTime';
 import { supabase } from '../../lib/supabase';
 import { Avatar } from '../common/Avatar';
+import { InlineVideoPlayer } from '../common/InlineVideoPlayer';
 
 export function PostCard({ 
   post, 
@@ -295,30 +296,14 @@ export function PostCard({
             </div>
           </div>
         ) : (
-          /* Video / Recurso */
-          <div 
-            onClick={() => onOpenVideo(post)}
-            className="relative aspect-video w-full cursor-pointer group overflow-hidden flex items-center justify-center"
-          >
-            <img 
-              src={coverUrl} 
-              alt={post.title} 
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
-            
-            <button
-              className="w-16 h-16 rounded-full bg-rose-600/90 hover:bg-rose-500 text-white flex items-center justify-center shadow-xl shadow-rose-600/40 group-hover:scale-110 transition-transform"
-              aria-label="Reproducir video"
-            >
-              <Play className="w-7 h-7 fill-white ml-1" />
-            </button>
-
-            <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-[10px] font-bold text-rose-300">
-              <span>{post.type === 'video' ? 'VJ Video Set (Mux HD)' : 'Visual Loop'}</span>
-            </div>
-          </div>
+          /* Video Inline estilo Facebook */
+          <InlineVideoPlayer
+            streamUrl={post.video_url || post.media_url || post.file_url}
+            playbackId={post.mux_playback_id}
+            posterUrl={coverUrl}
+            title={post.title}
+            badge={post.type === 'video' ? 'VJ Video Set (Mux HD)' : 'Visual Loop'}
+          />
         )}
       </div>
 
