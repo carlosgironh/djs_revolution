@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1080px;
+    height: 1920px;
+    background: radial-gradient(circle at 50% 15%, #3b1035 0%, #120914 55%, #080309 100%);
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .header {
+    text-align: center;
+    margin-top: 90px;
+    margin-bottom: 45px;
+    padding: 0 60px;
+  }
+  .tag {
+    display: inline-block;
+    padding: 10px 28px;
+    background: rgba(236, 72, 153, 0.2);
+    border: 1px solid rgba(236, 72, 153, 0.45);
+    border-radius: 999px;
+    color: #f472b6;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .title {
+    font-size: 66px;
+    font-weight: 900;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #ffffff 30%, #f472b6 80%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+  }
+  .subtitle {
+    font-size: 26px;
+    color: #94a3b8;
+    max-width: 840px;
+    line-height: 1.4;
+  }
+  .phone-frame {
+    width: 800px;
+    height: 1450px;
+    background: #140d16;
+    border: 9px solid #381e35;
+    border-radius: 68px 68px 0 0;
+    box-shadow: 0 -25px 90px rgba(236, 72, 153, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.15);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 0 32px;
+  }
+  .notch {
+    width: 240px;
+    height: 34px;
+    background: #000;
+    border-radius: 0 0 22px 22px;
+    margin: 0 auto 16px auto;
+  }
+  .search-box {
+    background: #241427;
+    border: 1px solid rgba(244, 114, 182, 0.3);
+    border-radius: 20px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    color: #94a3b8;
+    font-size: 22px;
+  }
+  .dj-card {
+    background: #1e1222;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 26px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .dj-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 30px;
+  }
+  .names h4 {
+    font-size: 26px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .names p {
+    font-size: 20px;
+    color: #f472b6;
+    margin-top: 4px;
+  }
+  .follow-btn {
+    background: linear-gradient(135deg, #ec4899, #a855f7);
+    color: white;
+    font-weight: 700;
+    font-size: 20px;
+    padding: 12px 28px;
+    border-radius: 16px;
+    border: none;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="tag">Comunidad Mundial</div>
+    <div class="title">Directorio de DJs y VJs</div>
+    <div class="subtitle">Conecta con ministros de música, productores y artistas visuales cristianos en más de 20 países.</div>
+  </div>
+  <div class="phone-frame">
+    <div class="notch"></div>
+    <div class="search-box">
+      <span>🔍</span>
+      <span>Buscar DJs, VJs, productores o país...</span>
+    </div>
+    <div class="dj-card">
+      <div class="dj-info">
+        <div class="avatar">EP</div>
+        <div class="names">
+          <h4>DJ ElectroPraise <span style="color: #38bdf8;">✓</span></h4>
+          <p>EDM / Synthwave · Panamá 🇵🇦</p>
+        </div>
+      </div>
+      <button class="follow-btn">Seguir</button>
+    </div>
+    <div class="dj-card">
+      <div class="dj-info">
+        <div class="avatar" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);">VJ</div>
+        <div class="names">
+          <h4>VJ Zion Vision <span style="color: #38bdf8;">✓</span></h4>
+          <p>Visuales & Loops · Colombia 🇨🇴</p>
+        </div>
+      </div>
+      <button class="follow-btn">Seguir</button>
+    </div>
+    <div class="dj-card">
+      <div class="dj-info">
+        <div class="avatar" style="background: linear-gradient(135deg, #a855f7, #6366f1);">FG</div>
+        <div class="names">
+          <h4>DJ Faith Groove</h4>
+          <p>Remix & Mashups · México 🇲🇽</p>
+        </div>
+      </div>
+      <button class="follow-btn">Seguir</button>
+    </div>
+    <div class="dj-card" style="opacity: 0.85;">
+      <div class="dj-info">
+        <div class="avatar" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">GS</div>
+        <div class="names">
+          <h4>DJ Gospel Beat</h4>
+          <p>Afrobeat / House · EE.UU. 🇺🇸</p>
+        </div>
+      </div>
+      <button class="follow-btn">Seguir</button>
+    </div>
+  </div>
+</body>
+</html>
+
