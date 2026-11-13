@@ -19,3 +19,10 @@ dist-ssr
 .vscode/
 *.local
 
+# Android Release Signing & Bundles
+*.jks
+*.keystore
+*.aab
+key.properties
+
+
