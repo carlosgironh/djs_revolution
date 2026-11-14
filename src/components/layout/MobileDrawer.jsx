@@ -68,14 +68,10 @@ export function MobileDrawer({
           ) : (
             <div className="flex items-center gap-2.5">
               <img 
-                src="/logo_emblem.png" 
+                src="/logo_full.png?v=2.0.1" 
                 alt="DJ's Revolution" 
-                className="w-10 h-10 object-contain drop-shadow-[0_0_10px_rgba(14,165,233,0.4)]"
+                className="h-10 w-auto max-w-[160px] object-contain drop-shadow-[0_0_10px_rgba(14,165,233,0.4)]"
               />
-              <div>
-                <h4 className="font-bold text-sm text-white">DJ's Revolution</h4>
-                <p className="text-xs text-zinc-400">Muro libre de adoración</p>
-              </div>
             </div>
           )}
 

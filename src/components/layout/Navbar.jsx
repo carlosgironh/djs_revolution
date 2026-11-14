@@ -28,21 +28,13 @@ export function Navbar({
         {/* LOGO: Oficial Transparente de DJ's Revolution */}
         <div 
           onClick={() => onTabChange('inicio')} 
-          className="flex items-center gap-2.5 cursor-pointer select-none flex-shrink-0 min-w-max group"
+          className="flex items-center gap-2 cursor-pointer select-none flex-shrink-0 group"
         >
           <img 
-            src="/logo_emblem.png" 
+            src="/logo_full.png?v=2.0.1" 
             alt="DJ's Revolution Logo" 
-            className="w-10 h-10 sm:w-11 sm:h-11 object-contain drop-shadow-[0_0_12px_rgba(14,165,233,0.4)] group-hover:scale-105 group-hover:rotate-6 transition-all duration-300"
+            className="h-10 sm:h-12 w-auto max-w-[170px] sm:max-w-[210px] object-contain drop-shadow-[0_0_15px_rgba(14,165,233,0.45)] group-hover:scale-105 transition-all duration-300"
           />
-          <div className="flex flex-col leading-none">
-            <span className="text-base sm:text-lg font-black tracking-tight whitespace-nowrap">
-              DJ's <span className="text-gradient">Revolution</span>
-            </span>
-            <span className="text-[10px] tracking-widest uppercase font-semibold text-zinc-400">
-              Worship Community
-            </span>
-          </div>
         </div>
 
         {/* Buscador de Escritorio */}

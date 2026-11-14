@@ -62,9 +62,9 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
         {/* Logo de DJ's Revolution */}
         <div className="flex flex-col items-center justify-center mb-4">
           <img 
-            src="/logo_emblem.png" 
+            src="/logo_full.png?v=2.0.1" 
             alt="DJ's Revolution" 
-            className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(14,165,233,0.45)]"
+            className="h-16 w-auto max-w-[200px] object-contain drop-shadow-[0_0_15px_rgba(14,165,233,0.45)]"
           />
         </div>
 

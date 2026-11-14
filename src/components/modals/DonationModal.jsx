@@ -29,9 +29,9 @@ export function DonationModal({ isOpen, onClose }) {
         <div className="text-center mb-5">
           <div className="relative w-16 h-16 mx-auto mb-3">
             <img 
-              src="/logo_emblem.png" 
+              src="/logo_full.png?v=2.0.1" 
               alt="DJ's Revolution" 
-              className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+              className="h-16 w-auto max-w-[200px] object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.4)]"
             />
             <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-amber-400 text-dark-950 flex items-center justify-center shadow-md">
               <Heart className="w-3.5 h-3.5 fill-dark-950" />

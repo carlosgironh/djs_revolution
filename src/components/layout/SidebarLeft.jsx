@@ -73,11 +73,11 @@ export function SidebarLeft({ activeTab, onTabChange, onOpenAuth, onOpenEditProf
             )}
           </div>
         ) : (
-          <div className="text-center py-2">
+          <div className="text-center py-2 px-2">
             <img 
-              src="/logo_emblem.png" 
+              src="/logo_full.png?v=2.0.1" 
               alt="DJ's Revolution" 
-              className="w-16 h-16 object-contain mx-auto mb-2 drop-shadow-[0_0_15px_rgba(14,165,233,0.45)] hover:scale-105 transition-transform"
+              className="h-14 w-auto max-w-[190px] object-contain mx-auto mb-2 drop-shadow-[0_0_15px_rgba(14,165,233,0.45)] hover:scale-105 transition-transform"
             />
             <h4 className="font-bold text-sm text-white mb-1">¡Bienvenido a la Cabina!</h4>
             <p className="text-xs text-zinc-400 leading-relaxed mb-3">
