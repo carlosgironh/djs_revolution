@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, CloudUpload, Loader2, Music, Video, Sparkles, CheckCircle2, FolderOpen, FileAudio } from 'lucide-react';
+import { X, CloudUpload, Loader2, Music, Video, Sparkles, CheckCircle2, FolderOpen, FileAudio, Camera, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase, MUX_SERVICE_URL } from '../../lib/supabase';
 
@@ -9,8 +9,9 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
   const [title, setTitle] = useState('');
   const [genre, setGenre] = useState('Worship');
   const [description, setDescription] = useState('');
-  const [fileType, setFileType] = useState('audio');
+  const [fileType, setFileType] = useState('audio'); // 'audio' | 'video' | 'foto'
   const [file, setFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [statusText, setStatusText] = useState('');
@@ -23,19 +24,68 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
   async function handleUpload(e) {
     e.preventDefault();
     if (!file) {
-      alert("Por favor selecciona un archivo multimedia.");
+      alert("Por favor selecciona un archivo multimedia o foto.");
       return;
     }
 
     setUploading(true);
-    setStatusText("Preparando subida segura a DJ's Revolution...");
+    setStatusText("Preparando subida a DJ's Revolution...");
     setUploadProgress(15);
 
     try {
+      let directFileUrl = null;
+
+      // 📸 FLUJO RÁPIDO PARA FOTOS ESTILO INSTAGRAM
+      if (fileType === 'foto') {
+        setStatusText("Subiendo foto en alta definición...");
+        setUploadProgress(40);
+        const safeName = file.name.replace(/\s+/g, '_');
+        const fileName = `${currentUser.id}/photos/${Date.now()}_${safeName}`;
+
+        const { data: storageData, error: storageErr } = await supabase
+          .storage
+          .from('media')
+          .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+        if (storageErr) throw storageErr;
+
+        const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(fileName);
+        directFileUrl = publicUrl;
+
+        setUploadProgress(85);
+        setStatusText("Registrando publicación en el Muro...");
+
+        const { error: insertErr } = await supabase.from('posts').insert({
+          author_id: currentUser.id,
+          title: title.trim(),
+          content: description.trim(),
+          description: description.trim(),
+          genre: genre || 'Comunidad',
+          type: 'foto',
+          media_url: directFileUrl,
+          cover_url: directFileUrl,
+          file_url: directFileUrl,
+          status: 'ready',
+          downloads_count: 0
+        });
+
+        if (insertErr) throw insertErr;
+
+        setUploadProgress(100);
+        setStatusText("¡Foto publicada con éxito! 📸");
+
+        setTimeout(() => {
+          setUploading(false);
+          onUploadSuccess();
+          onClose();
+        }, 700);
+        return;
+      }
+
+      // 🎵 🎬 FLUJO PARA AUDIO Y VIDEO CON STREAMING
       let uploadId = null;
       let playbackId = null;
       let assetId = null;
-      let directFileUrl = null;
 
       // 1. Intentar subir mediante Mux Direct Upload si está disponible
       try {
@@ -92,7 +142,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
 
       // 2. Subir también a Supabase Storage (bucket 'media') como copia permanente y respaldo
       try {
-        setStatusText("Asegurando almacenamiento de audio permanente...");
+        setStatusText("Asegurando almacenamiento permanente...");
         setUploadProgress(85);
         const safeName = file.name.replace(/\s+/g, '_');
         const fileName = `${currentUser.id}/${Date.now()}_${safeName}`;
@@ -117,7 +167,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
       const streamUrl = playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : null;
       const finalMediaUrl = streamUrl || directFileUrl || (file ? URL.createObjectURL(file) : '');
 
-      // 3. Insertar en tabla posts de Supabase con compatibilidad total
+      // 3. Insertar en tabla posts de Supabase
       const isVideo = fileType === 'video';
       const { error: insertErr } = await supabase.from('posts').insert({
         author_id: currentUser.id,
@@ -163,24 +213,29 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         const cleanName = selected.name.replace(/\.[^/.]+$/, "");
         setTitle(cleanName);
       }
+      if (selected.type.startsWith('image/')) {
+        setImagePreview(URL.createObjectURL(selected));
+      } else {
+        setImagePreview('');
+      }
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity"
+        className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
         onClick={() => !uploading && onClose()}
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg bg-dark-900 border border-white/10 rounded-3xl p-6 sm:p-7 shadow-2xl z-10 animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-lg bg-dark-900 border border-white/10 rounded-3xl p-5 sm:p-7 shadow-2xl z-10 animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto no-scrollbar">
         
         {!uploading && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-full hover:bg-white/10"
+            className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors"
             aria-label="Cerrar"
           >
             <X className="w-5 h-5" />
@@ -195,7 +250,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
             Publicar en DJ's Revolution 🕊️
           </h3>
           <p className="text-xs text-zinc-400 mt-1">
-            Servidores de streaming de alta velocidad para la comunidad cristiana
+            Comparte tus mixes, fotos de eventos y videos con la comunidad
           </p>
         </div>
 
@@ -216,88 +271,123 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         ) : (
           <form onSubmit={handleUpload} className="space-y-4">
             
-            {/* Selector de Tipo */}
-            <div className="grid grid-cols-2 gap-2">
+            {/* Selector de Tipo (3 Pestañas: Audio, Foto, Video) */}
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => setFileType('audio')}
-                className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
+                onClick={() => { setFileType('audio'); setFile(null); setImagePreview(''); }}
+                className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border transition-all ${
                   fileType === 'audio'
-                    ? 'bg-blue-600/20 text-cyan-300 border-cyan-500/50'
+                    ? 'bg-blue-600/25 text-cyan-300 border-cyan-500/50 shadow-sm'
                     : 'bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10'
                 }`}
               >
                 <Music className="w-3.5 h-3.5" />
-                <span>Mix de Audio (MP3/WAV)</span>
+                <span className="truncate">Mix Audio</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => setFileType('video')}
-                className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
+                onClick={() => { setFileType('foto'); setFile(null); setImagePreview(''); }}
+                className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border transition-all ${
+                  fileType === 'foto'
+                    ? 'bg-amber-600/25 text-amber-300 border-amber-500/50 shadow-sm'
+                    : 'bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10'
+                }`}
+              >
+                <Camera className="w-3.5 h-3.5" />
+                <span className="truncate">Foto 📸</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setFileType('video'); setFile(null); setImagePreview(''); }}
+                className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border transition-all ${
                   fileType === 'video'
-                    ? 'bg-rose-600/20 text-rose-300 border-rose-500/50'
+                    ? 'bg-rose-600/25 text-rose-300 border-rose-500/50 shadow-sm'
                     : 'bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10'
                 }`}
               >
                 <Video className="w-3.5 h-3.5" />
-                <span>Video / Loop (MP4/MOV)</span>
+                <span className="truncate">Video Set</span>
               </button>
             </div>
 
             {/* Título */}
             <div>
-              <label className="block text-xs font-bold text-zinc-300 mb-1">Título del Set / Pista</label>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">
+                {fileType === 'foto' ? 'Título / Pie de Foto' : fileType === 'video' ? 'Título del Video / Set' : 'Título del Set / Pista'}
+              </label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Ej: Set de Adoración Íntima Vol. 3"
+                placeholder={fileType === 'foto' ? "Ej: Ministrando en el Congreso Juvenil 2026" : "Ej: Set de Adoración Íntima Vol. 3"}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500"
               />
             </div>
 
-            {/* Género */}
+            {/* Género / Categoría */}
             <div>
-              <label className="block text-xs font-bold text-zinc-300 mb-1">Categoría / Género</label>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">Categoría</label>
               <select
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
                 className="w-full bg-dark-850 border border-white/10 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500"
               >
-                <option value="Worship">Worship / Adoración Íntima</option>
-                <option value="RemixCristiano">Remix Cristiano / EDM</option>
-                <option value="ReggaetonCristiano">Reggaetón / Urbano Cristiano</option>
-                <option value="PraiseAndWorship">Alabanza Congregacional</option>
-                <option value="VisualLoop">Loops para Proyectores (Visuales)</option>
+                {fileType === 'foto' ? (
+                  <>
+                    <option value="Evento / Concierto">Evento / Concierto</option>
+                    <option value="En la Cabina">En la Cabina de DJ / VJ</option>
+                    <option value="Adoración">Momento de Adoración</option>
+                    <option value="Comunidad">Comunidad & Amigos</option>
+                    <option value="Equipos / Setup">Equipos / Setup DJ</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="Worship">Worship / Adoración Íntima</option>
+                    <option value="RemixCristiano">Remix Cristiano / EDM</option>
+                    <option value="ReggaetonCristiano">Reggaetón / Urbano Cristiano</option>
+                    <option value="PraiseAndWorship">Alabanza Congregacional</option>
+                    <option value="VisualLoop">Loops para Proyectores (Visuales)</option>
+                  </>
+                )}
               </select>
             </div>
 
             {/* Descripción */}
             <div>
-              <label className="block text-xs font-bold text-zinc-300 mb-1">Descripción o Dedicación (Opcional)</label>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">
+                {fileType === 'foto' ? 'Mensaje o Versículo (Opcional)' : 'Descripción o Dedicación (Opcional)'}
+              </label>
               <textarea
                 rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Comentarios, pasaje bíblico o lista de temas..."
+                placeholder={fileType === 'foto' ? "Escribe un mensaje de edificación, testimonio o agradecimiento..." : "Comentarios, pasaje bíblico o lista de temas..."}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500 resize-none"
               />
             </div>
 
             {/* Selector de Archivo Multimedia */}
             <div>
-              <label className="block text-xs font-bold text-zinc-300 mb-1">Archivo Multimedia</label>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">
+                {fileType === 'foto' ? 'Fotografía' : 'Archivo Multimedia'}
+              </label>
               
-              {/* Inputs ocultos: uno estándar de medios y otro universal de Archivos/Descargas */}
+              {/* Inputs ocultos */}
               <input
                 ref={fileInputRef}
                 type="file"
                 id="media-file-input"
-                accept={fileType === 'audio' 
-                  ? "audio/*,audio/mpeg,audio/wav,audio/aac,audio/x-m4a,audio/mp4,.mp3,.wav,.aac,.m4a,.ogg,.flac" 
-                  : "video/*,video/mp4,video/quicktime,.mp4,.mov,.mkv"}
+                accept={
+                  fileType === 'foto'
+                    ? "image/*,.jpg,.jpeg,.png,.webp,.gif"
+                    : fileType === 'audio'
+                    ? "audio/*,audio/mpeg,audio/wav,audio/aac,audio/x-m4a,audio/mp4,.mp3,.wav,.aac,.m4a,.ogg,.flac"
+                    : "video/*,video/mp4,video/quicktime,.mp4,.mov,.mkv"
+                }
                 onChange={handleFileSelected}
                 className="hidden"
               />
@@ -314,11 +404,17 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
               <div className="border-2 border-dashed border-white/15 rounded-2xl p-4 text-center hover:border-cyan-500/50 transition-colors bg-white/[0.02]">
                 {file ? (
                   <div className="py-2">
-                    <div className="flex items-center justify-center gap-2 text-sm font-bold text-cyan-400 mb-2">
-                      <CheckCircle2 className="w-5 h-5" />
+                    {imagePreview && fileType === 'foto' ? (
+                      <div className="relative max-h-48 max-w-xs mx-auto mb-3 rounded-xl overflow-hidden border border-white/20 shadow-lg">
+                        <img src={imagePreview} alt="Preview" className="w-full h-full object-contain max-h-48" />
+                      </div>
+                    ) : null}
+
+                    <div className="flex items-center justify-center gap-2 text-sm font-bold text-cyan-400 mb-1">
+                      <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0" />
                       <span className="truncate max-w-xs">{file.name}</span>
                     </div>
-                    <span className="text-[11px] text-zinc-400">
+                    <span className="text-[11px] text-zinc-400 block">
                       Tamaño: {(file.size / (1024 * 1024)).toFixed(1)} MB
                     </span>
                     <div className="mt-3 flex justify-center gap-2">
@@ -327,59 +423,63 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
                         onClick={() => fileInputRef.current?.click()}
                         className="text-xs text-zinc-300 hover:text-white px-3 py-1 rounded-lg bg-white/10 hover:bg-white/15 transition-all"
                       >
-                        Cambiar archivo
+                        Cambiar {fileType === 'foto' ? 'foto' : 'archivo'}
                       </button>
                     </div>
                   </div>
                 ) : (
                   <div>
-                    <CloudUpload className="w-7 h-7 text-zinc-400 mx-auto mb-2" />
-                    <span className="text-xs text-zinc-300 font-semibold block mb-1">Selecciona tu archivo de música o video</span>
-                    <span className="block text-[11px] text-zinc-500 mb-3">MP3, WAV, MP4, MOV hasta 250MB</span>
+                    {fileType === 'foto' ? (
+                      <Camera className="w-8 h-8 text-amber-400 mx-auto mb-2 opacity-80" />
+                    ) : (
+                      <CloudUpload className="w-8 h-8 text-cyan-400 mx-auto mb-2 opacity-80" />
+                    )}
+
+                    <span className="text-xs text-zinc-300 font-semibold block mb-1">
+                      {fileType === 'foto' ? 'Selecciona tu fotografía' : 'Selecciona tu archivo de música o video'}
+                    </span>
+                    <span className="block text-[11px] text-zinc-500 mb-3">
+                      {fileType === 'foto' ? 'JPG, PNG, WebP en alta calidad' : 'MP3, WAV, MP4, MOV hasta 250MB'}
+                    </span>
                     
-                    {/* Botones de selección: Medios y Archivos del Dispositivo */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-2">
+                    <div className="flex items-center justify-center gap-2 mt-2">
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-full sm:w-auto px-4 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-cyan-200 border border-cyan-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-all"
+                        className="px-4 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-cyan-200 border border-cyan-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
                       >
-                        <FileAudio className="w-4 h-4 text-cyan-400" />
-                        <span>Música / Medios</span>
+                        {fileType === 'foto' ? <ImageIcon className="w-4 h-4 text-amber-400" /> : <FileAudio className="w-4 h-4 text-cyan-400" />}
+                        <span>{fileType === 'foto' ? 'Elegir Foto' : 'Elegir Archivo'}</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => allFilesInputRef.current?.click()}
-                        className="w-full sm:w-auto px-4 py-2 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-200 border border-cyan-500/30 text-xs font-bold flex items-center justify-center gap-2 transition-all"
-                        title="Abre la app de Archivos o Descargas de Android en lugar de la galería de fotos"
+                        className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-zinc-200 border border-white/10 text-xs font-medium flex items-center justify-center gap-1.5 transition-all"
+                        title="Explorar todos los archivos del dispositivo"
                       >
-                        <FolderOpen className="w-4 h-4 text-cyan-400" />
-                        <span>Explorador de Archivos (Android / PC)</span>
+                        <FolderOpen className="w-4 h-4" />
+                        <span>Explorador</span>
                       </button>
                     </div>
-
-                    <p className="text-[10px] text-zinc-500 mt-2.5 italic">
-                      💡 En Android: Si solo te abre Google Fotos, toca <strong className="text-cyan-400">"Explorador de Archivos"</strong> para seleccionar desde tu app de Archivos o Descargas.
-                    </p>
                   </div>
                 )}
               </div>
             </div>
 
+            {/* Botón de Publicar */}
             <button
               type="submit"
               disabled={!file}
-              className={`w-full py-3 rounded-xl font-bold text-sm text-white shadow-glow-cyan transition-all flex items-center justify-center gap-2 ${
-                file 
-                  ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-400 hover:opacity-95 cursor-pointer' 
-                  : 'bg-white/10 text-zinc-500 cursor-not-allowed'
+              className={`w-full py-3 rounded-2xl font-bold text-sm text-white shadow-xl transition-all flex items-center justify-center gap-2 ${
+                file
+                  ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:opacity-95 cursor-pointer shadow-glow-cyan active:scale-95' 
+                  : 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-white/5'
               }`}
             >
-              <CloudUpload className="w-4 h-4" />
-              <span>Publicar Mix en el Muro</span>
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span>{fileType === 'foto' ? 'Publicar Foto en el Muro' : 'Subir y Publicar en el Muro'}</span>
             </button>
-
           </form>
         )}
 

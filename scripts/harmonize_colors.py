@@ -71,3 +71,4 @@ for filepath in files_to_check:
         print(f"Harmonized colors in {filepath}")
 
 print(f"Total files updated: {total_mods}")
+

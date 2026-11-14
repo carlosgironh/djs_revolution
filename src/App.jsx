@@ -150,6 +150,8 @@ export function App() {
     filteredPosts = filteredPosts.filter(p => p.type === 'audio');
   } else if (activeTab === 'videos') {
     filteredPosts = filteredPosts.filter(p => p.type === 'video');
+  } else if (activeTab === 'fotos') {
+    filteredPosts = filteredPosts.filter(p => p.type === 'foto');
   } else if (activeTab === 'recursos') {
     filteredPosts = filteredPosts.filter(p => p.type === 'recurso');
   } else if (activeTab === 'guardados') {

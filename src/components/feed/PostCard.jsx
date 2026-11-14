@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Play, Pause, Download, MessageSquare, Bookmark, Share2, 
-  Heart, Send, Crown, Check, Sparkles, Trash2, Shield 
+  Heart, Send, Crown, Check, Sparkles, Trash2, Shield, Camera, Maximize2 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../../context/AuthContext';
@@ -26,6 +26,13 @@ export function PostCard({
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [commenting, setCommenting] = useState(false);
+  const [showHeartAnim, setShowHeartAnim] = useState(false);
+
+  function handlePhotoDoubleClick() {
+    handleReaction('amen');
+    setShowHeartAnim(true);
+    setTimeout(() => setShowHeartAnim(false), 900);
+  }
 
   const author = post.profiles || { dj_name: 'DJ Creador', role: 'DJ de Worship 🕊️' };
   const isAuthorAdmin = Boolean(
@@ -274,6 +281,41 @@ export function PostCard({
               <Sparkles className="w-3 h-3 text-cyan-400" />
               <span>HD Audio Stream</span>
             </div>
+          </div>
+        ) : post.type === 'foto' ? (
+          /* Fotografía estilo Instagram */
+          <div 
+            className="relative w-full max-h-[560px] bg-dark-900/60 overflow-hidden flex items-center justify-center group cursor-pointer select-none"
+            onDoubleClick={handlePhotoDoubleClick}
+            onClick={() => onOpenVideo?.(post)}
+          >
+            <img 
+              src={getDirectMediaUrl(post) || getStreamingMediaUrl(post) || post.media_url || post.cover_url} 
+              alt={post.title} 
+              className="w-full max-h-[560px] object-contain sm:rounded-lg group-hover:scale-[1.01] transition-transform duration-300"
+              loading="lazy"
+            />
+
+            {/* Badge Foto */}
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-bold text-amber-300 shadow-md">
+              <Camera className="w-3 h-3 text-amber-400" />
+              <span>Foto / Galería</span>
+            </div>
+
+            {/* Hint para ver en HD */}
+            <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-[10px] text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+              <Maximize2 className="w-3 h-3 text-cyan-400" />
+              <span>Pantalla Completa</span>
+            </div>
+
+            {/* Animación de Doble Toque (Amén 🕊️ estilo Instagram) */}
+            {showHeartAnim && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none animate-in zoom-in-50 fade-in duration-300">
+                <div className="w-20 h-20 rounded-full bg-black/60 backdrop-blur-md border border-amber-400/50 flex items-center justify-center text-4xl shadow-2xl">
+                  🕊️
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           /* Video Inline estilo Facebook */

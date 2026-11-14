@@ -1,9 +1,10 @@
 import React from 'react';
-import { Home, Music, Video, Users, FolderOpen, Bookmark } from 'lucide-react';
+import { Home, Music, Video, Users, FolderOpen, Bookmark, Camera } from 'lucide-react';
 
 export function ChipsBar({ activeTab, onTabChange }) {
   const chips = [
     { id: 'inicio', label: 'Muro Público', icon: Home },
+    { id: 'fotos', label: 'Fotos 📸', icon: Camera },
     { id: 'audios', label: 'Mixes Audio', icon: Music },
     { id: 'videos', label: 'Sets Video', icon: Video },
     { id: 'djs', label: 'DJs & VJs', icon: Users },
