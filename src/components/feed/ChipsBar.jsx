@@ -21,7 +21,7 @@ export function ChipsBar({ activeTab, onTabChange }) {
             onClick={() => onTabChange(id)}
             className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 active:scale-95 ${
               isActive
-                ? 'bg-gradient-to-r from-violet-600 to-cyan-600 text-white shadow-md shadow-cyan-500/20 border border-cyan-400/40'
+                ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-cyan-500/20 border border-cyan-400/40'
                 : 'bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10'
             }`}
           >

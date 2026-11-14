@@ -31,7 +31,7 @@ export function PersistentPlayer() {
 
   return (
     <div className="fixed bottom-[72px] md:bottom-4 left-3 right-3 sm:left-6 sm:right-6 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl z-40 animate-in slide-in-from-bottom-5 duration-300 select-none">
-      <div className="glass-panel rounded-2xl p-2.5 sm:p-3.5 border-violet-500/30 bg-dark-950/90 shadow-2xl shadow-black/80 flex items-center gap-3">
+      <div className="glass-panel rounded-2xl p-2.5 sm:p-3.5 border-cyan-500/30 bg-dark-950/90 shadow-2xl shadow-black/80 flex items-center gap-3">
         
         {/* Cover + Info */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1 sm:flex-initial sm:w-60">
@@ -43,7 +43,7 @@ export function PersistentPlayer() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-violet-900/40 text-violet-300">
+              <div className="w-full h-full flex items-center justify-center bg-violet-900/40 text-cyan-300">
                 <Disc className="w-6 h-6 animate-spin-slow" />
               </div>
             )}
@@ -89,7 +89,7 @@ export function PersistentPlayer() {
             >
               <div
                 style={{ width: `${progressPercent}%` }}
-                className="h-full bg-gradient-to-r from-violet-500 to-cyan-400 rounded-full transition-all"
+                className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all"
               />
             </div>
             <span className="min-w-[32px]">{formatSecondsToTime(duration)}</span>

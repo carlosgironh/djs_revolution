@@ -38,7 +38,7 @@ export function Avatar({ src, name = 'DJ', size = 'md', isSuperAdmin = false, cl
           loading="lazy"
         />
       ) : (
-        <div className="w-full h-full rounded-full flex items-center justify-center font-bold bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-inner">
+        <div className="w-full h-full rounded-full flex items-center justify-center font-bold bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 text-white shadow-inner">
           {initials || <Disc className="w-1/2 h-1/2 animate-spin-slow" />}
         </div>
       )}

@@ -117,7 +117,7 @@ export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwn
           {isOwner ? (
             <button
               onClick={() => { onClose(); onEditOwnProfile(); }}
-              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-violet-600 hover:bg-violet-500 transition-colors"
+              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors"
             >
               Editar Mi Perfil & Donaciones
             </button>

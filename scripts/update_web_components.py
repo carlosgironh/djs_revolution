@@ -60,3 +60,4 @@ txt = txt.replace('src="/logo_emblem.png"', 'src="/logo_full.png?v=2.0.1"').repl
 with open('src/components/feed/CreatePostTrigger.jsx', 'w', encoding='utf-8') as f:
     f.write(txt)
 print("CreatePostTrigger updated")
+

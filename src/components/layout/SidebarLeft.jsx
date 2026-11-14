@@ -48,7 +48,7 @@ export function SidebarLeft({ activeTab, onTabChange, onOpenAuth, onOpenEditProf
             <div className="flex gap-2">
               <button
                 onClick={() => onTabChange('perfil')}
-                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-bold text-white bg-violet-600 hover:bg-violet-500 transition-colors"
+                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors"
               >
                 <User className="w-3.5 h-3.5" />
                 <span>Mi Perfil</span>
@@ -85,7 +85,7 @@ export function SidebarLeft({ activeTab, onTabChange, onOpenAuth, onOpenEditProf
             </p>
             <button
               onClick={() => onOpenAuth('login')}
-              className="w-full py-2 px-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-cyan-600 hover:opacity-90 transition-opacity"
+              className="w-full py-2 px-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 transition-opacity"
             >
               Ingresar como DJ / VJ
             </button>
@@ -111,7 +111,7 @@ export function SidebarLeft({ activeTab, onTabChange, onOpenAuth, onOpenEditProf
             activeTab === 'audios' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'text-zinc-300 hover:bg-white/5'
           }`}
         >
-          <Music className="w-4 h-4 text-violet-400" />
+          <Music className="w-4 h-4 text-cyan-400" />
           <span>Mixes de Audio</span>
         </button>
 

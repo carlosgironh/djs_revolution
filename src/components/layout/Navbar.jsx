@@ -115,7 +115,7 @@ export function Navbar({
               {canUpload && (
                 <button
                   onClick={onOpenUpload}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 shadow-md shadow-violet-900/40 hover:scale-105 active:scale-95 transition-all"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-md shadow-cyan-900/40 hover:scale-105 active:scale-95 transition-all"
                 >
                   <Upload className="w-3.5 h-3.5" />
                   <span>Subir Mix</span>
@@ -156,7 +156,7 @@ export function Navbar({
               </button>
               <button
                 onClick={() => onOpenAuth('signup')}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-cyan-600 hover:opacity-95 shadow-glow-violet transition-all"
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-95 shadow-glow-cyan transition-all"
               >
                 <UserPlus className="w-3.5 h-3.5" />
                 <span>Crear Cuenta</span>

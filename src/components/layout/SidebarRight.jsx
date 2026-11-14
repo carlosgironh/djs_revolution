@@ -93,7 +93,7 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
 
       {/* Calidad de Sonido HD */}
       <div className="glass-panel rounded-2xl p-4 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-violet-600/20 text-violet-400 flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-blue-600/20 text-cyan-400 flex items-center justify-center flex-shrink-0">
           <Sparkles className="w-5 h-5" />
         </div>
         <div>

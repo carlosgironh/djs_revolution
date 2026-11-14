@@ -156,7 +156,7 @@ export function EditProfileModal({ isOpen, onClose, onProfileUpdated }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-violet-600 to-cyan-500 hover:opacity-95 shadow-glow-violet disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-4"
+            className="w-full py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-violet-600 to-cyan-500 hover:opacity-95 shadow-glow-cyan disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-4"
           >
             {loading ? (
               <>

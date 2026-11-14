@@ -109,7 +109,7 @@ export function MobileDrawer({
                   activeTab === 'audios' ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30' : 'text-zinc-300 hover:bg-white/5'
                 }`}
               >
-                <Music className="w-4 h-4 text-violet-400" />
+                <Music className="w-4 h-4 text-cyan-400" />
                 <span>Mixes de Audio</span>
               </button>
 
@@ -194,9 +194,9 @@ export function MobileDrawer({
                   {canUpload && (
                     <button
                       onClick={() => { onClose(); onOpenUpload(); }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-violet-300 hover:bg-violet-500/10 transition-all"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-cyan-300 hover:bg-cyan-500/10 transition-all"
                     >
-                      <Upload className="w-4 h-4 text-violet-400" />
+                      <Upload className="w-4 h-4 text-cyan-400" />
                       <span>Subir Mix o Video</span>
                     </button>
                   )}
@@ -221,9 +221,9 @@ export function MobileDrawer({
 
                   <button
                     onClick={() => { onClose(); onOpenAuth('signup'); }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-violet-300 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 transition-all"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 transition-all"
                   >
-                    <UserPlus className="w-4 h-4 text-violet-400" />
+                    <UserPlus className="w-4 h-4 text-cyan-400" />
                     <span>Crear Cuenta Gratis</span>
                   </button>
                 </>

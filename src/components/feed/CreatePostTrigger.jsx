@@ -10,7 +10,7 @@ export function CreatePostTrigger({ onOpenUpload, onOpenAuth }) {
   // 1. Invitado no autenticado
   if (!currentUser) {
     return (
-      <div className="glass-panel rounded-2xl p-5 text-center border-cyan-500/20 bg-gradient-to-r from-violet-600/10 via-transparent to-cyan-500/10 mb-4">
+      <div className="glass-panel rounded-2xl p-5 text-center border-cyan-500/20 bg-gradient-to-r from-blue-600/15 via-transparent to-cyan-500/15 mb-4">
         <img 
           src="/logo_full.png?v=2.0.1" 
           alt="DJ's Revolution" 
@@ -24,7 +24,7 @@ export function CreatePostTrigger({ onOpenUpload, onOpenAuth }) {
         </p>
         <button
           onClick={() => onOpenAuth('signup')}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-cyan-600 hover:opacity-90 shadow-glow-violet active:scale-95 transition-all"
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 shadow-glow-cyan active:scale-95 transition-all"
         >
           <UserPlus className="w-3.5 h-3.5" />
           <span>Crear Cuenta Gratis</span>
@@ -59,7 +59,7 @@ export function CreatePostTrigger({ onOpenUpload, onOpenAuth }) {
 
   // 3. DJ Creador / Moderador / Administrador: Puede subir
   return (
-    <div className="glass-panel rounded-2xl p-3 sm:p-4 flex items-center gap-3 mb-4 shadow-sm border-cyan-500/20 bg-gradient-to-r from-cyan-500/5 via-transparent to-violet-500/5">
+    <div className="glass-panel rounded-2xl p-3 sm:p-4 flex items-center gap-3 mb-4 shadow-sm border-cyan-500/20 bg-gradient-to-r from-cyan-500/10 via-transparent to-blue-600/10">
       <Avatar
         src={currentProfile?.avatar_url}
         name={userName}
@@ -78,7 +78,7 @@ export function CreatePostTrigger({ onOpenUpload, onOpenAuth }) {
 
       <button
         onClick={onOpenUpload}
-        className="p-2.5 sm:px-4 sm:py-2.5 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white flex items-center gap-1.5 shadow-md shadow-violet-900/30 flex-shrink-0 active:scale-95 transition-all"
+        className="p-2.5 sm:px-4 sm:py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white flex items-center gap-1.5 shadow-md shadow-cyan-900/30 flex-shrink-0 active:scale-95 transition-all"
         title="Subir nuevo mix o video"
       >
         <CloudUpload className="w-4 h-4" />

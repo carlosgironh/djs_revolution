@@ -248,7 +248,7 @@ export function App() {
                   </p>
                   <button
                     onClick={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
-                    className="py-2 px-5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-cyan-600 hover:opacity-90 shadow-glow-violet transition-all"
+                    className="py-2 px-5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 shadow-glow-cyan transition-all"
                   >
                     {currentUser ? 'Publicar el Primer Mix 🎧' : 'Crear Cuenta de DJ Gratis'}
                   </button>

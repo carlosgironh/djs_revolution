@@ -74,7 +74,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             onClick={() => { setTab('login'); setErrorMsg(''); }}
             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
               tab === 'login'
-                ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md'
+                ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -86,7 +86,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             onClick={() => { setTab('signup'); setErrorMsg(''); }}
             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
               tab === 'signup'
-                ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md'
+                ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -107,7 +107,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
         </div>
 
         {tab === 'signup' && (
-          <div className="p-3 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-300 text-[11px] leading-snug mb-4 flex items-start gap-2">
+          <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-[11px] leading-snug mb-4 flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 flex-shrink-0 text-cyan-400 mt-0.5" />
             <span>
               Los nuevos registros inician como <strong>Usuarios Oyentes</strong>. Los permisos de <strong>DJ Creador</strong> y <strong>Moderador</strong> son asignados por los administradores.
@@ -163,7 +163,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 shadow-glow-violet disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-400 hover:opacity-95 shadow-glow-cyan disabled:opacity-50 transition-all flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

@@ -222,7 +222,7 @@ export function PostCard({
           <h3 className="font-bold text-base sm:text-lg text-white leading-snug">
             {post.title}
           </h3>
-          <span className="text-[11px] font-semibold text-violet-400 bg-violet-500/15 px-2 py-0.5 rounded-full border border-violet-500/25 flex-shrink-0">
+          <span className="text-[11px] font-semibold text-cyan-400 bg-cyan-500/15 px-2 py-0.5 rounded-full border border-cyan-500/25 flex-shrink-0">
             #{post.genre || 'Worship'}
           </span>
         </div>

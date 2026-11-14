@@ -56,7 +56,7 @@ export function BottomNav({ activeTab, onTabChange, onOpenUpload, onOpenAuth, on
           onClick={handleCenterButtonClick}
           className={`w-12 h-12 rounded-full text-white flex items-center justify-center shadow-lg -translate-y-3.5 ring-4 ring-dark-950 active:scale-90 transition-transform ${
             canUpload
-              ? 'bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-500 shadow-violet-600/50'
+              ? 'bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 shadow-cyan-600/50'
               : 'bg-zinc-800 text-zinc-400 shadow-black/60 border border-white/10'
           }`}
           title={canUpload ? "Subir nuevo mix o video" : "Cuenta de Usuario Oyente"}

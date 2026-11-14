@@ -188,7 +188,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         )}
 
         <div className="text-center mb-5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-white flex items-center justify-center mx-auto mb-2 shadow-lg shadow-violet-600/30">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-500 text-white flex items-center justify-center mx-auto mb-2 shadow-lg shadow-cyan-600/30">
             <CloudUpload className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-bold text-white">
@@ -207,7 +207,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
               <div className="w-full bg-white/10 rounded-full h-2.5 overflow-hidden">
                 <div 
                   style={{ width: `${uploadProgress}%` }}
-                  className="bg-gradient-to-r from-violet-500 to-cyan-400 h-full rounded-full transition-all duration-300"
+                  className="bg-gradient-to-r from-blue-500 to-cyan-400 h-full rounded-full transition-all duration-300"
                 />
               </div>
               <span className="text-xs text-zinc-400 mt-1 block font-mono">{uploadProgress}%</span>
@@ -223,7 +223,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
                 onClick={() => setFileType('audio')}
                 className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
                   fileType === 'audio'
-                    ? 'bg-violet-600/20 text-violet-300 border-violet-500/50'
+                    ? 'bg-blue-600/20 text-cyan-300 border-cyan-500/50'
                     : 'bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10'
                 }`}
               >
@@ -342,9 +342,9 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-full sm:w-auto px-4 py-2 rounded-xl bg-violet-600/30 hover:bg-violet-600/50 text-violet-200 border border-violet-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-all"
+                        className="w-full sm:w-auto px-4 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-cyan-200 border border-cyan-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-all"
                       >
-                        <FileAudio className="w-4 h-4 text-violet-400" />
+                        <FileAudio className="w-4 h-4 text-cyan-400" />
                         <span>Música / Medios</span>
                       </button>
 
@@ -370,9 +370,9 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
             <button
               type="submit"
               disabled={!file}
-              className={`w-full py-3 rounded-xl font-bold text-sm text-white shadow-glow-violet transition-all flex items-center justify-center gap-2 ${
+              className={`w-full py-3 rounded-xl font-bold text-sm text-white shadow-glow-cyan transition-all flex items-center justify-center gap-2 ${
                 file 
-                  ? 'bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 cursor-pointer' 
+                  ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-400 hover:opacity-95 cursor-pointer' 
                   : 'bg-white/10 text-zinc-500 cursor-not-allowed'
               }`}
             >

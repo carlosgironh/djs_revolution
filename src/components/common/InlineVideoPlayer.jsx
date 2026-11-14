@@ -125,7 +125,7 @@ export function InlineVideoPlayer({
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-tr from-dark-950 via-dark-900 to-violet-950/40" />
+            <div className="w-full h-full bg-gradient-to-tr from-dark-950 via-dark-900 to-blue-950/40" />
           )}
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
