@@ -1,89 +1,128 @@
 import React from 'react';
-import { CloudUpload, UserPlus, Headphones, Sparkles, Shield } from 'lucide-react';
+import { CloudUpload, UserPlus, Music, Video, Camera, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../common/Avatar';
 
 export function CreatePostTrigger({ onOpenUpload, onOpenAuth }) {
-  const { currentUser, currentProfile, isSuperAdmin, isModerator, canUpload } = useAuth();
-  const userName = currentProfile?.dj_name || currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'Usuario';
+  const { currentUser, currentProfile, isSuperAdmin, canUpload } = useAuth();
+  const userName = currentProfile?.dj_name || currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'DJ';
 
-  // 1. Invitado no autenticado
+  // 1. Invitado no autenticado: Banner moderno y compacto
   if (!currentUser) {
     return (
-      <div className="glass-panel rounded-2xl p-5 text-center border-cyan-500/20 bg-gradient-to-r from-blue-600/15 via-transparent to-cyan-500/15 mb-4">
-        <img 
-          src="/logo_full.png?v=2.0.1" 
-          alt="DJ's Revolution" 
-          className="h-12 w-auto max-w-[160px] object-contain mx-auto mb-2 drop-shadow-[0_0_12px_rgba(14,165,233,0.4)]"
-        />
-        <h3 className="text-sm sm:text-base font-bold text-white mb-1">
-          Comunidad Global de Música y Adoración Cristiana 🕊️
-        </h3>
-        <p className="text-xs text-zinc-400 max-w-md mx-auto mb-3">
-          Regístrate gratis para interactuar con los sets, dejar bendiciones, comentar y guardar tus favoritos.
-        </p>
-        <button
-          onClick={() => onOpenAuth('signup')}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 shadow-glow-cyan active:scale-95 transition-all"
-        >
-          <UserPlus className="w-3.5 h-3.5" />
-          <span>Crear Cuenta Gratis</span>
-        </button>
+      <div className="glass-panel rounded-2xl p-4 sm:p-5 border-cyan-500/20 bg-gradient-to-r from-blue-900/30 via-dark-900/70 to-cyan-950/30 mb-4 shadow-xl">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 text-center sm:text-left">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-400 p-0.5 shadow-lg flex-shrink-0">
+              <div className="w-full h-full rounded-[14px] bg-dark-950 flex items-center justify-center text-lg">
+                🕊️
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-1.5 justify-center sm:justify-start">
+                <span>Comunidad Global de DJs y VJs de Adoración</span>
+              </h3>
+              <p className="text-xs text-zinc-400 leading-snug">
+                Escucha sets sin límites, descarga tracks en alta calidad y bendice a los ministros.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+            <button
+              onClick={() => onOpenAuth('signup')}
+              className="flex-1 sm:flex-initial py-2 px-4 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-95 shadow-glow-cyan active:scale-95 transition-all"
+            >
+              Crear Cuenta Gratis
+            </button>
+            <button
+              onClick={() => onOpenAuth('login')}
+              className="py-2 px-3.5 rounded-full text-xs font-semibold text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 active:scale-95 transition-all"
+            >
+              Ingresar
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // 2. Usuario Normal (Oyente): No tiene permisos de subida
+  // 2. Usuario Normal (Oyente): Mini tarjeta de bienvenida con estado espiritual
   if (!canUpload) {
     return (
-      <div className="glass-panel rounded-2xl p-4 flex items-center gap-3.5 mb-4 border-white/10 bg-white/5">
+      <div className="glass-panel rounded-2xl p-3.5 sm:p-4 flex items-center gap-3 mb-4 border-white/10 bg-white/[0.03]">
         <Avatar
           src={currentProfile?.avatar_url}
           name={userName}
           size="md"
         />
         <div className="min-w-0 flex-1">
-          <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+          <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 truncate">
             <span>¡Paz de Dios, {userName}! 🕊️</span>
-            <span className="text-[10px] text-zinc-400 font-normal bg-zinc-800 px-2 py-0.5 rounded-full">
-              Usuario Oyente
+            <span className="text-[10px] text-zinc-400 font-medium bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
+              Oyente Activo
             </span>
           </h4>
-          <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug">
-            Disfruta de las mezclas en vivo, descarga recursos y edifica tu vida espiritual con alabanza.
+          <p className="text-[11px] text-zinc-400 mt-0.5 truncate">
+            Explora las mezclas más recientes y bendice con tu Amén a los ministros.
           </p>
         </div>
       </div>
     );
   }
 
-  // 3. DJ Creador / Moderador / Administrador: Puede subir
+  // 3. DJ / Creador / Moderador / Admin: Barra de publicación estilo Facebook / Spotify
   return (
-    <div className="glass-panel rounded-2xl p-3 sm:p-4 flex items-center gap-3 mb-4 shadow-sm border-cyan-500/20 bg-gradient-to-r from-cyan-500/10 via-transparent to-blue-600/10">
-      <Avatar
-        src={currentProfile?.avatar_url}
-        name={userName}
-        size="md"
-        isSuperAdmin={isSuperAdmin}
-      />
-      
-      <button
-        onClick={onOpenUpload}
-        className="flex-1 text-left px-4 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs sm:text-sm text-zinc-400 hover:text-zinc-200 transition-all truncate min-w-0"
-      >
-        <span className="truncate block">
-          ¿Qué nuevo mix o video vas a compartir hoy, <strong className="text-zinc-200">{userName}</strong>? 🎧
-        </span>
-      </button>
+    <div className="glass-panel rounded-2xl p-3.5 sm:p-4 mb-4 border-cyan-500/20 bg-dark-900/60 shadow-lg transition-all hover:border-cyan-500/40">
+      <div className="flex items-center gap-3 mb-3">
+        <Avatar
+          src={currentProfile?.avatar_url}
+          name={userName}
+          size="md"
+          isSuperAdmin={isSuperAdmin}
+        />
+        <button
+          onClick={onOpenUpload}
+          className="flex-1 text-left px-4 py-2.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs sm:text-sm text-zinc-400 hover:text-zinc-200 transition-all truncate"
+        >
+          ¿Qué nuevo set o bendición vas a compartir hoy, <strong className="text-white">{userName}</strong>?
+        </button>
+      </div>
 
-      <button
-        onClick={onOpenUpload}
-        className="p-2.5 sm:px-4 sm:py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white flex items-center gap-1.5 shadow-md shadow-cyan-900/30 flex-shrink-0 active:scale-95 transition-all"
-        title="Subir nuevo mix o video"
-      >
-        <CloudUpload className="w-4 h-4" />
-        <span className="hidden sm:inline text-xs font-bold">Subir</span>
-      </button>
+      {/* Botones de acción rápida */}
+      <div className="flex items-center justify-between border-t border-white/[0.07] pt-2.5 gap-1 sm:gap-2">
+        <button
+          onClick={onOpenUpload}
+          className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
+        >
+          <Music className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="hidden xs:inline">Mix Audio</span>
+        </button>
+
+        <button
+          onClick={onOpenUpload}
+          className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
+        >
+          <Video className="w-3.5 h-3.5 text-rose-400" />
+          <span className="hidden xs:inline">Video VJ</span>
+        </button>
+
+        <button
+          onClick={onOpenUpload}
+          className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
+        >
+          <Camera className="w-3.5 h-3.5 text-amber-400" />
+          <span className="hidden xs:inline">Foto</span>
+        </button>
+
+        <button
+          onClick={onOpenUpload}
+          className="flex items-center gap-1.5 py-1.5 px-3.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-95 shadow-glow-cyan active:scale-95 transition-all"
+        >
+          <CloudUpload className="w-3.5 h-3.5" />
+          <span>Publicar</span>
+        </button>
+      </div>
     </div>
   );
 }

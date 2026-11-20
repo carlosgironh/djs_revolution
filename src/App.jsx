@@ -6,6 +6,7 @@ import { BottomNav } from './components/layout/BottomNav';
 import { MobileDrawer } from './components/layout/MobileDrawer';
 import { SidebarLeft } from './components/layout/SidebarLeft';
 import { SidebarRight } from './components/layout/SidebarRight';
+import { FeaturedStories } from './components/feed/FeaturedStories';
 import { ChipsBar } from './components/feed/ChipsBar';
 import { CreatePostTrigger } from './components/feed/CreatePostTrigger';
 import { PostCard } from './components/feed/PostCard';
@@ -176,7 +177,7 @@ export function App() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-dark-950 text-zinc-100">
+    <div className="min-h-screen flex flex-col bg-dark-950 text-zinc-100 selection:bg-cyan-500/30 selection:text-cyan-200">
       
       {/* 1. Barra de Navegación Superior */}
       <Navbar
@@ -191,7 +192,7 @@ export function App() {
         onSearchChange={setSearchQuery}
       />
 
-      {/* 2. Contenedor Principal */}
+      {/* 2. Contenedor Principal con Disposición Fluida */}
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 py-4 flex gap-6 flex-1 pb-24 md:pb-12">
         
         {/* Sidebar Izquierda (Desktop) */}
@@ -209,7 +210,16 @@ export function App() {
         {/* Feed Central */}
         <main className="flex-1 min-w-0">
           
-          {/* Barra de Filtros Horizontales (Mobile & Desktop) */}
+          {/* Carrusel de Descubrimiento e Historias (Estilo Red Social Moderna) */}
+          <FeaturedStories
+            posts={posts}
+            djs={djs}
+            onOpenUpload={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
+            onViewProfile={handleViewProfile}
+            onOpenVideo={(p) => { setSelectedVideoPost(p); setVideoLightboxOpen(true); }}
+          />
+
+          {/* Barra de Filtros Horizontales por Categoría */}
           <ChipsBar
             activeTab={activeTab}
             onTabChange={handleTabChange}
@@ -231,26 +241,26 @@ export function App() {
           ) : (
             <div>
               {loadingPosts ? (
-                <div className="glass-panel rounded-2xl p-12 text-center text-zinc-400">
-                  <Disc className="w-8 h-8 mx-auto mb-2 animate-spin text-cyan-400" />
-                  <p className="text-sm">Cargando publicaciones del muro...</p>
+                <div className="glass-panel rounded-3xl p-12 text-center text-zinc-400 border-white/10">
+                  <Disc className="w-9 h-9 mx-auto mb-3 animate-spin text-cyan-400" />
+                  <p className="text-sm font-semibold">Sincronizando publicaciones del muro...</p>
                 </div>
               ) : filteredPosts.length === 0 ? (
-                <div className="glass-panel rounded-2xl p-10 text-center">
-                  <div className="w-12 h-12 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mx-auto mb-3">
+                <div className="glass-panel rounded-3xl p-10 text-center border-white/10">
+                  <div className="w-12 h-12 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl mx-auto mb-3 shadow-inner">
                     🕊️
                   </div>
                   <h3 className="font-bold text-base text-white mb-1">
                     {searchQuery ? 'Sin resultados de búsqueda' : 'Cabina Lista • Muro en Espera'}
                   </h3>
-                  <p className="text-xs text-zinc-400 max-w-sm mx-auto mb-4 leading-relaxed">
+                  <p className="text-xs text-zinc-400 max-w-sm mx-auto mb-4 leading-relaxed font-normal">
                     {searchQuery 
                       ? 'No encontramos ningún mix o DJ que coincida con tu búsqueda.' 
                       : 'Sé el primero en subir un mix de adoración o set de video a la comunidad.'}
                   </p>
                   <button
                     onClick={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
-                    className="py-2 px-5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 shadow-glow-cyan transition-all"
+                    className="py-2.5 px-6 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-95 shadow-glow-cyan transition-all active:scale-95"
                   >
                     {currentUser ? 'Publicar el Primer Mix 🎧' : 'Crear Cuenta de DJ Gratis'}
                   </button>

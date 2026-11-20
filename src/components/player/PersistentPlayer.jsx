@@ -30,12 +30,12 @@ export function PersistentPlayer() {
   }
 
   return (
-    <div className="fixed bottom-[72px] md:bottom-4 left-3 right-3 sm:left-6 sm:right-6 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl z-40 animate-in slide-in-from-bottom-5 duration-300 select-none">
-      <div className="glass-panel rounded-2xl p-2.5 sm:p-3.5 border-cyan-500/30 bg-dark-950/90 shadow-2xl shadow-black/80 flex items-center gap-3">
+    <div className="fixed bottom-[74px] md:bottom-5 left-3 right-3 sm:left-6 sm:right-6 md:left-1/2 md:-translate-x-1/2 md:max-w-3xl z-40 animate-in slide-in-from-bottom-5 duration-300 select-none">
+      <div className="glass-panel rounded-3xl p-2.5 sm:p-3 border-cyan-500/30 bg-dark-950/90 backdrop-blur-2xl shadow-[0_12px_45px_rgba(0,100,193,0.35)] flex items-center gap-3">
         
-        {/* Cover + Info */}
-        <div className="flex items-center gap-2.5 min-w-0 flex-1 sm:flex-initial sm:w-60">
-          <div className="relative w-11 h-11 rounded-xl overflow-hidden flex-shrink-0 bg-dark-900 border border-white/10">
+        {/* Cover + Info + Spinning Vinyl */}
+        <div className="flex items-center gap-2.5 min-w-0 flex-1 sm:flex-initial sm:w-56">
+          <div className="relative w-11 h-11 rounded-2xl overflow-hidden flex-shrink-0 bg-dark-900 border border-white/10 shadow-md">
             {currentTrack.coverUrl ? (
               <img
                 src={currentTrack.coverUrl}
@@ -43,13 +43,13 @@ export function PersistentPlayer() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-violet-900/40 text-cyan-300">
+              <div className="w-full h-full flex items-center justify-center bg-blue-950/60 text-cyan-300">
                 <Disc className="w-6 h-6 animate-spin-slow" />
               </div>
             )}
             {isPlaying && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
               </div>
             )}
           </div>
@@ -58,7 +58,7 @@ export function PersistentPlayer() {
             <h5 className="text-xs font-bold text-white truncate">
               {currentTrack.title}
             </h5>
-            <p className="text-[10px] text-zinc-400 truncate">
+            <p className="text-[10px] text-cyan-300/80 truncate font-medium">
               {currentTrack.artist}
             </p>
           </div>
@@ -66,10 +66,10 @@ export function PersistentPlayer() {
 
         {/* Play/Pause + Progress Slider */}
         <div className="flex-1 flex flex-col items-center gap-1">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={togglePlay}
-              className="w-9 h-9 rounded-full bg-gradient-to-r from-cyan-400 to-violet-500 text-white flex items-center justify-center shadow-md shadow-cyan-500/30 active:scale-90 transition-transform"
+              className="w-9 h-9 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white flex items-center justify-center shadow-md shadow-cyan-950 active:scale-90 transition-transform"
               aria-label={isPlaying ? "Pausar" : "Reproducir"}
             >
               {isPlaying ? (
@@ -82,25 +82,25 @@ export function PersistentPlayer() {
 
           {/* Progress Bar */}
           <div className="w-full flex items-center gap-2 text-[10px] text-zinc-400 font-mono">
-            <span className="min-w-[32px] text-right">{formatSecondsToTime(currentTime)}</span>
+            <span className="min-w-[30px] text-right">{formatSecondsToTime(currentTime)}</span>
             <div
               onClick={handleSeek}
-              className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer relative group"
+              className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden cursor-pointer relative group"
             >
               <div
                 style={{ width: `${progressPercent}%` }}
                 className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all"
               />
             </div>
-            <span className="min-w-[32px]">{formatSecondsToTime(duration)}</span>
+            <span className="min-w-[30px]">{formatSecondsToTime(duration)}</span>
           </div>
         </div>
 
-        {/* Volume (hidden on small screens) */}
+        {/* Volume (hidden on mobile) */}
         <div className="hidden lg:flex items-center gap-2">
           <button
             onClick={toggleMute}
-            className="text-zinc-400 hover:text-white p-1"
+            className="text-zinc-400 hover:text-white p-1 transition-colors"
           >
             {muted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
@@ -118,7 +118,7 @@ export function PersistentPlayer() {
         {/* Close button */}
         <button
           onClick={closePlayer}
-          className="text-zinc-400 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors flex-shrink-0"
+          className="text-zinc-400 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors flex-shrink-0 active:scale-95"
           title="Cerrar reproductor"
         >
           <X className="w-4 h-4" />
