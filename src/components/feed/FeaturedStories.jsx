@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { usePlayer } from '../../context/PlayerContext';
 import { Avatar } from '../common/Avatar';
 import { getCoverImageUrl, getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
+import { getAuthorDisplay, resolvePostAuthor } from '../../lib/roleUtils';
 
 export function FeaturedStories({ 
   posts = [], 
@@ -21,7 +22,7 @@ export function FeaturedStories({
   );
 
   const myAvatar = currentProfile?.avatar_url;
-  const myName = currentProfile?.dj_name || currentUser?.email?.split('@')[0] || 'Tú';
+  const myName = currentUser ? getAuthorDisplay(currentProfile).displayName : 'Tú';
 
   return (
     <section className="mb-5 select-none">
@@ -78,7 +79,8 @@ export function FeaturedStories({
 
         {/* 2. Tarjetas de Pistas y DJs Destacados */}
         {featuredItems.map((post) => {
-          const author = post.profiles || { dj_name: 'DJ Oficial' };
+          const author = resolvePostAuthor(post);
+          const authorDisplay = getAuthorDisplay(author, post.id).displayName;
           const isThisPlaying = currentTrack?.id === post.id && isPlaying;
           const cover = getCoverImageUrl(post, 300);
 
@@ -90,7 +92,7 @@ export function FeaturedStories({
                   playTrack({
                     id: post.id,
                     title: post.title,
-                    artist: author.dj_name,
+                    artist: authorDisplay,
                     coverUrl: cover,
                     audioUrl: getStreamingMediaUrl(post),
                     fileUrl: getDirectMediaUrl(post)
@@ -118,14 +120,14 @@ export function FeaturedStories({
                 <div 
                   onClick={(e) => {
                     e.stopPropagation();
-                    onViewProfile?.(author.id);
+                    if (author.id) onViewProfile?.(author.id);
                   }}
                   className="rounded-full ring-2 ring-cyan-400 shadow-md hover:scale-110 transition-transform"
                   title={`Ver perfil de ${author.dj_name}`}
                 >
                   <Avatar
                     src={author.avatar_url}
-                    name={author.dj_name}
+                    name={authorDisplay}
                     size="xs"
                   />
                 </div>
@@ -160,7 +162,7 @@ export function FeaturedStories({
                   {post.title}
                 </p>
                 <p className="text-[9.5px] text-zinc-300 truncate drop-shadow-sm">
-                  {author.dj_name}
+                  {authorDisplay}
                 </p>
               </div>
             </div>

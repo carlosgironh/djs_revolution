@@ -282,6 +282,7 @@ export function App() {
                   <React.Fragment key={post.id}>
                     <PostCard
                       post={post}
+                      djs={djs}
                       isSaved={savedPostIds.includes(post.id)}
                       onToggleSave={handleToggleSave}
                       onOpenVideo={(p) => { setSelectedVideoPost(p); setVideoLightboxOpen(true); }}
@@ -348,6 +349,7 @@ export function App() {
             isOpen={uploadModalOpen}
             onClose={() => setUploadModalOpen(false)}
             onUploadSuccess={fetchPosts}
+            djs={djs}
           />
         )}
 

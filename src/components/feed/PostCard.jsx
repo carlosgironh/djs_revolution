@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Play, Pause, Download, MessageSquare, Bookmark, Share2, 
-  Heart, Send, Crown, Check, Sparkles, Trash2, Shield, Camera, Maximize2 
+  Heart, Send, Crown, Check, Sparkles, Trash2, Shield, Camera, Maximize2, UserCog 
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { usePlayer } from '../../context/PlayerContext';
@@ -10,10 +10,11 @@ import { supabase } from '../../lib/supabase';
 import { Avatar } from '../common/Avatar';
 import { InlineVideoPlayer } from '../common/InlineVideoPlayer';
 import { downloadMediaFile, getCoverImageUrl, getDirectMediaUrl, getStreamingMediaUrl } from '../../lib/mediaUtils';
-import { getUserRoleFlags } from '../../lib/roleUtils';
+import { getAuthorDisplay, getUserRoleFlags, resolvePostAuthor } from '../../lib/roleUtils';
 
 export function PostCard({ 
   post, 
+  djs = [],
   isSaved, 
   onToggleSave, 
   onOpenVideo, 
@@ -21,13 +22,15 @@ export function PostCard({
   onOpenAuth, 
   onRefresh 
 }) {
-  const { currentUser, canModerate } = useAuth();
+  const { currentUser, currentProfile, isSuperAdmin, canModerate, updateProfile } = useAuth();
   const { currentTrack, isPlaying, playTrack } = usePlayer();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [commenting, setCommenting] = useState(false);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [showIdentityMenu, setShowIdentityMenu] = useState(false);
+  const [savingIdentity, setSavingIdentity] = useState(false);
 
   function handlePhotoDoubleClick() {
     handleReaction('amen');
@@ -36,18 +39,149 @@ export function PostCard({
   }
 
   const author = post.profiles || { dj_name: 'DJ Creador', role: 'DJ de Worship 🕊️' };
-  const { isSuperAdmin: isAuthorAdmin, isModOnly: isAuthorMod } = getUserRoleFlags(author);
+  const isOwnPost = Boolean(currentUser && post.author_id === currentUser.id);
+  const canEditIdentity = isOwnPost || isSuperAdmin;
+  const effectiveAuthor = resolvePostAuthor(post, currentUser, currentProfile);
+  const { isSuperAdmin: isAuthorAdmin, isModOnly: isAuthorMod } = getUserRoleFlags(effectiveAuthor);
+  const { displayName: authorDisplayName, subtitle: authorSubtitle, mode: authorDisplayMode } = getAuthorDisplay(effectiveAuthor, post.id);
 
   const canDeletePost = currentUser && (
     canModerate || 
-    post.author_id === currentUser.id
+    isOwnPost
   );
+
+  async function handleChangePostIdentity(mode) {
+    if (!canEditIdentity || savingIdentity) return;
+    setSavingIdentity(true);
+    try {
+      const baseSocials = (isOwnPost ? currentProfile?.socials : author?.socials) || currentProfile?.socials || {};
+      const existingAuthorOverrides = baseSocials.post_author_overrides || {};
+      const currentAuthorOverride = existingAuthorOverrides[post.id];
+
+      if (currentAuthorOverride && isOwnPost) {
+        await updateProfile({
+          socials: {
+            ...baseSocials,
+            post_author_overrides: {
+              ...existingAuthorOverrides,
+              [post.id]: {
+                ...currentAuthorOverride,
+                display_as: mode,
+              },
+            },
+          },
+        });
+      } else if (isOwnPost) {
+        const existingModes = baseSocials.post_display_modes || {};
+        await updateProfile({
+          socials: {
+            ...baseSocials,
+            post_display_modes: {
+              ...existingModes,
+              [post.id]: mode,
+            },
+          },
+        });
+      }
+      setShowIdentityMenu(false);
+      onRefresh?.();
+    } catch (err) {
+      alert('Error al cambiar cómo se muestra el autor: ' + err.message);
+    } finally {
+      setSavingIdentity(false);
+    }
+  }
+
+  async function handleAssignPostAuthor(targetId) {
+    if (!isSuperAdmin || savingIdentity) return;
+    setSavingIdentity(true);
+    try {
+      const baseSocials = currentProfile?.socials || {};
+      const nextOverrides = { ...(baseSocials.post_author_overrides || {}) };
+
+      if (!targetId || targetId === currentUser?.id) {
+        // Restaurar a mi cuenta
+        if (post.author_id !== currentUser?.id) {
+          await supabase.from('posts').update({ author_id: currentUser.id }).eq('id', post.id);
+        }
+        delete nextOverrides[post.id];
+        if (isOwnPost || currentProfile?.socials?.post_author_overrides?.[post.id]) {
+          await updateProfile({
+            socials: {
+              ...baseSocials,
+              post_author_overrides: nextOverrides,
+            },
+          });
+        }
+      } else {
+        const targetDj = djs.find(d => d.id === targetId);
+        if (targetDj) {
+          const { error: updErr } = await supabase
+            .from('posts')
+            .update({ author_id: targetDj.id })
+            .eq('id', post.id);
+
+          if (!updErr) {
+            delete nextOverrides[post.id];
+            if (currentProfile?.socials?.post_author_overrides?.[post.id]) {
+              await updateProfile({
+                socials: {
+                  ...baseSocials,
+                  post_author_overrides: nextOverrides,
+                },
+              });
+            }
+          } else if (isOwnPost) {
+            // Fallback por RLS usando atribución proxy en socials del Super Admin
+            await updateProfile({
+              socials: {
+                ...baseSocials,
+                post_author_overrides: {
+                  ...nextOverrides,
+                  [post.id]: {
+                    id: targetDj.id,
+                    username: targetDj.username || '',
+                    full_name: targetDj.full_name || '',
+                    dj_name: targetDj.dj_name || '',
+                    role: targetDj.role || 'DJ de Worship 🕊️',
+                    avatar_url: targetDj.avatar_url || '',
+                    is_dj: Boolean(targetDj.is_dj),
+                    is_moderator: Boolean(targetDj.is_moderator),
+                    is_super_admin: Boolean(targetDj.is_super_admin),
+                    display_as: targetDj.socials?.display_as || 'dj_name',
+                  },
+                },
+              },
+            });
+          } else {
+            throw updErr;
+          }
+        }
+      }
+      setShowIdentityMenu(false);
+      onRefresh?.();
+    } catch (err) {
+      alert('No se pudo reasignar el DJ/VJ autor: ' + (err.message || err));
+    } finally {
+      setSavingIdentity(false);
+    }
+  }
 
   async function handleDeletePost() {
     if (!confirm("¿Deseas eliminar esta publicación del muro? Esta acción no se puede deshacer.")) return;
     try {
       const { error } = await supabase.from('posts').delete().eq('id', post.id);
       if (error) throw error;
+      if (isOwnPost && currentProfile?.socials?.post_display_modes?.[post.id]) {
+        const nextModes = { ...currentProfile.socials.post_display_modes };
+        delete nextModes[post.id];
+        updateProfile({
+          socials: {
+            ...currentProfile.socials,
+            post_display_modes: nextModes,
+          },
+        }).catch(() => {});
+      }
       onRefresh();
     } catch (err) {
       alert('Error al eliminar publicación: ' + err.message);
@@ -158,13 +292,13 @@ export function PostCard({
       {/* 1. Cabecera del Post: Autor, Rol, Hora Oficial PTY */}
       <div className="flex items-center justify-between gap-3 mb-3.5">
         <div 
-          onClick={() => onViewProfile(author.id)}
-          className="flex items-center gap-3 cursor-pointer group min-w-0"
+          onClick={() => effectiveAuthor?.id && onViewProfile(effectiveAuthor.id)}
+          className={`flex items-center gap-3 group min-w-0 ${effectiveAuthor?.id ? 'cursor-pointer' : 'cursor-default'}`}
         >
           <div className="relative">
             <Avatar
-              src={author.avatar_url}
-              name={author.dj_name}
+              src={effectiveAuthor.avatar_url}
+              name={authorDisplayName}
               size="md"
               isSuperAdmin={isAuthorAdmin}
               className="group-hover:ring-2 group-hover:ring-cyan-400 transition-all"
@@ -179,7 +313,7 @@ export function PostCard({
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <h4 className="font-bold text-sm sm:text-base text-white group-hover:text-cyan-400 transition-colors truncate">
-                {author.dj_name}
+                {authorDisplayName}
               </h4>
               {isAuthorAdmin ? (
                 <span className="flex items-center gap-0.5 bg-amber-500/20 text-amber-300 text-[9.5px] font-black px-1.5 py-0.5 rounded-md border border-amber-500/30 flex-shrink-0">
@@ -191,14 +325,16 @@ export function PostCard({
                 </span>
               ) : null}
             </div>
-            <p className="text-[11px] sm:text-xs text-zinc-400 truncate">
-              {author.role || 'DJ de Worship 🕊️'}
-            </p>
+            {authorSubtitle && (
+              <p className="text-[11px] sm:text-xs text-zinc-400 truncate">
+                {authorSubtitle}
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Lado Derecho: Hora Oficial Panamá & Botón Eliminar */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        {/* Lado Derecho: Hora Oficial Panamá & Opciones de Autor */}
+        <div className="relative flex items-center gap-2 flex-shrink-0">
           <div 
             className="text-right cursor-help select-none"
             title={timeInfo.fullTooltip}
@@ -211,6 +347,22 @@ export function PostCard({
             </span>
           </div>
 
+          {canEditIdentity && (
+            <button
+              type="button"
+              onClick={() => setShowIdentityMenu(!showIdentityMenu)}
+              disabled={savingIdentity}
+              className={`p-1.5 rounded-xl border transition-all ${
+                showIdentityMenu
+                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                  : 'bg-white/5 hover:bg-cyan-500/15 text-zinc-400 hover:text-cyan-300 border-white/5 hover:border-cyan-500/30'
+              }`}
+              title="Cambiar autor o cómo se muestra en esta publicación"
+            >
+              <UserCog className="w-3.5 h-3.5" />
+            </button>
+          )}
+
           {canDeletePost && (
             <button
               onClick={handleDeletePost}
@@ -219,6 +371,68 @@ export function PostCard({
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
+          )}
+
+          {/* Popover rápido de identidad y reasignación (Super Admin) */}
+          {canEditIdentity && showIdentityMenu && (
+            <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-dark-900 border border-cyan-500/30 shadow-2xl p-2.5 z-30 animate-in fade-in zoom-in-95 duration-150 space-y-2">
+              {isSuperAdmin && djs.length > 0 && (
+                <div className="pb-2 border-b border-white/10">
+                  <span className="block px-1 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
+                    Publicar en nombre de (DJ / VJ):
+                  </span>
+                  <select
+                    value={effectiveAuthor?.id || ''}
+                    disabled={savingIdentity}
+                    onChange={(e) => handleAssignPostAuthor(e.target.value)}
+                    className="w-full mt-1 bg-dark-950 border border-amber-500/30 rounded-xl px-2.5 py-1.5 text-[11px] text-white focus:outline-none focus:border-amber-400"
+                  >
+                    <option value={currentUser?.id || ''}>Mi Cuenta ({currentProfile?.full_name || 'Admin'})</option>
+                    {djs
+                      .filter(d => d.id !== currentUser?.id)
+                      .map(dj => (
+                        <option key={dj.id} value={dj.id}>
+                          {getAuthorDisplay(dj).displayName} ({dj.role || 'DJ'})
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              )}
+
+              {isOwnPost && (
+                <div>
+                  <span className="block px-1 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Mostrar autor como:
+                  </span>
+                  {[
+                    { id: 'full_name', label: 'Nombre', value: effectiveAuthor.full_name || effectiveAuthor.username || 'Nombre' },
+                    { id: 'dj_name', label: 'Alias DJ', value: effectiveAuthor.dj_name || effectiveAuthor.full_name || 'Alias DJ' },
+                    { id: 'role', label: 'Rol', value: effectiveAuthor.role || 'Rol' },
+                  ].map((opt) => {
+                    const isSelected = authorDisplayMode === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        disabled={savingIdentity}
+                        onClick={() => handleChangePostIdentity(opt.id)}
+                        className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs transition-all flex items-center justify-between gap-2 ${
+                          isSelected
+                            ? 'bg-cyan-500/20 text-cyan-200 font-bold'
+                            : 'text-zinc-300 hover:bg-white/5'
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <span className="block font-bold">{opt.label}</span>
+                          <span className="block text-[10px] text-zinc-400 truncate">{opt.value}</span>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -268,7 +482,7 @@ export function PostCard({
               onClick={() => playTrack({
                 id: post.id,
                 title: post.title,
-                artist: author.dj_name,
+                artist: authorDisplayName,
                 coverUrl: coverUrl,
                 audioUrl: getStreamingMediaUrl(post),
                 fileUrl: getDirectMediaUrl(post)
@@ -486,13 +700,13 @@ export function PostCard({
                 <div key={c.id} className="flex gap-2.5 items-start p-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.04]">
                   <Avatar
                     src={c.profiles?.avatar_url}
-                    name={c.profiles?.dj_name}
+                    name={getAuthorDisplay(c.profiles).displayName}
                     size="xs"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
                       <span className="font-bold text-[11px] text-white truncate">
-                        {c.profiles?.dj_name || 'Hermano en Cristo'}
+                        {c.profiles ? getAuthorDisplay(c.profiles).displayName : 'Hermano en Cristo'}
                       </span>
                       <div className="flex items-center gap-1.5 flex-shrink-0">
                         <span className="text-[9.5px] text-zinc-500">

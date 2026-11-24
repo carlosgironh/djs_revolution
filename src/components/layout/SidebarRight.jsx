@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Download, Radio, Flame, Play, Pause, Sparkles } from 'lucide-react';
 import { usePlayer } from '../../context/PlayerContext';
 import { getCoverImageUrl, getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
+import { getAuthorDisplay, resolvePostAuthor } from '../../lib/roleUtils';
 import { AdSenseBanner } from '../ads/AdSenseBanner';
 
 export function SidebarRight({ topPosts = [], onOpenVideo }) {
@@ -40,6 +41,7 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
             {rankedPosts.map((post, idx) => {
               const isThisPlaying = currentTrack?.id === post.id && isPlaying;
               const cover = getCoverImageUrl(post, 150);
+              const artistName = getAuthorDisplay(resolvePostAuthor(post), post.id).displayName;
 
               return (
                 <div
@@ -49,7 +51,7 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
                       playTrack({
                         id: post.id,
                         title: post.title,
-                        artist: post.profiles?.dj_name || 'DJ',
+                        artist: artistName,
                         coverUrl: cover,
                         audioUrl: getStreamingMediaUrl(post),
                         fileUrl: getDirectMediaUrl(post)
@@ -95,7 +97,7 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
                       {post.title}
                     </h5>
                     <div className="flex items-center gap-2 text-[10px] text-zinc-400 mt-0.5">
-                      <span className="truncate">{post.profiles?.dj_name || 'DJ'}</span>
+                      <span className="truncate">{artistName}</span>
                       <span>•</span>
                       <span className="flex items-center gap-0.5 text-cyan-400 font-semibold">
                         <Download className="w-2.5 h-2.5" />

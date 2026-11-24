@@ -2,10 +2,13 @@ import React from 'react';
 import { CloudUpload, UserPlus, Music, Video, Camera, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../common/Avatar';
+import { getAuthorDisplay } from '../../lib/roleUtils';
 
 export function CreatePostTrigger({ onOpenUpload, onOpenAuth }) {
   const { currentUser, currentProfile, isSuperAdmin, canUpload } = useAuth();
-  const userName = currentProfile?.dj_name || currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'DJ';
+  const userName = currentProfile
+    ? getAuthorDisplay(currentProfile).displayName
+    : (currentUser?.email?.split('@')[0] || 'DJ');
 
   // 1. Invitado no autenticado: Banner moderno y compacto
   if (!currentUser) {

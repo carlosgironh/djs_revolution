@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Users, Crown, Shield, Search, Music, Instagram, Facebook, Youtube } from 'lucide-react';
 import { Avatar } from '../common/Avatar';
-import { getUserRoleFlags } from '../../lib/roleUtils';
+import { getAuthorDisplay, getUserRoleFlags } from '../../lib/roleUtils';
 
 export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
   const [filterQuery, setFilterQuery] = useState('');
@@ -77,6 +77,7 @@ export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
           {filtered.map((dj) => {
             const { isSuperAdmin, isModOnly: isModerator } = getUserRoleFlags(dj);
+            const { displayName: djDisplayName, subtitle: djSubtitle } = getAuthorDisplay(dj);
 
             const socials = dj.socials || {};
 
@@ -91,7 +92,7 @@ export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
                     <div className="relative">
                       <Avatar
                         src={dj.avatar_url}
-                        name={dj.dj_name || dj.full_name}
+                        name={djDisplayName}
                         size="lg"
                         isSuperAdmin={isSuperAdmin}
                         className="group-hover:scale-105 transition-transform ring-2 ring-white/10"
@@ -101,7 +102,7 @@ export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <h4 className="font-bold text-base text-white group-hover:text-cyan-300 transition-colors truncate">
-                          {dj.dj_name || dj.full_name || 'DJ Oficial'}
+                          {djDisplayName}
                         </h4>
                         {isSuperAdmin ? (
                           <span className="flex items-center gap-0.5 bg-amber-500/20 text-amber-300 text-[9.5px] font-black px-1.5 py-0.5 rounded-md border border-amber-500/30 flex-shrink-0">
@@ -118,9 +119,11 @@ export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
                         )}
                       </div>
 
-                      <span className="text-xs text-zinc-400 font-medium block truncate mt-0.5">
-                        {dj.role || 'DJ de Worship 🕊️'}
-                      </span>
+                      {djSubtitle && (
+                        <span className="text-xs text-zinc-400 font-medium block truncate mt-0.5">
+                          {djSubtitle}
+                        </span>
+                      )}
                     </div>
                   </div>
 

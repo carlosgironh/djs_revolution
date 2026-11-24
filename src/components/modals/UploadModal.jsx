@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, CloudUpload, Loader2, Music, Video, Sparkles, CheckCircle2, FolderOpen, FileAudio, Camera, Image as ImageIcon } from 'lucide-react';
+import { X, CloudUpload, Loader2, Music, Video, Sparkles, CheckCircle2, FolderOpen, FileAudio, Camera, Image as ImageIcon, User, Disc, Crown, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase, MUX_SERVICE_URL } from '../../lib/supabase';
+import { getAuthorDisplay } from '../../lib/roleUtils';
 
 function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
   const controller = new AbortController();
@@ -9,13 +10,19 @@ function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
   return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
 }
 
-export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
-  const { currentUser } = useAuth();
+export function UploadModal({ isOpen, onClose, onUploadSuccess, djs = [] }) {
+  const { currentUser, currentProfile, isSuperAdmin, updateProfile } = useAuth();
 
   const [title, setTitle] = useState('');
   const [genre, setGenre] = useState('Worship');
   const [description, setDescription] = useState('');
   const [fileType, setFileType] = useState('audio'); // 'audio' | 'video' | 'foto'
+  const [postDisplayMode, setPostDisplayMode] = useState(currentProfile?.socials?.display_as || 'dj_name');
+  // Super Admin: 'self' | 'registered' | 'guest'
+  const [publishAsType, setPublishAsType] = useState('self');
+  const [targetDjId, setTargetDjId] = useState('');
+  const [guestDjName, setGuestDjName] = useState('');
+  const [guestDjRole, setGuestDjRole] = useState('DJ / VJ Invitado 🎧');
   const [file, setFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -26,6 +33,36 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
   const allFilesInputRef = useRef(null);
   const previewUrlRef = useRef('');
   const closeTimerRef = useRef(null);
+
+  const selectedTargetDj = publishAsType === 'registered'
+    ? djs.find(d => d.id === targetDjId) || null
+    : null;
+
+  const activeAuthorProfile = publishAsType === 'registered' && selectedTargetDj
+    ? selectedTargetDj
+    : publishAsType === 'guest'
+    ? { dj_name: guestDjName.trim() || 'DJ Invitado', full_name: guestDjName.trim() || 'DJ Invitado', role: guestDjRole.trim() || 'DJ / VJ Invitado 🎧' }
+    : currentProfile;
+
+  useEffect(() => {
+    if (isOpen) {
+      setPublishAsType('self');
+      setTargetDjId('');
+      setGuestDjName('');
+      setGuestDjRole('DJ / VJ Invitado 🎧');
+      setPostDisplayMode(currentProfile?.socials?.display_as || 'dj_name');
+    }
+  }, [currentProfile?.socials?.display_as, isOpen]);
+
+  useEffect(() => {
+    if (publishAsType === 'registered' && selectedTargetDj) {
+      setPostDisplayMode(selectedTargetDj.socials?.display_as || 'dj_name');
+    } else if (publishAsType === 'self') {
+      setPostDisplayMode(currentProfile?.socials?.display_as || 'dj_name');
+    } else if (publishAsType === 'guest') {
+      setPostDisplayMode('dj_name');
+    }
+  }, [publishAsType, targetDjId]);
 
   const revokePreview = () => {
     if (previewUrlRef.current) {
@@ -42,6 +79,99 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
   }, []);
 
   if (!isOpen) return null;
+
+  /**
+   * Inserta el post intentando atribuir `author_id` directamente cuando el Super Admin
+   * elige un DJ/VJ registrado. Si RLS exige `auth.uid() = author_id` o es un invitado,
+   * inserta con `currentUser.id` y guarda la atribución en `profiles.socials.post_author_overrides`.
+   */
+  async function insertPostWithAttribution(payload) {
+    const wantsRegisteredProxy = isSuperAdmin && publishAsType === 'registered' && selectedTargetDj && selectedTargetDj.id !== currentUser.id;
+    const wantsGuestProxy = isSuperAdmin && publishAsType === 'guest' && guestDjName.trim();
+
+    if (wantsRegisteredProxy) {
+      const { data, error } = await supabase
+        .from('posts')
+        .insert({ ...payload, author_id: selectedTargetDj.id })
+        .select('id')
+        .single();
+
+      if (!error && data?.id) {
+        return { postId: data.id, usedProxyFallback: false };
+      }
+      console.warn('RLS no permite author_id directo para Super Admin, usando atribución proxy:', error?.message);
+    }
+
+    const { data, error } = await supabase
+      .from('posts')
+      .insert({ ...payload, author_id: currentUser.id })
+      .select('id')
+      .single();
+
+    if (error) throw error;
+
+    const newPostId = data?.id;
+    if (!newPostId) return { postId: null, usedProxyFallback: false };
+
+    const existingSocials = currentProfile?.socials || {};
+    const updates = { ...existingSocials };
+    let needsProfileUpdate = false;
+
+    if (wantsRegisteredProxy) {
+      updates.post_author_overrides = {
+        ...(existingSocials.post_author_overrides || {}),
+        [newPostId]: {
+          id: selectedTargetDj.id,
+          username: selectedTargetDj.username || '',
+          full_name: selectedTargetDj.full_name || '',
+          dj_name: selectedTargetDj.dj_name || '',
+          role: selectedTargetDj.role || 'DJ de Worship 🕊️',
+          avatar_url: selectedTargetDj.avatar_url || '',
+          is_dj: Boolean(selectedTargetDj.is_dj),
+          is_moderator: Boolean(selectedTargetDj.is_moderator),
+          is_super_admin: Boolean(selectedTargetDj.is_super_admin),
+          display_as: postDisplayMode,
+        },
+      };
+      needsProfileUpdate = true;
+    } else if (wantsGuestProxy) {
+      const gName = guestDjName.trim();
+      const gRole = guestDjRole.trim() || 'DJ / VJ Invitado 🎧';
+      updates.post_author_overrides = {
+        ...(existingSocials.post_author_overrides || {}),
+        [newPostId]: {
+          id: null,
+          username: '',
+          full_name: gName,
+          dj_name: gName,
+          role: gRole,
+          avatar_url: '',
+          is_dj: true,
+          display_as: postDisplayMode,
+        },
+      };
+      needsProfileUpdate = true;
+    } else {
+      const profileDefaultMode = existingSocials.display_as || 'dj_name';
+      if (postDisplayMode !== profileDefaultMode) {
+        updates.post_display_modes = {
+          ...(existingSocials.post_display_modes || {}),
+          [newPostId]: postDisplayMode,
+        };
+        needsProfileUpdate = true;
+      }
+    }
+
+    if (needsProfileUpdate) {
+      try {
+        await updateProfile({ socials: updates });
+      } catch (e) {
+        console.warn('No se pudo guardar atribución/visualización del post:', e);
+      }
+    }
+
+    return { postId: newPostId, usedProxyFallback: wantsRegisteredProxy || wantsGuestProxy };
+  }
 
   async function handleUpload(e) {
     e.preventDefault();
@@ -77,8 +207,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         setUploadProgress(85);
         setStatusText("Registrando publicación en el Muro...");
 
-        const { error: insertErr } = await supabase.from('posts').insert({
-          author_id: currentUser.id,
+        await insertPostWithAttribution({
           title: title.trim(),
           content: description.trim(),
           description: description.trim(),
@@ -91,12 +220,10 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
           downloads_count: 0
         });
 
-        if (insertErr) throw insertErr;
-
         setUploadProgress(100);
         setStatusText("¡Foto publicada con éxito! 📸");
 
-        setTimeout(() => {
+        closeTimerRef.current = setTimeout(() => {
           setUploading(false);
           onUploadSuccess();
           onClose();
@@ -192,10 +319,9 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         throw new Error('No se pudo subir el archivo ni generar una URL de almacenamiento.');
       }
 
-      // 3. Insertar en tabla posts de Supabase
+      // 3. Insertar en tabla posts de Supabase con atribución del autor
       const isVideo = fileType === 'video';
-      const { error: insertErr } = await supabase.from('posts').insert({
-        author_id: currentUser.id,
+      await insertPostWithAttribution({
         title: title.trim(),
         content: description.trim(),
         description: description.trim(),
@@ -212,8 +338,6 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         status: 'ready',
         downloads_count: 0
       });
-
-      if (insertErr) throw insertErr;
 
       setUploadProgress(100);
       setStatusText("¡Publicación realizada con éxito! 🕊️");
@@ -403,6 +527,112 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
                 placeholder={fileType === 'foto' ? "Escribe un mensaje de edificación, testimonio o agradecimiento..." : "Comentarios, pasaje bíblico o lista de temas..."}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500 resize-none"
               />
+            </div>
+
+            {/* Selector exclusivo de Super Admin: publicar en nombre de un DJ o VJ */}
+            {isSuperAdmin && (
+              <div className="p-3 rounded-2xl bg-amber-500/[0.08] border border-amber-500/25 space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                    <Crown className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Super Admin: Publicar en nombre de</span>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { id: 'self', label: 'Mi Cuenta' },
+                    { id: 'registered', label: 'DJ / VJ del Sitio' },
+                    { id: 'guest', label: 'DJ Invitado' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setPublishAsType(opt.id)}
+                      className={`py-1.5 px-2 rounded-xl text-[11px] font-bold border transition-all ${
+                        publishAsType === opt.id
+                          ? 'bg-amber-500/25 text-amber-200 border-amber-400/60'
+                          : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+
+                {publishAsType === 'registered' && (
+                  <select
+                    value={targetDjId}
+                    onChange={(e) => setTargetDjId(e.target.value)}
+                    required
+                    className="w-full bg-dark-900 border border-amber-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
+                  >
+                    <option value="">-- Selecciona un DJ o VJ registrado --</option>
+                    {djs.map((dj) => (
+                      <option key={dj.id} value={dj.id}>
+                        {getAuthorDisplay(dj).displayName} ({dj.role || 'DJ'})
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {publishAsType === 'guest' && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      required
+                      value={guestDjName}
+                      onChange={(e) => setGuestDjName(e.target.value)}
+                      placeholder="Nombre o Alias del DJ/VJ"
+                      className="w-full bg-dark-950/70 border border-amber-500/30 rounded-xl px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-400"
+                    />
+                    <input
+                      type="text"
+                      value={guestDjRole}
+                      onChange={(e) => setGuestDjRole(e.target.value)}
+                      placeholder="Rol (ej: VJ Invitado)"
+                      className="w-full bg-dark-950/70 border border-amber-500/30 rounded-xl px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Cómo mostrar autor en esta publicación */}
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1.5">
+                Publicar mostrando como:
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'full_name', label: 'Nombre', icon: User, preview: activeAuthorProfile?.full_name || activeAuthorProfile?.username || 'Nombre' },
+                  { id: 'dj_name', label: 'Alias DJ', icon: Disc, preview: activeAuthorProfile?.dj_name || 'Alias DJ' },
+                  { id: 'role', label: 'Rol', icon: Crown, preview: activeAuthorProfile?.role || 'Rol' },
+                ].map((opt) => {
+                  const Icon = opt.icon;
+                  const active = postDisplayMode === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setPostDisplayMode(opt.id)}
+                      className={`p-2 rounded-xl border text-left transition-all ${
+                        active
+                          ? 'bg-cyan-500/20 border-cyan-400/60 text-white'
+                          : 'bg-white/[0.03] border-white/10 text-zinc-400 hover:bg-white/[0.07]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1">
+                        <Icon className={`w-3 h-3 ${active ? 'text-cyan-400' : 'text-zinc-500'}`} />
+                        <span className="text-[11px] font-bold">{opt.label}</span>
+                      </div>
+                      <span className="block text-[10px] text-zinc-400 truncate mt-0.5">
+                        {opt.preview}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Selector de Archivo Multimedia */}

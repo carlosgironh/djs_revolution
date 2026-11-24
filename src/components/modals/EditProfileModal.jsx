@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, User, Settings, Heart, Save, Loader2, Instagram, Facebook, Youtube, Music, Camera, Upload } from 'lucide-react';
+import { X, User, Settings, Heart, Save, Loader2, Instagram, Facebook, Youtube, Music, Camera, Crown, Disc } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { getAuthorDisplay } from '../../lib/roleUtils';
 
 export function EditProfileModal({ isOpen, onClose, onProfileUpdated }) {
   const { currentProfile, updateProfile, currentUser } = useAuth();
 
+  const [fullName, setFullName] = useState('');
   const [djName, setDjName] = useState('');
   const [role, setRole] = useState('');
+  const [displayAs, setDisplayAs] = useState('dj_name'); // 'dj_name' | 'full_name' | 'role'
   const [bio, setBio] = useState('');
   const [donationUrl, setDonationUrl] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
@@ -24,6 +27,7 @@ export function EditProfileModal({ isOpen, onClose, onProfileUpdated }) {
 
   useEffect(() => {
     if (currentProfile) {
+      setFullName(currentProfile.full_name || '');
       setDjName(currentProfile.dj_name || '');
       setRole(currentProfile.role || '');
       setBio(currentProfile.bio || '');
@@ -31,6 +35,7 @@ export function EditProfileModal({ isOpen, onClose, onProfileUpdated }) {
       setAvatarUrl(currentProfile.avatar_url || '');
       
       const socials = currentProfile.socials || {};
+      setDisplayAs(socials.display_as || 'dj_name');
       setInstagram(socials.instagram || '');
       setFacebook(socials.facebook || '');
       setTiktok(socials.tiktok || '');
@@ -78,13 +83,17 @@ export function EditProfileModal({ isOpen, onClose, onProfileUpdated }) {
     setLoading(true);
 
     try {
+      const existingSocials = currentProfile?.socials || {};
       await updateProfile({
+        full_name: fullName.trim() || djName.trim(),
         dj_name: djName.trim(),
         role: role.trim(),
         bio: bio.trim(),
         donation_url: donationUrl.trim() || null,
         avatar_url: avatarUrl || null,
         socials: {
+          ...existingSocials,
+          display_as: displayAs,
           instagram: instagram.trim(),
           facebook: facebook.trim(),
           tiktok: tiktok.trim(),
@@ -100,6 +109,14 @@ export function EditProfileModal({ isOpen, onClose, onProfileUpdated }) {
       setLoading(false);
     }
   }
+
+  const previewDisplay = getAuthorDisplay({
+    ...currentProfile,
+    full_name: fullName,
+    dj_name: djName,
+    role,
+    socials: { ...(currentProfile?.socials || {}), display_as: displayAs },
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -174,16 +191,29 @@ export function EditProfileModal({ isOpen, onClose, onProfileUpdated }) {
           </div>
 
           {/* Datos Principales */}
-          <div>
-            <label className="block text-xs font-bold text-zinc-300 mb-1">Nombre Artístico / DJ</label>
-            <input
-              type="text"
-              required
-              value={djName}
-              onChange={(e) => setDjName(e.target.value)}
-              placeholder="Ej: DJ Worship Praise"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">Nombre Completo</label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Ej: Carlos Girón"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">Alias de DJ / Artístico</label>
+              <input
+                type="text"
+                required
+                value={djName}
+                onChange={(e) => setDjName(e.target.value)}
+                placeholder="Ej: DJ Worship Praise"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500"
+              />
+            </div>
           </div>
 
           <div>
@@ -192,9 +222,60 @@ export function EditProfileModal({ isOpen, onClose, onProfileUpdated }) {
               type="text"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              placeholder="Ej: DJ de Worship, VJ de Proyección, Productor"
+              placeholder="Ej: Super Admin 👑, DJ de Worship, VJ de Proyección"
               className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500"
             />
+          </div>
+
+          {/* Preferencia de Identidad en Publicaciones */}
+          <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-bold text-cyan-300">
+                ¿Cómo quieres salir en tus publicaciones?
+              </span>
+              <span className="text-[10px] text-zinc-400">Predeterminado</span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: 'full_name', label: 'Nombre', icon: User, sample: fullName || 'Tu nombre' },
+                { id: 'dj_name', label: 'Alias DJ', icon: Disc, sample: djName || 'Tu alias' },
+                { id: 'role', label: 'Rol', icon: Crown, sample: role || 'Tu rol' },
+              ].map((opt) => {
+                const Icon = opt.icon;
+                const active = displayAs === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setDisplayAs(opt.id)}
+                    className={`p-2 rounded-xl border text-left transition-all ${
+                      active
+                        ? 'bg-cyan-500/20 border-cyan-400/60 text-white shadow-sm'
+                        : 'bg-white/[0.03] border-white/10 text-zinc-400 hover:bg-white/[0.07]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <Icon className={`w-3.5 h-3.5 ${active ? 'text-cyan-400' : 'text-zinc-500'}`} />
+                      <span className="text-[11px] font-bold">{opt.label}</span>
+                    </div>
+                    <span className="block text-[10px] text-zinc-400 truncate">
+                      {opt.sample}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="px-3 py-2 rounded-xl bg-dark-950/80 border border-white/5 flex items-center justify-between text-xs">
+              <span className="text-zinc-500 text-[11px]">Vista previa:</span>
+              <div className="text-right min-w-0">
+                <span className="font-bold text-white block truncate">{previewDisplay.displayName}</span>
+                {previewDisplay.subtitle && (
+                  <span className="text-[10px] text-zinc-400 block truncate">{previewDisplay.subtitle}</span>
+                )}
+              </div>
+            </div>
           </div>
 
           <div>

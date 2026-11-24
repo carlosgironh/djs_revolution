@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { X, Sparkles, Download, ExternalLink, RefreshCw } from 'lucide-react';
 import { attachMediaSource } from '../../lib/hlsHelper';
 import { downloadMediaFile, getCoverImageUrl, getDirectMediaUrl, getStreamingMediaUrl } from '../../lib/mediaUtils';
+import { getAuthorDisplay, resolvePostAuthor } from '../../lib/roleUtils';
 
 export function VideoLightboxModal({ post, isOpen, onClose }) {
   const videoRef = useRef(null);
@@ -84,7 +85,7 @@ export function VideoLightboxModal({ post, isOpen, onClose }) {
               {post.title}
             </h3>
             <span className="text-xs text-cyan-400 font-semibold truncate block">
-              {post.profiles?.dj_name || 'DJ'} • #{post.genre || 'Worship'}
+              {getAuthorDisplay(resolvePostAuthor(post), post.id).displayName} • #{post.genre || 'Worship'}
             </span>
           </div>
 

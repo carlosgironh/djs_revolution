@@ -3,10 +3,13 @@ import { Home, Music, Video, Users, FolderOpen, Bookmark, Heart, Settings, User,
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../common/Avatar';
 import { BRAND_LOGO_URL } from '../../lib/mediaUtils';
+import { getAuthorDisplay } from '../../lib/roleUtils';
 
 export function SidebarLeft({ activeTab, onTabChange, onOpenAuth, onOpenEditProfile, onOpenDonate, onOpenAdmin, mixesCount = 0, amenCount = 0 }) {
   const { currentUser, currentProfile, isSuperAdmin } = useAuth();
-  const djName = currentProfile?.dj_name || currentUser?.email?.split('@')[0] || 'DJ';
+  const djName = currentProfile
+    ? getAuthorDisplay(currentProfile).displayName
+    : (currentUser?.email?.split('@')[0] || 'DJ');
 
   return (
     <aside className="hidden md:flex flex-col gap-4 w-60 xl:w-64 flex-shrink-0 select-none">

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { usePanamaClock } from '../../hooks/usePanamaClock';
 import { Avatar } from '../common/Avatar';
 import { BRAND_LOGO_URL } from '../../lib/mediaUtils';
+import { getAuthorDisplay } from '../../lib/roleUtils';
 
 export function Navbar({ 
   activeTab, 
@@ -36,7 +37,9 @@ export function Navbar({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  const userName = currentProfile?.dj_name || currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'Usuario';
+  const userName = currentProfile
+    ? getAuthorDisplay(currentProfile).displayName
+    : (currentUser?.email?.split('@')[0] || 'Usuario');
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-dark-950/85 backdrop-blur-2xl transition-colors">

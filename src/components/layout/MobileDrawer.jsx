@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { usePanamaClock } from '../../hooks/usePanamaClock';
 import { Avatar } from '../common/Avatar';
 import { BRAND_LOGO_URL } from '../../lib/mediaUtils';
+import { getAuthorDisplay } from '../../lib/roleUtils';
 
 export function MobileDrawer({ 
   isOpen, 
@@ -24,7 +25,9 @@ export function MobileDrawer({
 
   if (!isOpen) return null;
 
-  const userName = currentProfile?.dj_name || currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'Usuario';
+  const userName = currentProfile
+    ? getAuthorDisplay(currentProfile).displayName
+    : (currentUser?.email?.split('@')[0] || 'Usuario');
 
   function handleNav(tab) {
     onTabChange(tab);

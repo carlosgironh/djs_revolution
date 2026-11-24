@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { usePlayer } from '../../context/PlayerContext';
 import { Avatar } from '../common/Avatar';
 import { getCoverImageUrl, getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
-import { getUserRoleFlags } from '../../lib/roleUtils';
+import { getAuthorDisplay, getUserRoleFlags, resolvePostAuthor } from '../../lib/roleUtils';
 
 export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwnProfile, onOpenVideo }) {
   const { currentUser } = useAuth();
@@ -15,7 +15,10 @@ export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwn
     if (!profile) {
       return { djPosts: [], audioPosts: [], videoPosts: [], photoPosts: [], totalAmen: 0 };
     }
-    const mine = posts.filter(p => p.author_id === profile.id);
+    const mine = posts.filter(p => {
+      const effective = resolvePostAuthor(p);
+      return (effective?.id || p.author_id) === profile.id;
+    });
     const audios = mine.filter(p => p.type === 'audio');
     const videos = mine.filter(p => p.type === 'video' || p.type === 'recurso');
     const photos = mine.filter(p => p.type === 'foto');
@@ -30,6 +33,7 @@ export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwn
 
   const isOwner = currentUser && currentUser.id === profile.id;
   const { isSuperAdmin } = getUserRoleFlags(profile);
+  const { displayName: profileDisplayName, subtitle: profileSubtitle } = getAuthorDisplay(profile);
 
   const socials = profile.socials || {};
 
@@ -72,14 +76,14 @@ export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwn
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left mb-5">
           <Avatar
             src={profile.avatar_url}
-            name={profile.dj_name}
+            name={profileDisplayName}
             size="2xl"
             isSuperAdmin={isSuperAdmin}
           />
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-center sm:justify-start gap-2 mb-1 flex-wrap">
               <h3 className="text-xl font-black text-white truncate">
-                {profile.dj_name}
+                {profileDisplayName}
               </h3>
               {isSuperAdmin && (
                 <span className="flex items-center gap-1 bg-amber-500/20 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
@@ -88,9 +92,11 @@ export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwn
               )}
             </div>
 
-            <span className="text-xs text-cyan-400 font-semibold block mb-2">
-              {profile.role || 'DJ de Worship 🕊️'}
-            </span>
+            {profileSubtitle && (
+              <span className="text-xs text-cyan-400 font-semibold block mb-2">
+                {profileSubtitle}
+              </span>
+            )}
 
             {profile.bio && (
               <p className="text-xs text-zinc-300 leading-relaxed mb-3">
@@ -267,7 +273,7 @@ export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwn
                         onClick={() => playTrack({
                           id: p.id,
                           title: p.title,
-                          artist: profile.dj_name,
+                          artist: getAuthorDisplay(profile, p.id).displayName,
                           coverUrl: cover,
                           audioUrl: getStreamingMediaUrl(p),
                           fileUrl: getDirectMediaUrl(p)
