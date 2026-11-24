@@ -1,3 +1,11 @@
 {
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "csharp-dev-tools.solutionViewer.selectedWorkspaceSolutions": [
+        "djs_revolution_mobile/build/windows/x64/djs_revolution_mobile.sln",
+        "djs_revolution_mobile/build/windows/x64/runner/runner.sln",
+        "djs_revolution_mobile/build/windows/x64/plugins/app_links/app_links.sln",
+        "djs_revolution_mobile/build/windows/x64/plugins/jni/jni.sln",
+        "djs_revolution_mobile/build/windows/x64/plugins/url_launcher_windows/url_launcher_windows.sln",
+        "djs_revolution_mobile/build/windows/x64/plugins/jni/shared/jni_library.sln"
+    ]
 }
