@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Search, Heart, Menu, Upload, LogIn, UserPlus, LogOut, Clock, X, Crown, Shield, Disc, ShieldCheck } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Search, Heart, Menu, Upload, LogIn, UserPlus, LogOut, X, Crown, Shield, Disc, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { usePanamaClock } from '../../hooks/usePanamaClock';
 import { Avatar } from '../common/Avatar';
+import { BRAND_LOGO_URL } from '../../lib/mediaUtils';
 
 export function Navbar({ 
   activeTab, 
@@ -18,6 +19,22 @@ export function Navbar({
   const { currentUser, currentProfile, isSuperAdmin, isModerator, isDJ, canUpload, signOut } = useAuth();
   const { time: panamaTime, localDiff } = usePanamaClock();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const desktopSearchRef = useRef(null);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (desktopSearchRef.current && desktopSearchRef.current.offsetParent !== null) {
+          desktopSearchRef.current.focus();
+        } else {
+          setMobileSearchOpen(true);
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const userName = currentProfile?.dj_name || currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'Usuario';
 
@@ -32,7 +49,7 @@ export function Navbar({
           title="DJ's Revolution - Inicio"
         >
           <img 
-            src="/logo_full.png?v=2.0.1" 
+            src={BRAND_LOGO_URL} 
             alt="DJ's Revolution Logo" 
             className="h-10 sm:h-11 w-auto max-w-[170px] sm:max-w-[210px] object-contain drop-shadow-[0_0_20px_rgba(0,186,253,0.35)] group-hover:scale-105 transition-all duration-300"
           />
@@ -42,6 +59,7 @@ export function Navbar({
         <div className="hidden md:flex flex-1 max-w-md mx-2 relative items-center">
           <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 pointer-events-none" />
           <input
+            ref={desktopSearchRef}
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}

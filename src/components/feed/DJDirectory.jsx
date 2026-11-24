@@ -1,9 +1,21 @@
-import React, { useState } from 'react';
-import { Users, Crown, Sparkles, Shield, Search, Music, Instagram, Facebook, Youtube, ExternalLink } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Users, Crown, Shield, Search, Music, Instagram, Facebook, Youtube } from 'lucide-react';
 import { Avatar } from '../common/Avatar';
+import { getUserRoleFlags } from '../../lib/roleUtils';
 
 export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
   const [filterQuery, setFilterQuery] = useState('');
+
+  const filtered = useMemo(() => {
+    if (!filterQuery.trim()) return djs;
+    const q = filterQuery.toLowerCase();
+    return djs.filter(dj =>
+      (dj.dj_name || '').toLowerCase().includes(q) ||
+      (dj.full_name || '').toLowerCase().includes(q) ||
+      (dj.role || '').toLowerCase().includes(q) ||
+      (dj.bio || '').toLowerCase().includes(q)
+    );
+  }, [djs, filterQuery]);
 
   if (loading) {
     return (
@@ -13,17 +25,6 @@ export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
       </div>
     );
   }
-
-  const filtered = djs.filter(dj => {
-    if (!filterQuery.trim()) return true;
-    const q = filterQuery.toLowerCase();
-    return (
-      (dj.dj_name || '').toLowerCase().includes(q) ||
-      (dj.full_name || '').toLowerCase().includes(q) ||
-      (dj.role || '').toLowerCase().includes(q) ||
-      (dj.bio || '').toLowerCase().includes(q)
-    );
-  });
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
@@ -75,17 +76,7 @@ export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
           {filtered.map((dj) => {
-            const isSuperAdmin = Boolean(
-              dj.is_super_admin || 
-              (dj.role && dj.role.toLowerCase().includes('admin')) ||
-              dj.username === 'carlosgironh'
-            );
-            const isModerator = Boolean(
-              !isSuperAdmin && (
-                dj.is_moderator || 
-                (dj.role && dj.role.toLowerCase().includes('moderador'))
-              )
-            );
+            const { isSuperAdmin, isModOnly: isModerator } = getUserRoleFlags(dj);
 
             const socials = dj.socials || {};
 

@@ -12,8 +12,8 @@ export default defineConfig({
         name: "DJ's Revolution 🕊️",
         short_name: "DJs Revolution",
         description: "Comunidad global de DJs y VJs Cristianos • Música de Adoración en Alta Definición",
-        theme_color: "#0a0a10",
-        background_color: "#0a0a10",
+        theme_color: "#070b14",
+        background_color: "#070b14",
         display: "standalone",
         orientation: "portrait",
         scope: "/",
@@ -39,6 +39,17 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-icons': ['lucide-react'],
+        }
+      }
+    }
+  },
   server: {
     port: 5173,
     host: true

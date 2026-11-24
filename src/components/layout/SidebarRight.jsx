@@ -1,11 +1,20 @@
-import React from 'react';
-import { Download, Radio, Flame, Play, Sparkles } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Download, Radio, Flame, Play, Pause, Sparkles } from 'lucide-react';
 import { usePlayer } from '../../context/PlayerContext';
-import { getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
+import { getCoverImageUrl, getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
 import { AdSenseBanner } from '../ads/AdSenseBanner';
 
 export function SidebarRight({ topPosts = [], onOpenVideo }) {
   const { playTrack, currentTrack, isPlaying } = usePlayer();
+
+  // Ordenar por descargas descendente sin mutar el prop
+  const rankedPosts = useMemo(
+    () => [...topPosts]
+      .filter(p => p.type === 'audio' || p.type === 'video')
+      .sort((a, b) => (b.downloads_count || 0) - (a.downloads_count || 0))
+      .slice(0, 4),
+    [topPosts]
+  );
 
   return (
     <aside className="hidden xl:flex flex-col gap-4 w-72 flex-shrink-0 select-none">
@@ -22,17 +31,15 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
           <span className="text-[10px] text-zinc-500 font-bold">Worship Charts</span>
         </div>
 
-        {topPosts.length === 0 ? (
+        {rankedPosts.length === 0 ? (
           <p className="text-xs text-zinc-500 py-4 text-center">
             Las pistas más bendecidas aparecerán aquí.
           </p>
         ) : (
           <div className="space-y-2">
-            {topPosts.slice(0, 4).map((post, idx) => {
+            {rankedPosts.map((post, idx) => {
               const isThisPlaying = currentTrack?.id === post.id && isPlaying;
-              const cover = post.cover_url || (post.mux_playback_id 
-                ? `https://image.mux.com/${post.mux_playback_id}/thumbnail.jpg` 
-                : 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=150&q=80');
+              const cover = getCoverImageUrl(post, 150);
 
               return (
                 <div
@@ -51,7 +58,11 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
                       onOpenVideo(post);
                     }
                   }}
-                  className="flex items-center gap-3 p-2 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-cyan-500/30 cursor-pointer transition-all group active:scale-95"
+                  className={`flex items-center gap-3 p-2 rounded-2xl border cursor-pointer transition-all group active:scale-95 ${
+                    isThisPlaying
+                      ? 'bg-cyan-500/15 border-cyan-500/40'
+                      : 'bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.05] hover:border-cyan-500/30'
+                  }`}
                 >
                   {/* Número del Ranking */}
                   <span className={`w-5 text-center font-black text-xs ${
@@ -65,10 +76,17 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
                     <img
                       src={cover}
                       alt={post.title}
+                      loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <Play className="w-4 h-4 text-white fill-white ml-0.5" />
+                    <div className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity ${
+                      isThisPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}>
+                      {isThisPlaying ? (
+                        <Pause className="w-4 h-4 text-cyan-300 fill-cyan-300" />
+                      ) : (
+                        <Play className="w-4 h-4 text-white fill-white ml-0.5" />
+                      )}
                     </div>
                   </div>
 

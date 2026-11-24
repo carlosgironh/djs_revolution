@@ -1,5 +1,19 @@
 import { supabase } from './supabase';
 
+export const BRAND_LOGO_URL = '/logo_full.png?v=2.1.0';
+const DEFAULT_COVER_BASE = 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80';
+
+/**
+ * Returns the best cover/thumbnail URL for a post with Mux and default fallbacks.
+ */
+export function getCoverImageUrl(post, width = 600) {
+  if (post?.cover_url) return post.cover_url;
+  if (post?.mux_playback_id) {
+    return `https://image.mux.com/${post.mux_playback_id}/thumbnail.jpg`;
+  }
+  return `${DEFAULT_COVER_BASE}&w=${width}`;
+}
+
 /**
  * Returns the best direct downloadable binary URL for a post
  * (Supabase Storage or direct MP4/MP3, NEVER an .m3u8 playlist)

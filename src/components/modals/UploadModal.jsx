@@ -1,10 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, CloudUpload, Loader2, Music, Video, Sparkles, CheckCircle2, FolderOpen, FileAudio, Camera, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase, MUX_SERVICE_URL } from '../../lib/supabase';
 
+function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
+}
+
 export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
-  const { currentUser, currentProfile } = useAuth();
+  const { currentUser } = useAuth();
 
   const [title, setTitle] = useState('');
   const [genre, setGenre] = useState('Worship');
@@ -18,6 +24,22 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
 
   const fileInputRef = useRef(null);
   const allFilesInputRef = useRef(null);
+  const previewUrlRef = useRef('');
+  const closeTimerRef = useRef(null);
+
+  const revokePreview = () => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = '';
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      revokePreview();
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
 
   if (!isOpen) return null;
 
@@ -92,11 +114,11 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         setStatusText("Conectando con servidores de streaming de alta velocidad...");
         setUploadProgress(30);
 
-        const edgeRes = await fetch(MUX_SERVICE_URL, {
+        const edgeRes = await fetchWithTimeout(MUX_SERVICE_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'create_upload' })
-        });
+        }, 15000);
 
         if (edgeRes.ok) {
           const edgeData = await edgeRes.json();
@@ -105,12 +127,12 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
             setStatusText("Subiendo archivo a DJ's Revolution...");
             setUploadProgress(50);
 
-            // Subir binario directo a Mux
-            const putRes = await fetch(edgeData.upload_url, {
+            // Subir binario directo a Mux (timeout amplio de 5 min para archivos pesados)
+            const putRes = await fetchWithTimeout(edgeData.upload_url, {
               method: 'PUT',
               headers: { 'Content-Type': file.type || 'application/octet-stream' },
               body: file
-            });
+            }, 300000);
 
             if (putRes.ok) {
               setUploadProgress(70);
@@ -121,7 +143,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
                 for (let attempt = 0; attempt < 4; attempt++) {
                   await new Promise(r => setTimeout(r, 1500));
                   try {
-                    const statusRes = await fetch(`${MUX_SERVICE_URL}?action=status&upload_id=${uploadId}`);
+                    const statusRes = await fetchWithTimeout(`${MUX_SERVICE_URL}?action=status&upload_id=${uploadId}`, {}, 10000);
                     if (statusRes.ok) {
                       const statusData = await statusRes.json();
                       if (statusData.asset_id) assetId = statusData.asset_id;
@@ -163,9 +185,12 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
       setUploadProgress(92);
       setStatusText("Registrando publicación en el Muro...");
 
-      // Determinar la URL final de reproducción
+      // Determinar la URL final de reproducción (nunca persistir blob: URL local en BD)
       const streamUrl = playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : null;
-      const finalMediaUrl = streamUrl || directFileUrl || (file ? URL.createObjectURL(file) : '');
+      const finalMediaUrl = streamUrl || directFileUrl || '';
+      if (!finalMediaUrl) {
+        throw new Error('No se pudo subir el archivo ni generar una URL de almacenamiento.');
+      }
 
       // 3. Insertar en tabla posts de Supabase
       const isVideo = fileType === 'video';
@@ -193,7 +218,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
       setUploadProgress(100);
       setStatusText("¡Publicación realizada con éxito! 🕊️");
       
-      setTimeout(() => {
+      closeTimerRef.current = setTimeout(() => {
         setUploading(false);
         onUploadSuccess();
         onClose();
@@ -208,17 +233,27 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
   function handleFileSelected(e) {
     const selected = e.target.files?.[0];
     if (selected) {
+      revokePreview();
       setFile(selected);
       if (!title.trim()) {
         const cleanName = selected.name.replace(/\.[^/.]+$/, "");
         setTitle(cleanName);
       }
       if (selected.type.startsWith('image/')) {
-        setImagePreview(URL.createObjectURL(selected));
+        const objUrl = URL.createObjectURL(selected);
+        previewUrlRef.current = objUrl;
+        setImagePreview(objUrl);
       } else {
         setImagePreview('');
       }
     }
+  }
+
+  function switchFileType(nextType) {
+    revokePreview();
+    setFileType(nextType);
+    setFile(null);
+    setImagePreview('');
   }
 
   return (
@@ -275,7 +310,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => { setFileType('audio'); setFile(null); setImagePreview(''); }}
+                onClick={() => switchFileType('audio')}
                 className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border transition-all ${
                   fileType === 'audio'
                     ? 'bg-blue-600/25 text-cyan-300 border-cyan-500/50 shadow-sm'
@@ -288,7 +323,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
 
               <button
                 type="button"
-                onClick={() => { setFileType('foto'); setFile(null); setImagePreview(''); }}
+                onClick={() => switchFileType('foto')}
                 className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border transition-all ${
                   fileType === 'foto'
                     ? 'bg-amber-600/25 text-amber-300 border-amber-500/50 shadow-sm'
@@ -301,7 +336,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }) {
 
               <button
                 type="button"
-                onClick={() => { setFileType('video'); setFile(null); setImagePreview(''); }}
+                onClick={() => switchFileType('video')}
                 className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border transition-all ${
                   fileType === 'video'
                     ? 'bg-rose-600/25 text-rose-300 border-rose-500/50 shadow-sm'

@@ -2,6 +2,7 @@ import React from 'react';
 import { Home, Music, Video, Users, FolderOpen, Bookmark, Heart, Settings, User, Crown, HandCoins, ShieldCheck, Camera } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../common/Avatar';
+import { BRAND_LOGO_URL } from '../../lib/mediaUtils';
 
 export function SidebarLeft({ activeTab, onTabChange, onOpenAuth, onOpenEditProfile, onOpenDonate, onOpenAdmin, mixesCount = 0, amenCount = 0 }) {
   const { currentUser, currentProfile, isSuperAdmin } = useAuth();
@@ -75,7 +76,7 @@ export function SidebarLeft({ activeTab, onTabChange, onOpenAuth, onOpenEditProf
         ) : (
           <div className="text-center py-2 px-1">
             <img 
-              src="/logo_full.png?v=2.0.1" 
+              src={BRAND_LOGO_URL} 
               alt="DJ's Revolution" 
               className="h-12 w-auto max-w-[170px] object-contain mx-auto mb-2 drop-shadow-[0_0_15px_rgba(0,186,253,0.35)]"
             />

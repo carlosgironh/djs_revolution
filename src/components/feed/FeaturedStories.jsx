@@ -1,13 +1,12 @@
-import React from 'react';
-import { Plus, Play, Sparkles, Disc, Radio, ChevronRight } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Plus, Play } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { usePlayer } from '../../context/PlayerContext';
 import { Avatar } from '../common/Avatar';
-import { getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
+import { getCoverImageUrl, getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
 
 export function FeaturedStories({ 
   posts = [], 
-  djs = [], 
   onOpenUpload, 
   onViewProfile,
   onOpenVideo 
@@ -16,9 +15,10 @@ export function FeaturedStories({
   const { playTrack, currentTrack, isPlaying } = usePlayer();
 
   // Tomamos los 6-8 mejores posts con portada para el carrusel de historias/descubrimiento
-  const featuredItems = posts
-    .filter(p => p.cover_url || p.mux_playback_id || p.type === 'audio' || p.type === 'video')
-    .slice(0, 8);
+  const featuredItems = useMemo(
+    () => posts.filter(p => p.cover_url || p.mux_playback_id || p.type === 'audio' || p.type === 'video').slice(0, 8),
+    [posts]
+  );
 
   const myAvatar = currentProfile?.avatar_url;
   const myName = currentProfile?.dj_name || currentUser?.email?.split('@')[0] || 'Tú';
@@ -80,9 +80,7 @@ export function FeaturedStories({
         {featuredItems.map((post) => {
           const author = post.profiles || { dj_name: 'DJ Oficial' };
           const isThisPlaying = currentTrack?.id === post.id && isPlaying;
-          const cover = post.cover_url || (post.mux_playback_id 
-            ? `https://image.mux.com/${post.mux_playback_id}/thumbnail.jpg` 
-            : 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=300&q=80');
+          const cover = getCoverImageUrl(post, 300);
 
           return (
             <div

@@ -1,26 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
 import { supabase } from './lib/supabase';
 import { useAuth } from './context/AuthContext';
 import { Navbar } from './components/layout/Navbar';
 import { BottomNav } from './components/layout/BottomNav';
-import { MobileDrawer } from './components/layout/MobileDrawer';
 import { SidebarLeft } from './components/layout/SidebarLeft';
 import { SidebarRight } from './components/layout/SidebarRight';
 import { FeaturedStories } from './components/feed/FeaturedStories';
 import { ChipsBar } from './components/feed/ChipsBar';
 import { CreatePostTrigger } from './components/feed/CreatePostTrigger';
 import { PostCard } from './components/feed/PostCard';
-import { DJDirectory } from './components/feed/DJDirectory';
 import { PersistentPlayer } from './components/player/PersistentPlayer';
-import { AuthModal } from './components/modals/AuthModal';
-import { UploadModal } from './components/modals/UploadModal';
-import { DonationModal } from './components/modals/DonationModal';
-import { EditProfileModal } from './components/modals/EditProfileModal';
-import { DJProfileModal } from './components/modals/DJProfileModal';
-import { VideoLightboxModal } from './components/modals/VideoLightboxModal';
-import { AdminUsersModal } from './components/modals/AdminUsersModal';
 import { AdSenseBanner } from './components/ads/AdSenseBanner';
-import { Disc, Sparkles } from 'lucide-react';
+import { Disc } from 'lucide-react';
+
+// Code splitting: vistas secundarias y modales se cargan bajo demanda
+const DJDirectory = lazy(() => import('./components/feed/DJDirectory').then(m => ({ default: m.DJDirectory })));
+const MobileDrawer = lazy(() => import('./components/layout/MobileDrawer').then(m => ({ default: m.MobileDrawer })));
+const AuthModal = lazy(() => import('./components/modals/AuthModal').then(m => ({ default: m.AuthModal })));
+const UploadModal = lazy(() => import('./components/modals/UploadModal').then(m => ({ default: m.UploadModal })));
+const DonationModal = lazy(() => import('./components/modals/DonationModal').then(m => ({ default: m.DonationModal })));
+const EditProfileModal = lazy(() => import('./components/modals/EditProfileModal').then(m => ({ default: m.EditProfileModal })));
+const DJProfileModal = lazy(() => import('./components/modals/DJProfileModal').then(m => ({ default: m.DJProfileModal })));
+const VideoLightboxModal = lazy(() => import('./components/modals/VideoLightboxModal').then(m => ({ default: m.VideoLightboxModal })));
+const AdminUsersModal = lazy(() => import('./components/modals/AdminUsersModal').then(m => ({ default: m.AdminUsersModal })));
+
+const TAB_TYPE_MAP = {
+  audios: 'audio',
+  videos: 'video',
+  fotos: 'foto',
+  recursos: 'recurso',
+};
 
 export function App() {
   const { currentUser, currentProfile } = useAuth();
@@ -55,7 +64,7 @@ export function App() {
   const [adminUsersModalOpen, setAdminUsersModalOpen] = useState(false);
 
   // Cargar Posts de Supabase
-  async function fetchPosts() {
+  const fetchPosts = useCallback(async () => {
     setLoadingPosts(true);
     try {
       const { data, error } = await supabase
@@ -78,10 +87,10 @@ export function App() {
     } finally {
       setLoadingPosts(false);
     }
-  }
+  }, []);
 
   // Cargar DJs
-  async function fetchDJs() {
+  const fetchDJs = useCallback(async () => {
     setLoadingDjs(true);
     try {
       const { data } = await supabase
@@ -94,27 +103,24 @@ export function App() {
     } finally {
       setLoadingDjs(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     fetchPosts();
     fetchDJs();
+  }, [fetchPosts, fetchDJs]);
+
+  const handleToggleSave = useCallback((postId) => {
+    setSavedPostIds((prev) => {
+      const exists = prev.includes(postId);
+      const next = exists ? prev.filter(id => id !== postId) : [...prev, postId];
+      localStorage.setItem('djs_revolution_saved', JSON.stringify(next));
+      alert(exists ? "Eliminado de guardados." : "¡Guardado en tus favoritos! 🕊️");
+      return next;
+    });
   }, []);
 
-  function handleToggleSave(postId) {
-    let next;
-    if (savedPostIds.includes(postId)) {
-      next = savedPostIds.filter(id => id !== postId);
-      alert("Eliminado de guardados.");
-    } else {
-      next = [...savedPostIds, postId];
-      alert("¡Guardado en tus favoritos! 🕊️");
-    }
-    setSavedPostIds(next);
-    localStorage.setItem('djs_revolution_saved', JSON.stringify(next));
-  }
-
-  async function handleViewProfile(profileId) {
+  const handleViewProfile = useCallback(async (profileId) => {
     if (!profileId) return;
     try {
       const { data } = await supabase
@@ -129,9 +135,9 @@ export function App() {
     } catch (e) {
       console.warn(e);
     }
-  }
+  }, []);
 
-  function handleTabChange(tab) {
+  const handleTabChange = useCallback((tab) => {
     setActiveTab(tab);
     if (tab === 'perfil') {
       if (currentProfile) {
@@ -142,39 +148,39 @@ export function App() {
         setAuthModalOpen(true);
       }
     }
-  }
+  }, [currentProfile]);
 
-  // Filtrado de posts
-  let filteredPosts = posts;
+  const filteredPosts = useMemo(() => {
+    let result = posts;
+    const expectedType = TAB_TYPE_MAP[activeTab];
+    if (expectedType) {
+      result = result.filter(p => p.type === expectedType);
+    } else if (activeTab === 'guardados') {
+      result = result.filter(p => savedPostIds.includes(p.id));
+    }
 
-  if (activeTab === 'audios') {
-    filteredPosts = filteredPosts.filter(p => p.type === 'audio');
-  } else if (activeTab === 'videos') {
-    filteredPosts = filteredPosts.filter(p => p.type === 'video');
-  } else if (activeTab === 'fotos') {
-    filteredPosts = filteredPosts.filter(p => p.type === 'foto');
-  } else if (activeTab === 'recursos') {
-    filteredPosts = filteredPosts.filter(p => p.type === 'recurso');
-  } else if (activeTab === 'guardados') {
-    filteredPosts = filteredPosts.filter(p => savedPostIds.includes(p.id));
-  }
-
-  if (searchQuery.trim()) {
-    const q = searchQuery.toLowerCase();
-    filteredPosts = filteredPosts.filter(p => 
-      (p.title || '').toLowerCase().includes(q) ||
-      (p.profiles?.dj_name || '').toLowerCase().includes(q) ||
-      (p.content || '').toLowerCase().includes(q) ||
-      (p.genre || '').toLowerCase().includes(q)
-    );
-  }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(p =>
+        (p.title || '').toLowerCase().includes(q) ||
+        (p.profiles?.dj_name || '').toLowerCase().includes(q) ||
+        (p.content || '').toLowerCase().includes(q) ||
+        (p.genre || '').toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [posts, activeTab, savedPostIds, searchQuery]);
 
   // Estadísticas del usuario actual
-  const myPosts = currentUser ? posts.filter(p => p.author_id === currentUser.id) : [];
-  let myAmenTotal = 0;
-  myPosts.forEach(p => {
-    myAmenTotal += (p.reactions || []).filter(r => r.reaction_type === 'amen').length;
-  });
+  const { mixesCount: myMixesCount, amenCount: myAmenTotal } = useMemo(() => {
+    if (!currentUser) return { mixesCount: 0, amenCount: 0 };
+    const mine = posts.filter(p => p.author_id === currentUser.id);
+    let amen = 0;
+    for (const p of mine) {
+      amen += (p.reactions || []).filter(r => r.reaction_type === 'amen').length;
+    }
+    return { mixesCount: mine.length, amenCount: amen };
+  }, [posts, currentUser]);
 
   return (
     <div className="min-h-screen flex flex-col bg-dark-950 text-zinc-100 selection:bg-cyan-500/30 selection:text-cyan-200">
@@ -203,7 +209,7 @@ export function App() {
           onOpenEditProfile={() => setEditProfileModalOpen(true)}
           onOpenDonate={() => setDonateModalOpen(true)}
           onOpenAdmin={() => setAdminUsersModalOpen(true)}
-          mixesCount={myPosts.length}
+          mixesCount={myMixesCount}
           amenCount={myAmenTotal}
         />
 
@@ -213,7 +219,6 @@ export function App() {
           {/* Carrusel de Descubrimiento e Historias (Estilo Red Social Moderna) */}
           <FeaturedStories
             posts={posts}
-            djs={djs}
             onOpenUpload={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
             onViewProfile={handleViewProfile}
             onOpenVideo={(p) => { setSelectedVideoPost(p); setVideoLightboxOpen(true); }}
@@ -233,11 +238,18 @@ export function App() {
 
           {/* Vistas según pestaña */}
           {activeTab === 'djs' ? (
-            <DJDirectory
-              djs={djs}
-              loading={loadingDjs}
-              onViewProfile={handleViewProfile}
-            />
+            <Suspense fallback={
+              <div className="glass-panel rounded-3xl p-12 text-center text-zinc-400 border-white/10">
+                <Disc className="w-9 h-9 mx-auto mb-3 animate-spin text-cyan-400" />
+                <p className="text-sm font-semibold">Cargando directorio...</p>
+              </div>
+            }>
+              <DJDirectory
+                djs={djs}
+                loading={loadingDjs}
+                onViewProfile={handleViewProfile}
+              />
+            </Suspense>
           ) : (
             <div>
               {loadingPosts ? (
@@ -307,66 +319,83 @@ export function App() {
       {/* 4. Reproductor Global Persistente */}
       <PersistentPlayer />
 
-      {/* 5. Cajón Lateral Móvil */}
-      <MobileDrawer
-        isOpen={mobileDrawerOpen}
-        onClose={() => setMobileDrawerOpen(false)}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        onOpenAuth={(t) => { setAuthModalTab(t); setAuthModalOpen(true); }}
-        onOpenEditProfile={() => setEditProfileModalOpen(true)}
-        onOpenUpload={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
-        onOpenDonate={() => setDonateModalOpen(true)}
-        onOpenAdmin={() => setAdminUsersModalOpen(true)}
-      />
+      {/* 5 y 6. Cajón Lateral Móvil y Modales (Lazy-loaded bajo demanda) */}
+      <Suspense fallback={null}>
+        {mobileDrawerOpen && (
+          <MobileDrawer
+            isOpen={mobileDrawerOpen}
+            onClose={() => setMobileDrawerOpen(false)}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            onOpenAuth={(t) => { setAuthModalTab(t); setAuthModalOpen(true); }}
+            onOpenEditProfile={() => setEditProfileModalOpen(true)}
+            onOpenUpload={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
+            onOpenDonate={() => setDonateModalOpen(true)}
+            onOpenAdmin={() => setAdminUsersModalOpen(true)}
+          />
+        )}
 
-      {/* 6. Modales */}
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        initialTab={authModalTab}
-      />
+        {authModalOpen && (
+          <AuthModal
+            isOpen={authModalOpen}
+            onClose={() => setAuthModalOpen(false)}
+            initialTab={authModalTab}
+          />
+        )}
 
-      <UploadModal
-        isOpen={uploadModalOpen}
-        onClose={() => setUploadModalOpen(false)}
-        onUploadSuccess={fetchPosts}
-      />
+        {uploadModalOpen && (
+          <UploadModal
+            isOpen={uploadModalOpen}
+            onClose={() => setUploadModalOpen(false)}
+            onUploadSuccess={fetchPosts}
+          />
+        )}
 
-      <DonationModal
-        isOpen={donateModalOpen}
-        onClose={() => setDonateModalOpen(false)}
-      />
+        {donateModalOpen && (
+          <DonationModal
+            isOpen={donateModalOpen}
+            onClose={() => setDonateModalOpen(false)}
+          />
+        )}
 
-      <EditProfileModal
-        isOpen={editProfileModalOpen}
-        onClose={() => setEditProfileModalOpen(false)}
-        onProfileUpdated={fetchPosts}
-      />
+        {editProfileModalOpen && (
+          <EditProfileModal
+            isOpen={editProfileModalOpen}
+            onClose={() => setEditProfileModalOpen(false)}
+            onProfileUpdated={fetchPosts}
+          />
+        )}
 
-      <DJProfileModal
-        profile={selectedDJProfile}
-        posts={posts}
-        isOpen={djProfileModalOpen}
-        onClose={() => setDjProfileModalOpen(false)}
-        onEditOwnProfile={() => setEditProfileModalOpen(true)}
-        onOpenVideo={(p) => { setSelectedVideoPost(p); setVideoLightboxOpen(true); }}
-      />
+        {djProfileModalOpen && (
+          <DJProfileModal
+            profile={selectedDJProfile}
+            posts={posts}
+            isOpen={djProfileModalOpen}
+            onClose={() => setDjProfileModalOpen(false)}
+            onEditOwnProfile={() => setEditProfileModalOpen(true)}
+            onOpenVideo={(p) => { setSelectedVideoPost(p); setVideoLightboxOpen(true); }}
+          />
+        )}
 
-      <VideoLightboxModal
-        post={selectedVideoPost}
-        isOpen={videoLightboxOpen}
-        onClose={() => setVideoLightboxOpen(false)}
-      />
+        {videoLightboxOpen && (
+          <VideoLightboxModal
+            post={selectedVideoPost}
+            isOpen={videoLightboxOpen}
+            onClose={() => setVideoLightboxOpen(false)}
+          />
+        )}
 
-      <AdminUsersModal
-        isOpen={adminUsersModalOpen}
-        onClose={() => setAdminUsersModalOpen(false)}
-        onUserRoleUpdated={() => {
-          fetchPosts();
-          fetchDJs();
-        }}
-      />
+        {adminUsersModalOpen && (
+          <AdminUsersModal
+            isOpen={adminUsersModalOpen}
+            onClose={() => setAdminUsersModalOpen(false)}
+            onUserRoleUpdated={() => {
+              fetchPosts();
+              fetchDJs();
+            }}
+          />
+        )}
+      </Suspense>
 
     </div>
   );

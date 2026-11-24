@@ -6,6 +6,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { usePanamaClock } from '../../hooks/usePanamaClock';
 import { Avatar } from '../common/Avatar';
+import { BRAND_LOGO_URL } from '../../lib/mediaUtils';
 
 export function MobileDrawer({ 
   isOpen, 
@@ -68,7 +69,7 @@ export function MobileDrawer({
           ) : (
             <div className="flex items-center gap-2.5">
               <img 
-                src="/logo_full.png?v=2.0.1" 
+                src={BRAND_LOGO_URL} 
                 alt="DJ's Revolution" 
                 className="h-10 w-auto max-w-[160px] object-contain drop-shadow-[0_0_10px_rgba(14,165,233,0.4)]"
               />

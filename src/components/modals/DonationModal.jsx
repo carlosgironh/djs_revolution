@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Heart, ShieldCheck, Sparkles, ExternalLink } from 'lucide-react';
 import { PAYPAL_HOSTED_BUTTON_ID } from '../../lib/supabase';
+import { BRAND_LOGO_URL } from '../../lib/mediaUtils';
 
 export function DonationModal({ isOpen, onClose }) {
   if (!isOpen) return null;
@@ -29,7 +30,7 @@ export function DonationModal({ isOpen, onClose }) {
         <div className="text-center mb-5">
           <div className="relative w-16 h-16 mx-auto mb-3">
             <img 
-              src="/logo_full.png?v=2.0.1" 
+              src={BRAND_LOGO_URL} 
               alt="DJ's Revolution" 
               className="h-16 w-auto max-w-[200px] object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.4)]"
             />

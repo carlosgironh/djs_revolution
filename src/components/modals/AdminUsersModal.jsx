@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { X, ShieldCheck, Users, Search, Crown, Shield, Disc, UserCheck, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { X, ShieldCheck, Search, Crown, Shield, Disc, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../common/Avatar';
+import { getUserRoleFlags } from '../../lib/roleUtils';
 
 export function AdminUsersModal({ isOpen, onClose, onUserRoleUpdated }) {
   const { isSuperAdmin, updateUserRole, currentUser } = useAuth();
@@ -36,6 +37,17 @@ export function AdminUsersModal({ isOpen, onClose, onUserRoleUpdated }) {
     }
   }, [isOpen, isSuperAdmin]);
 
+  const filteredUsers = useMemo(() => {
+    if (!search.trim()) return users;
+    const q = search.toLowerCase();
+    return users.filter(u =>
+      (u.dj_name || '').toLowerCase().includes(q) ||
+      (u.full_name || '').toLowerCase().includes(q) ||
+      (u.username || '').toLowerCase().includes(q) ||
+      (u.role || '').toLowerCase().includes(q)
+    );
+  }, [users, search]);
+
   if (!isOpen || !isSuperAdmin) return null;
 
   async function handleChangeRole(user, newRole) {
@@ -57,16 +69,6 @@ export function AdminUsersModal({ isOpen, onClose, onUserRoleUpdated }) {
       setUpdatingId(null);
     }
   }
-
-  const filteredUsers = users.filter(u => {
-    const q = search.toLowerCase();
-    return (
-      (u.dj_name || '').toLowerCase().includes(q) ||
-      (u.full_name || '').toLowerCase().includes(q) ||
-      (u.username || '').toLowerCase().includes(q) ||
-      (u.role || '').toLowerCase().includes(q)
-    );
-  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
@@ -132,19 +134,11 @@ export function AdminUsersModal({ isOpen, onClose, onUserRoleUpdated }) {
             </p>
           ) : (
             filteredUsers.map((u) => {
-              const isUserAdmin = Boolean(
-                u.is_super_admin || 
-                (u.role && u.role.toLowerCase().includes('admin')) ||
-                u.username === 'carlosgironh'
-              );
-              const isUserMod = Boolean(
-                u.is_moderator || 
-                (u.role && u.role.toLowerCase().includes('moderador'))
-              );
-              const isUserDJ = Boolean(
-                u.is_dj || 
-                (u.role && (u.role.toLowerCase().includes('dj') || u.role.toLowerCase().includes('creador')))
-              );
+              const {
+                isSuperAdmin: isUserAdmin,
+                isModerator: isUserMod,
+                isDJ: isUserDJ,
+              } = getUserRoleFlags(u);
 
               return (
                 <div

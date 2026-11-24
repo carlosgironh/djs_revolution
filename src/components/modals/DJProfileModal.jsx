@@ -1,33 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { X, Heart, Play, Crown, ExternalLink, Music, Video, Camera, Instagram, Facebook, Youtube, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { usePlayer } from '../../context/PlayerContext';
 import { Avatar } from '../common/Avatar';
-import { getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
+import { getCoverImageUrl, getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
+import { getUserRoleFlags } from '../../lib/roleUtils';
 
 export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwnProfile, onOpenVideo }) {
   const { currentUser } = useAuth();
   const { playTrack } = usePlayer();
   const [mediaTab, setMediaTab] = useState('mixes');
 
+  const { djPosts, audioPosts, videoPosts, photoPosts, totalAmen } = useMemo(() => {
+    if (!profile) {
+      return { djPosts: [], audioPosts: [], videoPosts: [], photoPosts: [], totalAmen: 0 };
+    }
+    const mine = posts.filter(p => p.author_id === profile.id);
+    const audios = mine.filter(p => p.type === 'audio');
+    const videos = mine.filter(p => p.type === 'video' || p.type === 'recurso');
+    const photos = mine.filter(p => p.type === 'foto');
+    let amen = 0;
+    for (const p of mine) {
+      amen += (p.reactions || []).filter(r => r.reaction_type === 'amen').length;
+    }
+    return { djPosts: mine, audioPosts: audios, videoPosts: videos, photoPosts: photos, totalAmen: amen };
+  }, [posts, profile]);
+
   if (!isOpen || !profile) return null;
 
   const isOwner = currentUser && currentUser.id === profile.id;
-  const isSuperAdmin = Boolean(
-    profile.is_super_admin || 
-    (profile.role && profile.role.includes('Super Admin')) ||
-    profile.username === 'carlosgironh'
-  );
-
-  const djPosts = posts.filter(p => p.author_id === profile.id);
-  const audioPosts = djPosts.filter(p => p.type === 'audio');
-  const videoPosts = djPosts.filter(p => p.type === 'video' || p.type === 'recurso');
-  const photoPosts = djPosts.filter(p => p.type === 'foto');
-  
-  let totalAmen = 0;
-  djPosts.forEach(p => {
-    totalAmen += (p.reactions || []).filter(r => r.reaction_type === 'amen').length;
-  });
+  const { isSuperAdmin } = getUserRoleFlags(profile);
 
   const socials = profile.socials || {};
 
@@ -243,7 +245,7 @@ export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwn
                 </p>
               ) : (
                 audioPosts.map(p => {
-                  const cover = p.cover_url || 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=400&q=80';
+                  const cover = getCoverImageUrl(p, 400);
                   const amenCount = (p.reactions || []).filter(r => r.reaction_type === 'amen').length;
 
                   return (
@@ -340,7 +342,7 @@ export function DJProfileModal({ profile, posts = [], isOpen, onClose, onEditOwn
               ) : (
                 <div className="grid grid-cols-2 gap-2">
                   {videoPosts.map(p => {
-                    const poster = p.cover_url || 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=400&q=80';
+                    const poster = getCoverImageUrl(p, 400);
                     return (
                       <div
                         key={p.id}

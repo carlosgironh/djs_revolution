@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Hls from 'hls.js';
 import { Play, Sparkles, Maximize2, RefreshCw } from 'lucide-react';
+import { attachMediaSource } from '../../lib/hlsHelper';
+import { getCoverImageUrl } from '../../lib/mediaUtils';
 
 export function InlineVideoPlayer({ 
   streamUrl, 
@@ -12,8 +13,6 @@ export function InlineVideoPlayer({
   onExpand
 }) {
   const videoRef = useRef(null);
-  const hlsRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
 
@@ -22,84 +21,26 @@ export function InlineVideoPlayer({
     : streamUrl;
 
   const effectivePoster = posterUrl || (playbackId
-    ? `https://image.mux.com/${playbackId}/thumbnail.jpg`
+    ? getCoverImageUrl({ mux_playback_id: playbackId })
     : '');
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !hasStarted) return;
 
-    if (hlsRef.current) {
-      hlsRef.current.destroy();
-      hlsRef.current = null;
-    }
-
-    const currentUrl = useFallback ? directUrl : (effectiveStreamUrl || directUrl);
-    if (!currentUrl) return;
-
-    if (currentUrl.includes('.m3u8')) {
-      if (Hls.isSupported()) {
-        const hls = new Hls({
-          enableWorker: true,
-          lowLatencyMode: true,
-          backBufferLength: 90,
-        });
-        hlsRef.current = hls;
-
-        hls.loadSource(currentUrl);
-        hls.attachMedia(video);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(() => {});
-        });
-
-        hls.on(Hls.Events.ERROR, (_, data) => {
-          if (data.fatal) {
-            console.warn("HLS Error en InlinePlayer:", data);
-            switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                hls.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                hls.recoverMediaError();
-                break;
-              default:
-                hls.destroy();
-                hlsRef.current = null;
-                if (directUrl && !useFallback) {
-                  setUseFallback(true);
-                }
-                break;
-            }
-          }
-        });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        // Soporte nativo de HLS (Safari iOS / macOS)
-        video.src = currentUrl;
-        video.play().catch(() => {});
-      } else if (directUrl) {
-        // Navegador sin HLS nativo -> directo MP4
-        video.src = directUrl;
-        video.play().catch(() => {});
-      }
-    } else {
-      // Archivo MP4 / WebM directo
-      video.src = currentUrl;
-      video.play().catch(() => {});
-    }
-
-    return () => {
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-        hlsRef.current = null;
-      }
-    };
+    return attachMediaSource({
+      mediaEl: video,
+      streamUrl: effectiveStreamUrl,
+      directUrl,
+      useFallback,
+      lowLatency: true,
+      onFallback: () => setUseFallback(true),
+    });
   }, [hasStarted, effectiveStreamUrl, directUrl, useFallback]);
 
   function handleStartPlay(e) {
     e.stopPropagation();
     setHasStarted(true);
-    setIsPlaying(true);
   }
 
   function handleVideoError() {
@@ -170,8 +111,6 @@ export function InlineVideoPlayer({
             playsInline
             onError={handleVideoError}
             className="w-full h-full object-contain bg-black"
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
           />
 
           {onExpand && (

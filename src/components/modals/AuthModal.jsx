@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, LogIn, UserPlus, Loader2, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { BRAND_LOGO_URL } from '../../lib/mediaUtils';
 
 export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
   const [tab, setTab] = useState(initialTab);
@@ -62,7 +63,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
         {/* Logo de DJ's Revolution */}
         <div className="flex flex-col items-center justify-center mb-4">
           <img 
-            src="/logo_full.png?v=2.0.1" 
+            src={BRAND_LOGO_URL} 
             alt="DJ's Revolution" 
             className="h-16 w-auto max-w-[200px] object-contain drop-shadow-[0_0_15px_rgba(14,165,233,0.45)]"
           />

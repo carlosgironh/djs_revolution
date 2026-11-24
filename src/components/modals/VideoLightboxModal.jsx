@@ -1,18 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Hls from 'hls.js';
 import { X, Sparkles, Download, ExternalLink, RefreshCw } from 'lucide-react';
-import { downloadMediaFile, getDirectMediaUrl, getStreamingMediaUrl } from '../../lib/mediaUtils';
+import { attachMediaSource } from '../../lib/hlsHelper';
+import { downloadMediaFile, getCoverImageUrl, getDirectMediaUrl, getStreamingMediaUrl } from '../../lib/mediaUtils';
 
 export function VideoLightboxModal({ post, isOpen, onClose }) {
   const videoRef = useRef(null);
-  const hlsRef = useRef(null);
   const [useFallback, setUseFallback] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
   const streamSrc = getStreamingMediaUrl(post);
   const directSrc = getDirectMediaUrl(post);
   const posterSrc = post?.cover_url || (post?.mux_playback_id
-    ? `https://image.mux.com/${post.mux_playback_id}/thumbnail.jpg`
+    ? getCoverImageUrl(post)
     : '');
 
   // Reset fallback state when opening another post
@@ -20,66 +19,34 @@ export function VideoLightboxModal({ post, isOpen, onClose }) {
     setUseFallback(false);
   }, [post?.id, isOpen]);
 
+  // Cerrar con tecla Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, onClose]);
+
   useEffect(() => {
     const video = videoRef.current;
-    if (!isOpen || !post || !video) return;
+    if (!isOpen || !post || !video || post.type === 'foto') return;
 
-    // Cleanup any existing HLS instance
-    if (hlsRef.current) {
-      hlsRef.current.destroy();
-      hlsRef.current = null;
-    }
-
-    const currentSource = useFallback ? directSrc : (streamSrc || directSrc);
-
-    if (currentSource && currentSource.includes('.m3u8')) {
-      if (Hls.isSupported()) {
-        const hls = new Hls({
-          enableWorker: true,
-          lowLatencyMode: true,
-          backBufferLength: 90
-        });
-        hlsRef.current = hls;
-
-        hls.loadSource(currentSource);
-        hls.attachMedia(video);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(() => {});
-        });
-
-        hls.on(Hls.Events.ERROR, (_, data) => {
-          if (data.fatal) {
-            console.warn("HLS fatal error in lightbox:", data);
-            hls.destroy();
-            hlsRef.current = null;
-            if (directSrc && !useFallback) {
-              setUseFallback(true);
-            }
-          }
-        });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = currentSource;
-        video.play().catch(() => {});
-      } else if (directSrc) {
-        video.src = directSrc;
-        video.play().catch(() => {});
-      }
-    } else if (currentSource) {
-      video.src = currentSource;
-      video.play().catch(() => {});
-    }
+    const cleanup = attachMediaSource({
+      mediaEl: video,
+      streamUrl: streamSrc,
+      directUrl: directSrc,
+      useFallback,
+      lowLatency: true,
+      onFallback: () => setUseFallback(true),
+    });
 
     return () => {
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-        hlsRef.current = null;
-      }
-      if (video) {
-        video.pause();
-      }
+      cleanup();
+      video.pause();
     };
-  }, [isOpen, post?.id, streamSrc, directSrc, useFallback]);
+  }, [isOpen, post?.id, post?.type, streamSrc, directSrc, useFallback]);
 
   if (!isOpen || !post) return null;
 

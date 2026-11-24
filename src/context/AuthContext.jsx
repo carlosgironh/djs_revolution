@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { getUserRoleFlags } from '../lib/roleUtils';
 
 const AuthContext = createContext({});
 
@@ -72,28 +73,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Jerarquía de Roles
-  const isSuperAdmin = Boolean(
-    currentProfile?.is_super_admin || 
-    (currentProfile?.role && currentProfile.role.toLowerCase().includes('admin')) ||
-    currentUser?.email === 'carlosgironh@gmail.com'
-  );
-
-  const isModerator = Boolean(
-    isSuperAdmin || 
-    currentProfile?.is_moderator || 
-    (currentProfile?.role && currentProfile.role.toLowerCase().includes('moderador'))
-  );
-
-  const isDJ = Boolean(
-    isSuperAdmin || 
-    isModerator || 
-    currentProfile?.is_dj || 
-    (currentProfile?.role && (
-      currentProfile.role.toLowerCase().includes('dj') || 
-      currentProfile.role.toLowerCase().includes('creador') ||
-      currentProfile.role.toLowerCase().includes('vj')
-    ))
-  );
+  const { isSuperAdmin, isModerator, isDJ } = getUserRoleFlags(currentProfile, currentUser?.email);
 
   // Permisos derivados
   const canUpload = isDJ || isModerator || isSuperAdmin;

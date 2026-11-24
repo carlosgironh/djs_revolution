@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { 
   Play, Pause, Download, MessageSquare, Bookmark, Share2, 
-  Heart, Send, Crown, Check, Sparkles, Trash2, Shield, Camera, Maximize2, Disc 
+  Heart, Send, Crown, Check, Sparkles, Trash2, Shield, Camera, Maximize2 
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { useAuth } from '../../context/AuthContext';
 import { usePlayer } from '../../context/PlayerContext';
 import { formatPanamaTimestamp } from '../../lib/panamaTime';
 import { supabase } from '../../lib/supabase';
 import { Avatar } from '../common/Avatar';
 import { InlineVideoPlayer } from '../common/InlineVideoPlayer';
-import { downloadMediaFile, getDirectMediaUrl, getStreamingMediaUrl } from '../../lib/mediaUtils';
+import { downloadMediaFile, getCoverImageUrl, getDirectMediaUrl, getStreamingMediaUrl } from '../../lib/mediaUtils';
+import { getUserRoleFlags } from '../../lib/roleUtils';
 
 export function PostCard({ 
   post, 
@@ -36,17 +36,7 @@ export function PostCard({
   }
 
   const author = post.profiles || { dj_name: 'DJ Creador', role: 'DJ de Worship 🕊️' };
-  const isAuthorAdmin = Boolean(
-    author.is_super_admin || 
-    (author.role && author.role.toLowerCase().includes('admin')) ||
-    author.username === 'carlosgironh'
-  );
-  const isAuthorMod = Boolean(
-    !isAuthorAdmin && (
-      author.is_moderator || 
-      (author.role && author.role.toLowerCase().includes('moderador'))
-    )
-  );
+  const { isSuperAdmin: isAuthorAdmin, isModOnly: isAuthorMod } = getUserRoleFlags(author);
 
   const canDeletePost = currentUser && (
     canModerate || 
@@ -106,12 +96,14 @@ export function PostCard({
           reaction_type: type
         });
         if (type === 'amen' || type === 'bendicion') {
-          confetti({
-            particleCount: 28,
-            spread: 60,
-            origin: { y: 0.8 },
-            colors: ['#00bafd', '#0064c1', '#f59e0b', '#ffffff']
-          });
+          import('canvas-confetti').then(({ default: confetti }) => {
+            confetti({
+              particleCount: 28,
+              spread: 60,
+              origin: { y: 0.8 },
+              colors: ['#00bafd', '#0064c1', '#f59e0b', '#ffffff']
+            });
+          }).catch(() => {});
         }
       }
       onRefresh();
@@ -158,9 +150,7 @@ export function PostCard({
   }
 
   // Cover image fallback
-  const coverUrl = post.cover_url || (post.mux_playback_id 
-    ? `https://image.mux.com/${post.mux_playback_id}/thumbnail.jpg` 
-    : 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80');
+  const coverUrl = getCoverImageUrl(post, 600);
 
   return (
     <article className="glass-panel rounded-3xl p-4 sm:p-5 mb-5 border-white/[0.08] hover:border-cyan-500/30 transition-all duration-300 shadow-xl shadow-black/40">
