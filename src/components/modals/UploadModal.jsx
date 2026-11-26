@@ -10,13 +10,20 @@ function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
   return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
 }
 
-export function UploadModal({ isOpen, onClose, onUploadSuccess, djs = [] }) {
+export function UploadModal({
+  isOpen,
+  onClose,
+  onUploadSuccess,
+  djs = [],
+  initialFileType = 'audio',
+  initialDescription = '',
+}) {
   const { currentUser, currentProfile, isSuperAdmin, updateProfile } = useAuth();
 
   const [title, setTitle] = useState('');
   const [genre, setGenre] = useState('Worship');
-  const [description, setDescription] = useState('');
-  const [fileType, setFileType] = useState('audio'); // 'audio' | 'video' | 'foto'
+  const [description, setDescription] = useState(initialDescription || '');
+  const [fileType, setFileType] = useState(initialFileType || 'audio'); // 'audio' | 'video' | 'foto'
   const [postDisplayMode, setPostDisplayMode] = useState(currentProfile?.socials?.display_as || 'dj_name');
   // Super Admin: 'self' | 'registered' | 'guest'
   const [publishAsType, setPublishAsType] = useState('self');
@@ -51,8 +58,10 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess, djs = [] }) {
       setGuestDjName('');
       setGuestDjRole('DJ / VJ Invitado 🎧');
       setPostDisplayMode(currentProfile?.socials?.display_as || 'dj_name');
+      setFileType(initialFileType || 'audio');
+      setDescription(initialDescription || '');
     }
-  }, [currentProfile?.socials?.display_as, isOpen]);
+  }, [currentProfile?.socials?.display_as, isOpen, initialFileType, initialDescription]);
 
   useEffect(() => {
     if (publishAsType === 'registered' && selectedTargetDj) {

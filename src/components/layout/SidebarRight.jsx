@@ -1,14 +1,17 @@
 import React, { useMemo } from 'react';
-import { Download, Radio, Flame, Play, Pause, Sparkles } from 'lucide-react';
+import { Radio, Flame, Play, Pause, ArrowUpRight, Check, Clock, Wifi } from 'lucide-react';
 import { usePlayer } from '../../context/PlayerContext';
+import { useToast } from '../../context/ToastContext';
+import { usePanamaClock } from '../../hooks/usePanamaClock';
 import { getCoverImageUrl, getStreamingMediaUrl, getDirectMediaUrl } from '../../lib/mediaUtils';
 import { getAuthorDisplay, resolvePostAuthor } from '../../lib/roleUtils';
 import { AdSenseBanner } from '../ads/AdSenseBanner';
 
 export function SidebarRight({ topPosts = [], onOpenVideo }) {
   const { playTrack, currentTrack, isPlaying } = usePlayer();
+  const { showToast } = useToast();
+  const { time: panamaTime } = usePanamaClock();
 
-  // Ordenar por descargas descendente sin mutar el prop
   const rankedPosts = useMemo(
     () => [...topPosts]
       .filter(p => p.type === 'audio' || p.type === 'video')
@@ -17,31 +20,61 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
     [topPosts]
   );
 
+  const firstAudioPost = useMemo(
+    () => rankedPosts.find(p => p.type === 'audio') || topPosts.find(p => p.type === 'audio'),
+    [rankedPosts, topPosts]
+  );
+
+  function handleListenLive() {
+    if (firstAudioPost) {
+      const cover = getCoverImageUrl(firstAudioPost, 150);
+      const artistName = getAuthorDisplay(resolvePostAuthor(firstAudioPost), firstAudioPost.id).displayName;
+      playTrack({
+        id: firstAudioPost.id,
+        title: firstAudioPost.title,
+        artist: artistName,
+        coverUrl: cover,
+        audioUrl: getStreamingMediaUrl(firstAudioPost),
+        fileUrl: getDirectMediaUrl(firstAudioPost),
+      });
+      showToast('Sintonizando Cabina Global 🎧', firstAudioPost.title);
+    } else if (rankedPosts[0]) {
+      onOpenVideo?.(rankedPosts[0]);
+    } else {
+      showToast('Cabina Global PTY', 'Sintoniza las sesiones en vivo de la comunidad.');
+    }
+  }
+
   return (
-    <aside className="hidden xl:flex flex-col gap-4 w-72 flex-shrink-0 select-none">
+    <aside className="hidden xl:flex flex-col gap-[18px] w-[322px] flex-shrink-0 sticky top-[86px] select-none">
       
-      {/* 1. Mixes Más Descargados (Ranking Editorial) */}
-      <div className="glass-panel rounded-3xl p-4 border-white/[0.08] shadow-lg">
-        <div className="flex items-center justify-between mb-3.5">
-          <div className="flex items-center gap-2">
-            <Flame className="w-4 h-4 text-amber-400" />
-            <h4 className="text-xs font-black uppercase tracking-wider text-white">
-              Top Descargas
-            </h4>
-          </div>
-          <span className="text-[10px] text-zinc-500 font-bold">Worship Charts</span>
+      {/* 1. Top Descargas (Worship Charts) */}
+      <div className="rounded-[20px] border border-white/[0.09] bg-white/[0.04] backdrop-blur-xl p-[18px]">
+        <div className="flex items-center gap-2 mb-3.5">
+          <Flame className="w-3.5 h-3.5 text-[#fbbf24]" />
+          <h4 className="text-[10.5px] tracking-[2px] text-[#5b6180] uppercase font-bold">
+            Top Descargas · <span className="text-[#8f96b3] tracking-normal normal-case font-semibold">Worship Charts</span>
+          </h4>
         </div>
 
         {rankedPosts.length === 0 ? (
-          <p className="text-xs text-zinc-500 py-4 text-center">
+          <p className="text-xs text-[#8f96b3] py-4 text-center">
             Las pistas más bendecidas aparecerán aquí.
           </p>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1">
             {rankedPosts.map((post, idx) => {
               const isThisPlaying = currentTrack?.id === post.id && isPlaying;
               const cover = getCoverImageUrl(post, 150);
               const artistName = getAuthorDisplay(resolvePostAuthor(post), post.id).displayName;
+
+              const rankStyle = idx === 0
+                ? 'bg-gradient-to-br from-[#fde68a] to-[#fbbf24] text-[#241a02]'
+                : idx === 1
+                ? 'bg-gradient-to-br from-gray-200 to-gray-400 text-gray-900'
+                : idx === 2
+                ? 'bg-gradient-to-br from-orange-300 to-orange-600 text-[#2a1002]'
+                : 'bg-white/[0.08] text-[#8f96b3]';
 
               return (
                 <div
@@ -60,51 +93,26 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
                       onOpenVideo(post);
                     }
                   }}
-                  className={`flex items-center gap-3 p-2 rounded-2xl border cursor-pointer transition-all group active:scale-95 ${
+                  className={`flex items-center gap-3 p-2.5 rounded-[14px] cursor-pointer transition-all group ${
                     isThisPlaying
-                      ? 'bg-cyan-500/15 border-cyan-500/40'
-                      : 'bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.05] hover:border-cyan-500/30'
+                      ? 'bg-violet-500/15 border border-violet-400/35'
+                      : 'hover:bg-white/[0.07] border border-transparent'
                   }`}
                 >
-                  {/* Número del Ranking */}
-                  <span className={`w-5 text-center font-black text-xs ${
-                    idx === 0 ? 'text-amber-400' : idx === 1 ? 'text-cyan-400' : 'text-zinc-500'
-                  }`}>
-                    #{idx + 1}
-                  </span>
-
-                  {/* Thumbnail de Portada */}
-                  <div className="relative w-11 h-11 rounded-xl overflow-hidden flex-shrink-0 bg-dark-900 border border-white/10">
-                    <img
-                      src={cover}
-                      alt={post.title}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity ${
-                      isThisPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                    }`}>
-                      {isThisPlaying ? (
-                        <Pause className="w-4 h-4 text-cyan-300 fill-cyan-300" />
-                      ) : (
-                        <Play className="w-4 h-4 text-white fill-white ml-0.5" />
-                      )}
-                    </div>
+                  <div className={`w-[30px] h-[30px] flex-none rounded-[10px] grid place-items-center font-extrabold text-xs ${rankStyle}`}>
+                    {isThisPlaying ? <Pause className="w-3.5 h-3.5 fill-current" /> : `#${idx + 1}`}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h5 className="text-xs font-bold text-white truncate group-hover:text-cyan-300 transition-colors">
+                    <b className="block text-[12.5px] font-bold text-[#f2f4fc] truncate group-hover:text-white">
                       {post.title}
-                    </h5>
-                    <div className="flex items-center gap-2 text-[10px] text-zinc-400 mt-0.5">
-                      <span className="truncate">{artistName}</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-0.5 text-cyan-400 font-semibold">
-                        <Download className="w-2.5 h-2.5" />
-                        {post.downloads_count || 0}
-                      </span>
-                    </div>
+                    </b>
+                    <small className="block text-[10.5px] text-[#5b6180] truncate">
+                      {artistName} · ⬇ {post.downloads_count || 0}
+                    </small>
                   </div>
+
+                  <ArrowUpRight className="w-4 h-4 text-[#5b6180] group-hover:text-[#22d3ee] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all flex-shrink-0" />
                 </div>
               );
             })}
@@ -112,56 +120,66 @@ export function SidebarRight({ topPosts = [], onOpenVideo }) {
         )}
       </div>
 
-      {/* 2. Cabina de Transmisión en Vivo (Horario Oficial de Panamá) */}
-      <div className="glass-panel rounded-3xl p-4 border-cyan-500/20 bg-gradient-to-b from-cyan-950/30 to-dark-900/60 shadow-lg">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-            </span>
-            <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Radio className="w-3.5 h-3.5" /> Cabina Global PTY
-            </h4>
-          </div>
+      {/* 2. Cabina Global PTY */}
+      <div className="rounded-[20px] border border-white/[0.09] bg-white/[0.04] backdrop-blur-xl p-[18px]">
+        <h4 className="text-[10.5px] tracking-[2px] text-[#5b6180] uppercase font-bold flex items-center gap-2 mb-3">
+          <Radio className="w-3.5 h-3.5 text-[#22d3ee]" />
+          <span>Cabina Global PTY</span>
+        </h4>
 
-          {/* Animación del Ecualizador */}
-          <div className="flex items-end gap-0.5 h-4">
-            <span className="w-0.5 bg-cyan-400 rounded-full animate-equalizer-1" />
-            <span className="w-0.5 bg-cyan-400 rounded-full animate-equalizer-2" />
-            <span className="w-0.5 bg-cyan-400 rounded-full animate-equalizer-3" />
-            <span className="w-0.5 bg-cyan-400 rounded-full animate-equalizer-4" />
-          </div>
+        <div className="flex items-end gap-1 h-[30px] mb-3">
+          {[0, 0.12, 0.24, 0.06, 0.3, 0.18, 0.36, 0.09].map((delay, i) => (
+            <span
+              key={i}
+              style={{ animation: `bar-bounce 1.1s ease-in-out infinite ${delay}s` }}
+              className="flex-1 rounded-[3px] bg-gradient-to-b from-[#22d3ee] to-[#8b5cf6]"
+            />
+          ))}
         </div>
 
-        <p className="text-xs text-zinc-300 leading-relaxed mb-3 font-normal">
+        <p className="text-xs text-[#8f96b3] leading-relaxed mb-3 font-normal">
           Sesiones de adoración en vivo y ministración con sets de DJs internacionales.
         </p>
 
-        <div className="p-2.5 rounded-2xl bg-dark-950/70 border border-white/10 text-center space-y-1 shadow-inner">
-          <span className="text-[9.5px] uppercase font-bold text-zinc-400 block tracking-wider">
-            Sincronización de Horario
-          </span>
-          <span className="text-xs font-mono font-bold text-cyan-300">
-            🇵🇦 Hora Oficial de Panamá (GMT-5)
-          </span>
-        </div>
+        <button
+          type="button"
+          onClick={handleListenLive}
+          className="w-full py-2.5 rounded-xl border border-cyan-400/45 bg-cyan-400/[0.08] hover:bg-cyan-400/[0.16] text-[#22d3ee] font-bold text-xs flex items-center justify-center gap-2 transition-all hover:shadow-[0_8px_20px_rgba(34,211,238,0.2)] active:scale-95"
+        >
+          <Play className="w-3.5 h-3.5 fill-current" />
+          <span>Escuchar en vivo</span>
+        </button>
       </div>
 
-      {/* 3. Calidad de Sonido HD */}
-      <div className="glass-panel rounded-3xl p-3.5 flex items-center gap-3 border-white/[0.08]">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 p-0.5 shadow-md flex-shrink-0">
-          <div className="w-full h-full rounded-[14px] bg-dark-950 flex items-center justify-center text-cyan-400">
-            <Sparkles className="w-5 h-5" />
-          </div>
+      {/* 3. Hora Oficial de Panamá */}
+      <div className="rounded-[20px] border border-white/[0.09] bg-white/[0.04] backdrop-blur-xl p-[18px] text-center">
+        <h4 className="text-[10.5px] tracking-[2px] text-[#5b6180] uppercase font-bold flex items-center justify-center gap-2 mb-2">
+          <Clock className="w-3.5 h-3.5 text-[#c4b5fd]" />
+          <span>Hora Oficial de Panamá</span>
+        </h4>
+        <div className="text-[28px] font-extrabold text-[#f2f4fc] tabular-nums tracking-tight my-1">
+          {panamaTime}
+        </div>
+        <span className="inline-flex items-center gap-1.5 text-[10.5px] text-[#34d399] border border-emerald-400/35 bg-emerald-400/[0.08] px-3 py-1 rounded-full font-bold">
+          <Check className="w-3 h-3 stroke-[2.8]" />
+          Sincronizado · GMT-5
+        </span>
+      </div>
+
+      {/* 4. Streaming HD sin Pérdida */}
+      <div className="rounded-[20px] border border-white/[0.09] bg-white/[0.04] backdrop-blur-xl p-[18px] flex items-start gap-3.5">
+        <div className="w-[42px] h-[42px] flex-none rounded-[13px] grid place-items-center text-white bg-gradient-to-br from-[#22d3ee] to-[#3b82f6] shadow-glow-cyan">
+          <Wifi className="w-5 h-5" />
         </div>
         <div>
-          <h5 className="text-xs font-bold text-white">Streaming HD sin Pérdida</h5>
-          <p className="text-[11px] text-zinc-400 leading-snug">Audio y video optimizados para iglesias y eventos.</p>
+          <b className="text-[13px] font-bold text-[#f2f4fc] block mb-0.5">Streaming HD sin Pérdida</b>
+          <p className="text-[11.5px] text-[#8f96b3] leading-relaxed">
+            Audio y video optimizados para iglesias y eventos.
+          </p>
         </div>
       </div>
 
-      {/* 4. Espacio Publicitario AdSense */}
+      {/* 5. Espacio Publicitario AdSense */}
       <AdSenseBanner />
 
     </aside>

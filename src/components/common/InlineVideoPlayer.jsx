@@ -74,15 +74,15 @@ export function InlineVideoPlayer({
           {/* Botón Central de Play */}
           <button
             type="button"
-            className="w-16 h-16 rounded-full bg-rose-600/90 hover:bg-rose-500 text-white flex items-center justify-center shadow-2xl shadow-rose-600/50 group-hover:scale-110 active:scale-95 transition-all duration-300 z-10"
+            className="w-16 h-16 rounded-full bg-gradient-to-br from-[#8b5cf6] to-[#3b82f6] hover:from-[#a78bfa] hover:to-[#22d3ee] text-white flex items-center justify-center shadow-glow-violet border border-white/25 group-hover:scale-110 active:scale-95 transition-all duration-300 z-10"
             aria-label="Reproducir video inline"
           >
             <Play className="w-7 h-7 fill-white ml-1" />
           </button>
 
           {/* Badge */}
-          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-[10px] font-bold text-rose-300 z-10">
-            <Sparkles className="w-3 h-3 text-rose-400" />
+          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#070b16]/80 backdrop-blur-md border border-violet-400/30 text-[10px] font-bold text-[#c4b5fd] z-10">
+            <Sparkles className="w-3 h-3 text-[#22d3ee]" />
             <span>{badge}</span>
           </div>
 

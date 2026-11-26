@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { usePlayer } from '../../context/PlayerContext';
+import { useToast } from '../../context/ToastContext';
 import { formatPanamaTimestamp } from '../../lib/panamaTime';
 import { supabase } from '../../lib/supabase';
 import { Avatar } from '../common/Avatar';
@@ -24,10 +25,12 @@ export function PostCard({
 }) {
   const { currentUser, currentProfile, isSuperAdmin, canModerate, updateProfile } = useAuth();
   const { currentTrack, isPlaying, playTrack } = usePlayer();
+  const { showToast } = useToast();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [commenting, setCommenting] = useState(false);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
+  const [floatingEmojis, setFloatingEmojis] = useState([]);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showIdentityMenu, setShowIdentityMenu] = useState(false);
   const [savingIdentity, setSavingIdentity] = useState(false);
@@ -213,6 +216,15 @@ export function PostCard({
 
   const comments = post.comments || [];
 
+  function triggerReactionBurst(type) {
+    const emojiMap = { amen: '🙏', bendicion: '✨', like: '❤️' };
+    const id = `${Date.now()}-${Math.random()}`;
+    setFloatingEmojis((prev) => [...prev, { id, type, emoji: emojiMap[type] || '✨' }]);
+    setTimeout(() => {
+      setFloatingEmojis((prev) => prev.filter((item) => item.id !== id));
+    }, 950);
+  }
+
   async function handleReaction(type) {
     if (!currentUser) {
       onOpenAuth('login');
@@ -224,6 +236,7 @@ export function PostCard({
       if (existing) {
         await supabase.from('reactions').delete().eq('id', existing.id);
       } else {
+        triggerReactionBurst(type);
         await supabase.from('reactions').insert({
           post_id: post.id,
           user_id: currentUser.id,
@@ -235,7 +248,7 @@ export function PostCard({
               particleCount: 28,
               spread: 60,
               origin: { y: 0.8 },
-              colors: ['#00bafd', '#0064c1', '#f59e0b', '#ffffff']
+              colors: ['#8b5cf6', '#22d3ee', '#fbbf24', '#ffffff']
             });
           }).catch(() => {});
         }
@@ -279,6 +292,7 @@ export function PostCard({
     if (navigator.clipboard) {
       navigator.clipboard.writeText(`${window.location.origin}/#post-${post.id}`);
       setCopiedLink(true);
+      showToast('Enlace copiado al portapapeles 🔗', 'Comparte esta bendición con tu comunidad');
       setTimeout(() => setCopiedLink(false), 2500);
     }
   }
@@ -287,7 +301,7 @@ export function PostCard({
   const coverUrl = getCoverImageUrl(post, 600);
 
   return (
-    <article className="glass-panel rounded-3xl p-4 sm:p-5 mb-5 border-white/[0.08] hover:border-cyan-500/30 transition-all duration-300 shadow-xl shadow-black/40">
+    <article className="glass-card rounded-[20px] p-4 sm:p-[22px] mb-[18px] relative transition-all duration-300 shadow-[0_14px_40px_rgba(0,0,0,0.45)]">
       
       {/* 1. Cabecera del Post: Autor, Rol, Hora Oficial PTY */}
       <div className="flex items-center justify-between gap-3 mb-3.5">
@@ -301,10 +315,10 @@ export function PostCard({
               name={authorDisplayName}
               size="md"
               isSuperAdmin={isAuthorAdmin}
-              className="group-hover:ring-2 group-hover:ring-cyan-400 transition-all"
+              className="group-hover:ring-2 group-hover:ring-[#22d3ee] transition-all"
             />
             {isThisAudioPlaying && (
-              <span className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-cyan-500 ring-2 ring-dark-950">
+              <span className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#22d3ee] ring-2 ring-[#070b16]">
                 <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping" />
               </span>
             )}
@@ -312,21 +326,21 @@ export function PostCard({
 
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <h4 className="font-bold text-sm sm:text-base text-white group-hover:text-cyan-400 transition-colors truncate">
+              <h4 className="font-bold text-sm sm:text-[15.5px] text-white group-hover:text-[#c4b5fd] transition-colors truncate">
                 {authorDisplayName}
               </h4>
               {isAuthorAdmin ? (
-                <span className="flex items-center gap-0.5 bg-amber-500/20 text-amber-300 text-[9.5px] font-black px-1.5 py-0.5 rounded-md border border-amber-500/30 flex-shrink-0">
-                  <Crown className="w-2.5 h-2.5" /> ADMIN
+                <span className="flex items-center gap-0.5 bg-amber-400/15 text-[#fde68a] text-[9.5px] font-black px-1.5 py-0.5 rounded-md border border-amber-400/35 flex-shrink-0">
+                  <Crown className="w-2.5 h-2.5 text-[#fbbf24]" /> ADMIN
                 </span>
               ) : isAuthorMod ? (
-                <span className="flex items-center gap-0.5 bg-purple-500/20 text-purple-300 text-[9.5px] font-bold px-1.5 py-0.5 rounded-md border border-purple-500/30 flex-shrink-0">
+                <span className="flex items-center gap-0.5 bg-violet-500/20 text-[#c4b5fd] text-[9.5px] font-bold px-1.5 py-0.5 rounded-md border border-violet-500/35 flex-shrink-0">
                   <Shield className="w-2.5 h-2.5" /> MOD
                 </span>
               ) : null}
             </div>
             {authorSubtitle && (
-              <p className="text-[11px] sm:text-xs text-zinc-400 truncate">
+              <p className="text-[11px] sm:text-xs text-[#94a3b8] truncate">
                 {authorSubtitle}
               </p>
             )}
@@ -339,10 +353,10 @@ export function PostCard({
             className="text-right cursor-help select-none"
             title={timeInfo.fullTooltip}
           >
-            <span className="text-[11px] font-medium text-zinc-400 block leading-tight">
+            <span className="text-[11px] font-medium text-[#94a3b8] block leading-tight">
               {timeInfo.relative}
             </span>
-            <span className="text-[9.5px] font-mono text-cyan-400 font-semibold bg-cyan-950/50 px-1.5 py-0.5 rounded border border-cyan-500/20 inline-block mt-0.5">
+            <span className="text-[9.5px] font-mono text-[#67e8f9] font-semibold bg-cyan-500/10 px-1.5 py-0.5 rounded-md border border-cyan-400/20 inline-block mt-0.5">
               {timeInfo.panamaTime} PTY
             </span>
           </div>
@@ -440,22 +454,22 @@ export function PostCard({
       {/* 2. Título & Descripción */}
       <div className="mb-3.5">
         <div className="flex items-start justify-between gap-2 mb-1.5">
-          <h3 className="font-extrabold text-base sm:text-lg text-white leading-snug">
+          <h3 className="font-extrabold text-base sm:text-[17.5px] text-white leading-snug tracking-tight">
             {post.title}
           </h3>
-          <span className="text-[10px] font-bold text-cyan-300 bg-cyan-500/15 px-2.5 py-0.5 rounded-full border border-cyan-500/25 flex-shrink-0">
+          <span className="text-[10.5px] font-bold text-[#c4b5fd] bg-violet-500/15 px-2.5 py-0.5 rounded-full border border-violet-400/25 flex-shrink-0">
             #{post.genre || 'Worship'}
           </span>
         </div>
         {post.content && (
-          <p className="text-xs sm:text-sm text-zinc-300 whitespace-pre-line leading-relaxed font-normal">
+          <p className="text-xs sm:text-sm text-[#cbd5e1] whitespace-pre-line leading-relaxed font-normal">
             {post.content}
           </p>
         )}
       </div>
 
       {/* 3. Contenedor Multimedia Principal */}
-      <div className="relative rounded-2xl overflow-hidden bg-dark-950/90 border border-white/10 mb-3.5 shadow-inner">
+      <div className="relative rounded-[16px] overflow-hidden bg-[#070b16]/90 border border-white/[0.08] mb-3.5 shadow-inner">
         {post.type === 'audio' ? (
           /* Mix de Audio con Portada, Reproductor y Ecualizador */
           <div className="relative aspect-video sm:aspect-[21/9] max-h-72 w-full overflow-hidden flex items-center justify-center group">
@@ -489,8 +503,8 @@ export function PostCard({
               })}
               className={`relative z-10 w-14 sm:w-16 h-14 sm:h-16 rounded-full flex items-center justify-center text-white shadow-2xl transition-all duration-300 active:scale-95 ${
                 isThisAudioPlaying
-                  ? 'bg-gradient-to-r from-blue-600 to-cyan-500 shadow-glow-cyan scale-110'
-                  : 'bg-white/20 hover:bg-white text-white hover:text-dark-950 hover:scale-110 backdrop-blur-md border border-white/30'
+                  ? 'bg-gradient-to-br from-[#8b5cf6] to-[#22d3ee] shadow-glow-violet scale-110 border border-white/30'
+                  : 'bg-[#8b5cf6]/85 hover:bg-gradient-to-br hover:from-[#8b5cf6] hover:to-[#3b82f6] text-white hover:scale-110 backdrop-blur-md border border-white/25 shadow-glow-violet'
               }`}
               aria-label={isThisAudioPlaying ? "Pausar" : "Reproducir"}
             >
@@ -503,11 +517,11 @@ export function PostCard({
 
             {/* Ecualizador animado cuando se reproduce */}
             {isThisAudioPlaying && (
-              <div className="absolute bottom-3 right-4 flex items-end gap-1 h-5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
-                <span className="w-1 bg-cyan-400 rounded-full animate-equalizer-1" />
-                <span className="w-1 bg-cyan-400 rounded-full animate-equalizer-2" />
-                <span className="w-1 bg-cyan-400 rounded-full animate-equalizer-3" />
-                <span className="w-1 bg-cyan-400 rounded-full animate-equalizer-4" />
+              <div className="absolute bottom-3 right-4 flex items-end gap-1 h-5 px-2.5 py-1 rounded-full bg-[#070b16]/75 backdrop-blur-md border border-violet-400/25">
+                <span className="w-1 bg-gradient-to-t from-[#22d3ee] to-[#8b5cf6] rounded-full animate-equalizer-1" />
+                <span className="w-1 bg-gradient-to-t from-[#22d3ee] to-[#8b5cf6] rounded-full animate-equalizer-2" />
+                <span className="w-1 bg-gradient-to-t from-[#22d3ee] to-[#8b5cf6] rounded-full animate-equalizer-3" />
+                <span className="w-1 bg-gradient-to-t from-[#22d3ee] to-[#8b5cf6] rounded-full animate-equalizer-4" />
               </div>
             )}
 
@@ -567,52 +581,67 @@ export function PostCard({
       </div>
 
       {/* 4. Barra de Acciones Sociales (Reacciones + Interacciones) */}
-      <div className="flex items-center justify-between border-t border-white/[0.08] pt-3 gap-1 sm:gap-2">
+      <div className="flex items-center justify-between border-t border-white/[0.06] pt-3 gap-1 sm:gap-2">
         
         {/* Reacciones Ministeriales */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
           {/* Amén */}
           <button
             onClick={() => handleReaction('amen')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${
+            className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${
               myAmen 
-                ? 'bg-amber-500/25 text-amber-300 border border-amber-500/50 shadow-sm shadow-amber-500/20' 
-                : 'bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 border border-white/[0.06]'
+                ? 'bg-amber-400/20 text-[#fde68a] border border-amber-400/45 shadow-[0_0_16px_rgba(251,191,36,0.2)]' 
+                : 'bg-white/[0.04] hover:bg-white/[0.09] text-[#cbd5e1] border border-white/[0.08]'
             }`}
           >
-            <span>🕊️ Amén</span>
-            <span className="font-mono text-[11px] opacity-80">{amenCount}</span>
+            {floatingEmojis.filter(f => f.type === 'amen').map(f => (
+              <span key={f.id} className="pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 text-lg animate-float-emoji z-20">
+                {f.emoji}
+              </span>
+            ))}
+            <span>🙏 Amén</span>
+            <span className="font-mono text-[11px] opacity-85">{amenCount}</span>
           </button>
 
           {/* Bendición */}
           <button
             onClick={() => handleReaction('bendicion')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${
+            className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${
               myBendicion 
-                ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50 shadow-sm shadow-cyan-500/20' 
-                : 'bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 border border-white/[0.06]'
+                ? 'bg-emerald-400/20 text-[#6ee7b7] border border-emerald-400/45 shadow-[0_0_16px_rgba(52,211,153,0.2)]' 
+                : 'bg-white/[0.04] hover:bg-white/[0.09] text-[#cbd5e1] border border-white/[0.08]'
             }`}
           >
-            <span>🙌 Bendición</span>
-            <span className="font-mono text-[11px] opacity-80">{bendicionCount}</span>
+            {floatingEmojis.filter(f => f.type === 'bendicion').map(f => (
+              <span key={f.id} className="pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 text-lg animate-float-emoji z-20">
+                {f.emoji}
+              </span>
+            ))}
+            <span>✨ Bendición</span>
+            <span className="font-mono text-[11px] opacity-85">{bendicionCount}</span>
           </button>
 
           {/* Me Gusta */}
           <button
             onClick={() => handleReaction('like')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${
+            className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${
               myLike 
-                ? 'bg-rose-500/25 text-rose-300 border border-rose-500/50' 
-                : 'bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 border border-white/[0.06]'
+                ? 'bg-rose-400/20 text-[#fda4af] border border-rose-400/45 shadow-[0_0_16px_rgba(251,113,133,0.2)]' 
+                : 'bg-white/[0.04] hover:bg-white/[0.09] text-[#cbd5e1] border border-white/[0.08]'
             }`}
           >
-            <Heart className={`w-3.5 h-3.5 ${myLike ? 'fill-rose-400 text-rose-400' : ''}`} />
-            <span className="font-mono text-[11px] opacity-80">{likeCount}</span>
+            {floatingEmojis.filter(f => f.type === 'like').map(f => (
+              <span key={f.id} className="pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 text-lg animate-float-emoji z-20">
+                {f.emoji}
+              </span>
+            ))}
+            <Heart className={`w-3.5 h-3.5 ${myLike ? 'fill-[#fb7185] text-[#fb7185]' : ''}`} />
+            <span className="font-mono text-[11px] opacity-85">{likeCount}</span>
           </button>
         </div>
 
         {/* Acciones Secundarias (Comentarios, Descargar, Compartir, Guardar) */}
-        <div className="flex items-center gap-1 text-zinc-400">
+        <div className="flex items-center gap-1 text-[#94a3b8]">
           <button
             onClick={() => setShowComments(!showComments)}
             className="p-2 rounded-full hover:bg-white/10 hover:text-white transition-colors flex items-center gap-1.5 text-xs active:scale-95"
@@ -676,7 +705,7 @@ export function PostCard({
               <button
                 type="submit"
                 disabled={!commentText.trim() || commenting}
-                className="p-2 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-95 text-white disabled:opacity-40 transition-opacity active:scale-95 shadow-md shadow-cyan-950"
+                className="p-2 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#3b82f6] hover:from-[#a78bfa] hover:to-[#22d3ee] text-white disabled:opacity-40 transition-all active:scale-95 shadow-glow-violet"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>

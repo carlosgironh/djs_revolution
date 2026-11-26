@@ -31,7 +31,7 @@ export function PersistentPlayer() {
 
   return (
     <div className="fixed bottom-[74px] md:bottom-5 left-3 right-3 sm:left-6 sm:right-6 md:left-1/2 md:-translate-x-1/2 md:max-w-3xl z-40 animate-in slide-in-from-bottom-5 duration-300 select-none">
-      <div className="glass-panel rounded-3xl p-2.5 sm:p-3 border-cyan-500/30 bg-dark-950/90 backdrop-blur-2xl shadow-[0_12px_45px_rgba(0,100,193,0.35)] flex items-center gap-3">
+      <div className="glass-panel rounded-[20px] p-2.5 sm:p-3 border-violet-500/35 bg-[#0b0e1a]/90 backdrop-blur-2xl shadow-[0_18px_45px_rgba(0,0,0,0.65)] flex items-center gap-3">
         
         {/* Cover + Info + Spinning Vinyl */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1 sm:flex-initial sm:w-56">
@@ -43,22 +43,22 @@ export function PersistentPlayer() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-blue-950/60 text-cyan-300">
+              <div className="w-full h-full flex items-center justify-center bg-violet-950/60 text-[#c4b5fd]">
                 <Disc className="w-6 h-6 animate-spin-slow" />
               </div>
             )}
             {isPlaying && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#22d3ee] animate-ping" />
               </div>
             )}
           </div>
 
           <div className="min-w-0 flex-1">
-            <h5 className="text-xs font-bold text-white truncate">
+            <h5 className="text-xs font-bold text-[#f2f4fc] truncate">
               {currentTrack.title}
             </h5>
-            <p className="text-[10px] text-cyan-300/80 truncate font-medium">
+            <p className="text-[10px] text-[#c4b5fd] truncate font-medium">
               {currentTrack.artist}
             </p>
           </div>
@@ -69,7 +69,7 @@ export function PersistentPlayer() {
           <div className="flex items-center gap-2">
             <button
               onClick={togglePlay}
-              className="w-9 h-9 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white flex items-center justify-center shadow-md shadow-cyan-950 active:scale-90 transition-transform"
+              className="w-9 h-9 rounded-full bg-gradient-to-br from-[#8b5cf6] to-[#3b82f6] text-white flex items-center justify-center shadow-glow-violet active:scale-90 transition-transform"
               aria-label={isPlaying ? "Pausar" : "Reproducir"}
             >
               {isPlaying ? (
@@ -81,7 +81,7 @@ export function PersistentPlayer() {
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full flex items-center gap-2 text-[10px] text-zinc-400 font-mono">
+          <div className="w-full flex items-center gap-2 text-[10px] text-[#8f96b3] tabular-nums font-mono">
             <span className="min-w-[30px] text-right">{formatSecondsToTime(currentTime)}</span>
             <div
               onClick={handleSeek}
@@ -89,7 +89,7 @@ export function PersistentPlayer() {
             >
               <div
                 style={{ width: `${progressPercent}%` }}
-                className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all"
+                className="h-full bg-gradient-to-r from-[#8b5cf6] via-[#3b82f6] to-[#22d3ee] rounded-full transition-all"
               />
             </div>
             <span className="min-w-[30px]">{formatSecondsToTime(duration)}</span>

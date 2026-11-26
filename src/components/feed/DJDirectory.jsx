@@ -30,36 +30,36 @@ export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
     <div className="space-y-5 animate-in fade-in duration-300">
       
       {/* 1. Hero Editorial del Directorio */}
-      <div className="glass-panel rounded-3xl p-5 sm:p-7 border-cyan-500/20 bg-gradient-to-r from-blue-900/30 via-dark-900/80 to-cyan-950/30 shadow-xl">
+      <div className="glass-panel rounded-[20px] p-5 sm:p-7 border-violet-500/25 bg-gradient-to-r from-violet-950/35 via-white/[0.04] to-blue-950/30 shadow-xl">
         <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 text-center sm:text-left mb-4">
           <div>
             <div className="flex items-center justify-center sm:justify-start gap-2 mb-1.5">
-              <span className="p-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                <Users className="w-5 h-5 text-cyan-400" />
+              <span className="p-1.5 rounded-xl bg-violet-500/20 text-[#c4b5fd] border border-violet-400/30">
+                <Users className="w-5 h-5 text-[#c4b5fd]" />
               </span>
-              <h2 className="text-lg sm:text-xl font-black text-white">
+              <h2 className="text-lg sm:text-xl font-black text-[#f2f4fc]">
                 Directorio Oficial de DJs & VJs
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-zinc-300 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#8f96b3] max-w-xl leading-relaxed">
               Descubre, conecta y apoya el ministerio de los creadores y mezcladores de adoración cristiana.
             </p>
           </div>
 
-          <span className="text-xs font-bold text-cyan-300 bg-cyan-950/60 px-3.5 py-1.5 rounded-full border border-cyan-500/30 flex-shrink-0 shadow-sm">
+          <span className="text-xs font-bold text-[#22d3ee] bg-cyan-400/10 px-3.5 py-1.5 rounded-full border border-cyan-400/30 flex-shrink-0 shadow-sm">
             {djs.length} Ministros Registrados
           </span>
         </div>
 
         {/* Buscador dentro del Directorio */}
         <div className="relative max-w-md">
-          <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#8f96b3] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
             placeholder="Buscar por nombre, especialidad o ministerio..."
-            className="w-full bg-dark-950/80 border border-white/10 rounded-full pl-10 pr-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500/60 transition-colors"
+            className="w-full bg-black/30 border border-white/[0.09] rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#f2f4fc] placeholder-[#5b6180] focus:outline-none focus:border-violet-500/60 transition-colors"
           />
         </div>
       </div>
@@ -159,9 +159,9 @@ export function DJDirectory({ djs = [], loading = false, onViewProfile }) {
                 {/* Botón Principal: Ver Perfil & Mixes */}
                 <button
                   onClick={() => onViewProfile(dj.id)}
-                  className="w-full mt-2 py-2 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600/30 to-cyan-500/30 hover:from-blue-600 hover:to-cyan-500 border border-cyan-500/40 transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95"
+                  className="w-full mt-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-br from-violet-500/30 to-blue-500/30 hover:from-[#8b5cf6] hover:to-[#3b82f6] border border-violet-400/40 transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95"
                 >
-                  <Music className="w-3.5 h-3.5 text-cyan-300" />
+                  <Music className="w-3.5 h-3.5 text-[#c4b5fd]" />
                   <span>Ver Perfil & Mixes</span>
                 </button>
               </div>

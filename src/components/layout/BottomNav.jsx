@@ -32,7 +32,7 @@ export function BottomNav({ activeTab, onTabChange, onOpenUpload, onOpenAuth, on
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all ${
-          activeTab === 'inicio' ? 'text-cyan-400 font-bold scale-105' : 'text-zinc-400 font-medium hover:text-zinc-200'
+          activeTab === 'inicio' ? 'text-[#c4b5fd] font-bold scale-105' : 'text-[#8f96b3] font-medium hover:text-[#f2f4fc]'
         }`}
       >
         <Home className={`w-5 h-5 ${activeTab === 'inicio' ? 'stroke-[2.5px]' : 'stroke-2'}`} />
@@ -43,7 +43,7 @@ export function BottomNav({ activeTab, onTabChange, onOpenUpload, onOpenAuth, on
       <button
         onClick={() => onTabChange('audios')}
         className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all ${
-          activeTab === 'audios' ? 'text-cyan-400 font-bold scale-105' : 'text-zinc-400 font-medium hover:text-zinc-200'
+          activeTab === 'audios' ? 'text-[#c4b5fd] font-bold scale-105' : 'text-[#8f96b3] font-medium hover:text-[#f2f4fc]'
         }`}
       >
         <Music className={`w-5 h-5 ${activeTab === 'audios' ? 'stroke-[2.5px]' : 'stroke-2'}`} />
@@ -54,9 +54,9 @@ export function BottomNav({ activeTab, onTabChange, onOpenUpload, onOpenAuth, on
       <div className="flex-1 flex items-center justify-center">
         <button
           onClick={handleCenterButtonClick}
-          className={`w-12 h-12 rounded-full text-white flex items-center justify-center shadow-lg -translate-y-3.5 ring-4 ring-dark-950 active:scale-90 transition-transform ${
+          className={`w-12 h-12 rounded-full text-white flex items-center justify-center shadow-lg -translate-y-3.5 ring-4 ring-[#070b16] active:scale-90 transition-transform ${
             canUpload
-              ? 'bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 shadow-cyan-600/50'
+              ? 'bg-gradient-to-br from-[#8b5cf6] to-[#3b82f6] shadow-glow-violet'
               : 'bg-zinc-800 text-zinc-400 shadow-black/60 border border-white/10'
           }`}
           title={canUpload ? "Subir nuevo mix o video" : "Cuenta de Usuario Oyente"}
@@ -70,7 +70,7 @@ export function BottomNav({ activeTab, onTabChange, onOpenUpload, onOpenAuth, on
       <button
         onClick={() => onTabChange('videos')}
         className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all ${
-          activeTab === 'videos' ? 'text-cyan-400 font-bold scale-105' : 'text-zinc-400 font-medium hover:text-zinc-200'
+          activeTab === 'videos' ? 'text-[#c4b5fd] font-bold scale-105' : 'text-[#8f96b3] font-medium hover:text-[#f2f4fc]'
         }`}
       >
         <Video className={`w-5 h-5 ${activeTab === 'videos' ? 'stroke-[2.5px]' : 'stroke-2'}`} />
@@ -81,7 +81,7 @@ export function BottomNav({ activeTab, onTabChange, onOpenUpload, onOpenAuth, on
       <button
         onClick={onToggleDrawer}
         className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all ${
-          activeTab === 'perfil' ? 'text-cyan-400 font-bold' : 'text-zinc-400 font-medium hover:text-zinc-200'
+          activeTab === 'perfil' ? 'text-[#c4b5fd] font-bold' : 'text-[#8f96b3] font-medium hover:text-[#f2f4fc]'
         }`}
       >
         {currentUser ? (

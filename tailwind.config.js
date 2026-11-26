@@ -9,27 +9,31 @@ export default {
     extend: {
       colors: {
         dark: {
-          950: '#070b14', // Ultra Deep Midnight Studio
-          900: '#0b1120', // Studio Midnight Navy
-          850: '#0f172a', // Deep Slate Surface
-          800: '#14203a', // Elevated Card & Modal Navy
-          750: '#1b2a4d', // Interactive Card Navy
-          700: '#233560', // Border & Hover Navy
-          600: '#2f4577', // Secondary controls
+          950: '#070b16', // Deep Cosmic Studio Canvas
+          900: '#0d1222', // Elevated Dark Surface
+          850: '#12182d', // Panel Slate
+          800: '#171f38', // Interactive Card Surface
+          750: '#1e2744', // Hover Card Surface
+          700: '#273356', // Border & Divider
+          600: '#36456e', // Secondary controls
         },
         brand: {
-          cyan: '#00bafd',      // Ondas de audio y resplandor cian del logo
-          cyanLight: '#38bdf8', // Brillo cian suave
-          blue: '#0064c1',      // Azul eléctrico del contorno de REVOLUTION
-          blueHover: '#1d4ed8', // Azul profundo hover
-          navy: '#002751',      // Fondo interior del logo
-          gold: '#f59e0b',      // Dorado oficial de "DJ's"
-          goldLight: '#fbbf24', // Destello dorado
-          rose: '#f43f5e',
+          violet: '#8b5cf6',      // Acento principal Violeta Estudio
+          violetLight: '#c4b5fd', // Brillo lila suave
+          cyan: '#22d3ee',        // Acento secundario Cian
+          cyanLight: '#67e8f9',   // Cian suave
+          blue: '#3b82f6',        // Azul eléctrico
+          blueHover: '#2563eb',   // Azul hover
+          navy: '#0b1024',        // Fondo marino profundo
+          gold: '#fbbf24',        // Dorado oficial de "DJ's"
+          goldLight: '#fde68a',   // Destello dorado
+          emerald: '#34d399',     // Live & GMT-5
+          rose: '#fb7185',        // VJ Video & Corazón
         }
       },
       fontFamily: {
-        outfit: ['Outfit', 'sans-serif'],
+        sans: ['Inter', 'Outfit', 'system-ui', 'sans-serif'],
+        outfit: ['Outfit', 'Inter', 'sans-serif'],
       },
       animation: {
         'spin-slow': 'spin 12s linear infinite',
@@ -37,11 +41,11 @@ export default {
         'bounce-subtle': 'bounce 2s infinite',
       },
       boxShadow: {
-        'glow-cyan': '0 0 25px rgba(0, 186, 253, 0.35)',
-        'glow-blue': '0 0 25px rgba(0, 100, 193, 0.40)',
-        'glow-gold': '0 0 25px rgba(245, 158, 11, 0.35)',
-        'glow-violet': '0 0 25px rgba(0, 186, 253, 0.35)', // Fallback alias
-        'card-hover': '0 16px 36px -8px rgba(0, 100, 193, 0.25)',
+        'glow-violet': '0 8px 28px rgba(139, 92, 246, 0.42)',
+        'glow-cyan': '0 8px 24px rgba(34, 211, 238, 0.30)',
+        'glow-blue': '0 8px 24px rgba(59, 130, 246, 0.35)',
+        'glow-gold': '0 8px 24px rgba(251, 191, 36, 0.32)',
+        'card-hover': '0 22px 44px -16px rgba(0, 0, 0, 0.72)',
       }
     },
   },

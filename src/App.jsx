@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
 import { supabase } from './lib/supabase';
 import { useAuth } from './context/AuthContext';
+import { useToast } from './context/ToastContext';
 import { Navbar } from './components/layout/Navbar';
 import { BottomNav } from './components/layout/BottomNav';
 import { SidebarLeft } from './components/layout/SidebarLeft';
@@ -33,6 +34,7 @@ const TAB_TYPE_MAP = {
 
 export function App() {
   const { currentUser, currentProfile } = useAuth();
+  const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState('inicio');
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,6 +56,7 @@ export function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState('login');
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [uploadDraft, setUploadDraft] = useState({ type: 'audio', description: '' });
   const [donateModalOpen, setDonateModalOpen] = useState(false);
   const [editProfileModalOpen, setEditProfileModalOpen] = useState(false);
   const [selectedDJProfile, setSelectedDJProfile] = useState(null);
@@ -110,15 +113,30 @@ export function App() {
     fetchDJs();
   }, [fetchPosts, fetchDJs]);
 
-  const handleToggleSave = useCallback((postId) => {
-    setSavedPostIds((prev) => {
-      const exists = prev.includes(postId);
-      const next = exists ? prev.filter(id => id !== postId) : [...prev, postId];
-      localStorage.setItem('djs_revolution_saved', JSON.stringify(next));
-      alert(exists ? "Eliminado de guardados." : "¡Guardado en tus favoritos! 🕊️");
-      return next;
+  const openUploadModal = useCallback((type = 'audio', draftText = '') => {
+    if (!currentUser) {
+      setAuthModalTab('login');
+      setAuthModalOpen(true);
+      return;
+    }
+    setUploadDraft({
+      type: type || 'audio',
+      description: draftText || '',
     });
-  }, []);
+    setUploadModalOpen(true);
+  }, [currentUser]);
+
+  const handleToggleSave = useCallback((postId) => {
+    const exists = savedPostIds.includes(postId);
+    const next = exists ? savedPostIds.filter(id => id !== postId) : [...savedPostIds, postId];
+    setSavedPostIds(next);
+    localStorage.setItem('djs_revolution_saved', JSON.stringify(next));
+    if (exists) {
+      showToast('Eliminado de favoritos', 'Ya no aparecerá en tu colección guardada');
+    } else {
+      showToast('¡Guardado en favoritos! 🔖', 'Accede rápido desde tu perfil lateral');
+    }
+  }, [savedPostIds, showToast]);
 
   const handleViewProfile = useCallback(async (profileId) => {
     if (!profileId) return;
@@ -183,14 +201,21 @@ export function App() {
   }, [posts, currentUser]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-dark-950 text-zinc-100 selection:bg-cyan-500/30 selection:text-cyan-200">
-      
+    <div className="min-h-screen flex flex-col relative bg-dark-950 text-[#f2f4fc] selection:bg-violet-500/45 selection:text-white overflow-x-clip">
+      {/* Fondo Ambiental Studio Aurora + Grid */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        <div className="aurora-orb aurora-1" />
+        <div className="aurora-orb aurora-2" />
+        <div className="aurora-orb aurora-3" />
+        <div className="studio-grid-bg" />
+      </div>
+
       {/* 1. Barra de Navegación Superior */}
       <Navbar
         activeTab={activeTab}
         onTabChange={handleTabChange}
         onOpenAuth={(t) => { setAuthModalTab(t); setAuthModalOpen(true); }}
-        onOpenUpload={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
+        onOpenUpload={() => openUploadModal('audio')}
         onOpenDonate={() => setDonateModalOpen(true)}
         onOpenAdmin={() => setAdminUsersModalOpen(true)}
         onToggleDrawer={() => setMobileDrawerOpen(true)}
@@ -199,7 +224,7 @@ export function App() {
       />
 
       {/* 2. Contenedor Principal con Disposición Fluida */}
-      <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 py-4 flex gap-6 flex-1 pb-24 md:pb-12">
+      <div className="max-w-[1520px] mx-auto w-full px-3 sm:px-6 lg:px-7 pt-5 sm:pt-6 flex gap-[22px] flex-1 pb-10 relative z-10">
         
         {/* Sidebar Izquierda (Desktop) */}
         <SidebarLeft
@@ -211,6 +236,7 @@ export function App() {
           onOpenAdmin={() => setAdminUsersModalOpen(true)}
           mixesCount={myMixesCount}
           amenCount={myAmenTotal}
+          savedCount={savedPostIds.length}
         />
 
         {/* Feed Central */}
@@ -219,7 +245,7 @@ export function App() {
           {/* Carrusel de Descubrimiento e Historias (Estilo Red Social Moderna) */}
           <FeaturedStories
             posts={posts}
-            onOpenUpload={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
+            onOpenUpload={() => openUploadModal('audio')}
             onViewProfile={handleViewProfile}
             onOpenVideo={(p) => { setSelectedVideoPost(p); setVideoLightboxOpen(true); }}
           />
@@ -232,7 +258,7 @@ export function App() {
 
           {/* Cuadro de Publicar */}
           <CreatePostTrigger
-            onOpenUpload={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
+            onOpenUpload={(type, draftText) => openUploadModal(type, draftText)}
             onOpenAuth={(t) => { setAuthModalTab(t); setAuthModalOpen(true); }}
           />
 
@@ -271,8 +297,8 @@ export function App() {
                       : 'Sé el primero en subir un mix de adoración o set de video a la comunidad.'}
                   </p>
                   <button
-                    onClick={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
-                    className="py-2.5 px-6 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-95 shadow-glow-cyan transition-all active:scale-95"
+                    onClick={() => openUploadModal('audio')}
+                    className="btn-cta-shine py-2.5 px-6 rounded-full text-xs font-bold text-white bg-gradient-to-r from-[#8b5cf6] to-[#3b82f6] hover:from-[#a78bfa] hover:to-[#22d3ee] shadow-glow-violet transition-all active:scale-95"
                   >
                     {currentUser ? 'Publicar el Primer Mix 🎧' : 'Crear Cuenta de DJ Gratis'}
                   </button>
@@ -309,11 +335,25 @@ export function App() {
 
       </div>
 
+      {/* Pie de página ministerial */}
+      <footer className="relative z-10 border-t border-white/[0.06] bg-white/[0.015] backdrop-blur-md py-6 px-4 text-center text-xs text-[#64748b] pb-24 md:pb-7">
+        <p className="max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+          <span>Hecho con 🙌 y mucho 🎧</span>
+          <span className="text-white/20">·</span>
+          <strong className="text-[#c4b5fd] font-bold">DJ&apos;s Revolution © 2026</strong>
+          <span className="text-white/20">·</span>
+          <span>Comunidad de DJs &amp; VJs Cristianos</span>
+          <span className="text-white/20">·</span>
+          <span className="text-[#94a3b8]">Panamá 🇵🇦</span>
+        </p>
+      </footer>
+
       {/* 3. Barra de Navegación Inferior (Móvil Fija) */}
       <BottomNav
         activeTab={activeTab}
         onTabChange={handleTabChange}
-        onOpenUpload={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
+        onOpenUpload={() => openUploadModal('audio')}
+        onOpenAuth={(t) => { setAuthModalTab(t); setAuthModalOpen(true); }}
         onToggleDrawer={() => setMobileDrawerOpen(true)}
       />
 
@@ -330,7 +370,7 @@ export function App() {
             onTabChange={handleTabChange}
             onOpenAuth={(t) => { setAuthModalTab(t); setAuthModalOpen(true); }}
             onOpenEditProfile={() => setEditProfileModalOpen(true)}
-            onOpenUpload={() => currentUser ? setUploadModalOpen(true) : setAuthModalOpen(true)}
+            onOpenUpload={() => openUploadModal('audio')}
             onOpenDonate={() => setDonateModalOpen(true)}
             onOpenAdmin={() => setAdminUsersModalOpen(true)}
           />
@@ -350,6 +390,8 @@ export function App() {
             onClose={() => setUploadModalOpen(false)}
             onUploadSuccess={fetchPosts}
             djs={djs}
+            initialFileType={uploadDraft.type}
+            initialDescription={uploadDraft.description}
           />
         )}
 
